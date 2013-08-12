@@ -83,32 +83,25 @@ namespace laf {
       Value filter_release_;
   };
 
-  class TermiteAmp : public ProcessorRouter, public TermiteSection {
+  class TermiteVoiceHandler : public VoiceHandler, public TermiteSection {
     public:
-      TermiteAmp();
-
-      const Envelope* envelope() const { return &amplitude_envelope_; }
+      TermiteVoiceHandler();
 
     private:
+      Value note_;
+      Add offset_note_;
+      Value center_adjust_;
+      Add note_from_center_;
+      TermiteOscillators oscillators_;
+      TermiteFilter filter_;
+
+      ControlGroup amplifier_group_;
       Multiply amplitude_;
       Envelope amplitude_envelope_;
       Value amplitude_attack_;
       Value amplitude_decay_;
       Value amplitude_sustain_;
       Value amplitude_release_;
-  };
-
-  class TermiteVoiceHandler : public VoiceHandler, public TermiteSection {
-    public:
-      TermiteVoiceHandler();
-
-    private:
-      Add offset_note_;
-      Value center_adjust_;
-      Add note_from_center_;
-      TermiteOscillators oscillators_;
-      TermiteFilter filter_;
-      TermiteAmp amplifier_;
   };
 
   class TermiteSynth : public ProcessorRouter, public TermiteSection {

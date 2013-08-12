@@ -20,7 +20,9 @@ namespace laf {
 
   TermiteOscillators::TermiteOscillators() {
     registerInput(midi_input_.input());
-    portamento_.set(0.0001);
+    registerInput(oscillator_1_.input(Oscillator::kReset));
+    registerInput(oscillator_2_.input(Oscillator::kReset));
+    portamento_.set(0.001);
     midi_input_.plug(&portamento_, SmoothFilter::kDecay);
 
     oscillator_1_wave_type_.set(Wave::kDownSaw);
@@ -49,7 +51,7 @@ namespace laf {
 
     registerOutput(oscillator_mix_.output());
     section_.controls["portamento"] =
-        new Control(&portamento_, 0.0, 0.001, 128);
+        new Control(&portamento_, 0.0, 0.01, 128);
     section_.controls["oscillator 1 waveform"] =
         new Control(&oscillator_1_wave_type_, 0,
                     Wave::kNumWaveforms - 1, Wave::kNumWaveforms - 1);
@@ -63,6 +65,8 @@ namespace laf {
   TermiteFilter::TermiteFilter() {
     registerInput(filter_.input(Filter::kAudio));
     registerInput(keytrack_.input(0));
+    registerInput(filter_envelope_.input(Envelope::kTrigger));
+    registerInput(filter_.input(Filter::kReset));
     keytrack_.plug(&keytrack_amount_, 1);
 
     filter_attack_.set(0.2);
@@ -111,58 +115,59 @@ namespace laf {
         new Control(&filter_release_, 0, 3, 128);
   }
 
-  TermiteAmp::TermiteAmp() {
-    registerInput(amplitude_.input(0));
+  TermiteVoiceHandler::TermiteVoiceHandler() {
+    setPolyphony(2);
+    registerInput(offset_note_.input(0));
+    note_.plug(note());
+    offset_note_.plug(&note_, 1);
 
     amplitude_attack_.set(0.01);
     amplitude_decay_.set(0.6);
     amplitude_sustain_.set(0);
     amplitude_release_.set(0.3);
 
+    amplitude_envelope_.plug(voice_event(), Envelope::kTrigger);
     amplitude_envelope_.plug(&amplitude_attack_, Envelope::kAttack);
     amplitude_envelope_.plug(&amplitude_decay_, Envelope::kDecay);
     amplitude_envelope_.plug(&amplitude_sustain_, Envelope::kSustain);
     amplitude_envelope_.plug(&amplitude_release_, Envelope::kRelease);
+
+    oscillators_.plug(&offset_note_);
+    oscillators_.plug(amplitude_envelope_.output(Envelope::kFinished), 1);
+    oscillators_.plug(amplitude_envelope_.output(Envelope::kFinished), 2);
+    filter_.plug(&oscillators_);
+    center_adjust_.set(-64);
+    note_from_center_.plug(&center_adjust_, 0);
+    note_from_center_.plug(&note_, 1);
+    filter_.plug(&note_from_center_, 1);
+    filter_.plug(amplitude_envelope_.output(Envelope::kFinished), 2);
+    filter_.plug(amplitude_envelope_.output(Envelope::kFinished), 3);
+
+    amplitude_.plug(&filter_, 0);
     amplitude_.plug(&amplitude_envelope_, 1);
 
     addProcessor(&amplitude_);
     addProcessor(&amplitude_envelope_);
-
-    registerOutput(amplitude_.output());
-    section_.controls["amp attack"] =
-        new Control(&amplitude_attack_, 0, 3, 128);
-    section_.controls["amp decay"] = new Control(&amplitude_decay_, 0, 3, 128);
-    section_.controls["amp sustain"] =
-        new Control(&amplitude_sustain_, 0, 1, 128);
-    section_.controls["amp release"] =
-        new Control(&amplitude_release_, 0, 3, 128);
-  }
-
-  TermiteVoiceHandler::TermiteVoiceHandler() {
-    setPolyphony(20);
-    registerInput(offset_note_.input(0));
-    offset_note_.plug(note(), 1);
-
-    oscillators_.plug(&offset_note_);
-    filter_.plug(&oscillators_);
-    center_adjust_.set(-64);
-    note_from_center_.plug(&center_adjust_, 0);
-    note_from_center_.plug(note(), 1);
-    filter_.plug(&note_from_center_, 1);
-    amplifier_.plug(&filter_);
-
+    addProcessor(&note_);
     addProcessor(&note_from_center_);
     addProcessor(&offset_note_);
     addProcessor(&oscillators_);
     addProcessor(&filter_);
-    addProcessor(&amplifier_);
 
-    setVoiceOutput(&amplifier_);
-    setVoiceKiller(amplifier_.envelope());
+    setVoiceOutput(&amplitude_);
+    setVoiceKiller(&amplitude_envelope_);
 
     section_.sub_groups["oscillators"] = oscillators_.getControls();
     section_.sub_groups["filter"] = filter_.getControls();
-    section_.sub_groups["amplifier"] = amplifier_.getControls();
+    section_.sub_groups["amplifier"] = &amplifier_group_;
+    amplifier_group_.controls["amp attack"] =
+        new Control(&amplitude_attack_, 0, 3, 128);
+    amplifier_group_.controls["amp decay"] =
+        new Control(&amplitude_decay_, 0, 3, 128);
+    amplifier_group_.controls["amp sustain"] =
+        new Control(&amplitude_sustain_, 0, 1, 128);
+    amplifier_group_.controls["amp release"] =
+        new Control(&amplitude_release_, 0, 3, 128);
   }
 
   TermiteSynth::TermiteSynth() : ProcessorRouter(0, 1) {
