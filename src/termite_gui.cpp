@@ -175,7 +175,7 @@ namespace laf {
     for (int i = 0; iter != performance->controls.end(); ++iter, ++i) {
       Slider* slider = new Slider();
       slider->x = SPACE;
-      slider->y = SECTION_Y + 20 + SPACE * i;
+      slider->y = SECTION_Y + 18 + SPACE * i;
       slider->width = section_width;
       slider->label = iter->first;
 

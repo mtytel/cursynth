@@ -52,7 +52,8 @@ namespace {
 } // namespace
 
 namespace laf {
-  Termite::Termite() : active_group_(0),  midi_learn_armed_(false) {
+  Termite::Termite() :
+      active_group_(0),  midi_learn_armed_(false), pitch_bend_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
 
@@ -169,6 +170,7 @@ namespace laf {
     ControlGroup* voice_handler = controls->sub_groups["voice handler"];
 
     ControlGroup* oscillators = voice_handler->sub_groups["oscillators"];
+    pitch_bend_ = oscillators->controls["pitch bend amount"];
     gui_.addOscillatorControls(oscillators);
 
     ControlGroup* filter = voice_handler->sub_groups["filter"];
@@ -241,7 +243,8 @@ namespace laf {
       synth_.noteOff(midi_note);
     }
     else if (midi_port == PITCH_BEND_PORT) {
-      synth_.pitchBend((2.0 * midi_val) / (MIDI_SIZE - 1) - 1);
+      pitch_bend_->value->set((2.0 * midi_val) / (MIDI_SIZE - 1) - 1);
+      gui_.drawControl(pitch_bend_, selected_control == pitch_bend_);
     }
     else if (midi_port == SUSTAIN_PORT && midi_id == SUSTAIN_ID) {
       if (midi_val)

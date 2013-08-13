@@ -61,6 +61,8 @@ namespace laf {
 
       bool midi_learn_armed_;
       std::map<int, Control*> midi_learn_;
+
+      Control* pitch_bend_;
   };
 } // namespace laf
 

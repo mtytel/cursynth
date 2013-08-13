@@ -23,17 +23,26 @@ namespace laf {
     registerInput(oscillator_1_.input(Oscillator::kReset));
     registerInput(oscillator_2_.input(Oscillator::kReset));
     portamento_.set(0.001);
+
+    pitch_bend_range_.set(2);
+    pitch_bend_amount_.set(0);
+    pitch_bend_.plug(&pitch_bend_amount_, 0);
+    pitch_bend_.plug(&pitch_bend_range_, 1);
+
     midi_input_.plug(&portamento_, SmoothFilter::kDecay);
+
+    final_midi_.plug(&midi_input_, 0);
+    final_midi_.plug(&pitch_bend_, 1);
 
     oscillator_1_wave_type_.set(Wave::kDownSaw);
     oscillator_1_.plug(&oscillator_1_wave_type_, Oscillator::kWaveType);
-    oscillator_1_freq_.plug(&midi_input_);
+    oscillator_1_freq_.plug(&final_midi_);
     oscillator_1_.plug(&oscillator_1_freq_, Oscillator::kFrequency);
 
     oscillator_2_wave_type_.set(Wave::kDownSaw);
     oscillator_2_.plug(&oscillator_2_wave_type_, Oscillator::kWaveType);
     oscillator_2_transpose_.set(0);
-    oscillator_2_midi_.plug(&midi_input_, 0);
+    oscillator_2_midi_.plug(&final_midi_, 0);
     oscillator_2_midi_.plug(&oscillator_2_transpose_, 1);
     oscillator_2_freq_.plug(&oscillator_2_midi_);
     oscillator_2_.plug(&oscillator_2_freq_, Oscillator::kFrequency);
@@ -42,6 +51,8 @@ namespace laf {
     oscillator_mix_.plug(&oscillator_2_, 1);
 
     addProcessor(&midi_input_);
+    addProcessor(&pitch_bend_);
+    addProcessor(&final_midi_);
     addProcessor(&oscillator_1_);
     addProcessor(&oscillator_1_freq_);
     addProcessor(&oscillator_2_midi_);
@@ -60,6 +71,10 @@ namespace laf {
                     Wave::kNumWaveforms - 1, Wave::kNumWaveforms - 1);
     section_.controls["oscillator 2 transpose"] =
         new Control(&oscillator_2_transpose_, -48, 48, 96);
+    section_.controls["pitch bend range"] =
+        new Control(&pitch_bend_range_, 0, 48, 48);
+    section_.controls["pitch bend amount"] =
+        new Control(&pitch_bend_amount_, -1, 1, 128);
   }
 
   TermiteFilter::TermiteFilter() {
@@ -116,27 +131,30 @@ namespace laf {
   }
 
   TermiteVoiceHandler::TermiteVoiceHandler() {
-    setPolyphony(2);
-    registerInput(offset_note_.input(0));
+    setPolyphony(1);
     note_.plug(note());
-    offset_note_.plug(&note_, 1);
+    portamento_state_.set(0);
+    legato_.set(0);
+
+    legato_filter_.plug(voice_event(), LegatoFilter::kTrigger);
+    legato_filter_.plug(&legato_, LegatoFilter::kLegato);
 
     amplitude_attack_.set(0.01);
     amplitude_decay_.set(0.6);
     amplitude_sustain_.set(0);
     amplitude_release_.set(0.3);
 
-    amplitude_envelope_.plug(voice_event(), Envelope::kTrigger);
+    amplitude_envelope_.plug(&legato_filter_, Envelope::kTrigger);
     amplitude_envelope_.plug(&amplitude_attack_, Envelope::kAttack);
     amplitude_envelope_.plug(&amplitude_decay_, Envelope::kDecay);
     amplitude_envelope_.plug(&amplitude_sustain_, Envelope::kSustain);
     amplitude_envelope_.plug(&amplitude_release_, Envelope::kRelease);
 
-    oscillators_.plug(&offset_note_);
+    oscillators_.plug(&note_);
     oscillators_.plug(amplitude_envelope_.output(Envelope::kFinished), 1);
     oscillators_.plug(amplitude_envelope_.output(Envelope::kFinished), 2);
     filter_.plug(&oscillators_);
-    center_adjust_.set(-64);
+    center_adjust_.set(-MIDI_SIZE / 2);
     note_from_center_.plug(&center_adjust_, 0);
     note_from_center_.plug(&note_, 1);
     filter_.plug(&note_from_center_, 1);
@@ -146,11 +164,11 @@ namespace laf {
     amplitude_.plug(&filter_, 0);
     amplitude_.plug(&amplitude_envelope_, 1);
 
+    addProcessor(&legato_filter_);
     addProcessor(&amplitude_);
     addProcessor(&amplitude_envelope_);
     addProcessor(&note_);
     addProcessor(&note_from_center_);
-    addProcessor(&offset_note_);
     addProcessor(&oscillators_);
     addProcessor(&filter_);
 
@@ -159,6 +177,7 @@ namespace laf {
 
     section_.sub_groups["oscillators"] = oscillators_.getControls();
     section_.sub_groups["filter"] = filter_.getControls();
+
     section_.sub_groups["amplifier"] = &amplifier_group_;
     amplifier_group_.controls["amp attack"] =
         new Control(&amplitude_attack_, 0, 3, 128);
@@ -170,15 +189,16 @@ namespace laf {
         new Control(&amplitude_release_, 0, 3, 128);
   }
 
+  void TermiteVoiceHandler::addPerformanceControls(ControlGroup* performance) {
+    performance->controls["portamento state"] =
+        new Control(&portamento_state_, 0, 2, 2);
+    performance->controls["legato"] = new Control(&legato_, 0, 1, 1);
+  }
+
   TermiteSynth::TermiteSynth() : ProcessorRouter(0, 1) {
     volume_.setHard(0.6);
     volume_mult_.plug(&delay_, 0);
     volume_mult_.plug(&volume_, 1);
-
-    pitch_bend_range_.set(2);
-    pitch_bend_.plug(&pitch_bend_amount_, 0);
-    pitch_bend_.plug(&pitch_bend_range_, 1);
-    voice_handler_.plug(&pitch_bend_);
 
     delay_time_.setHard(0.3);
     delay_feedback_.setHard(0.4);
@@ -189,7 +209,7 @@ namespace laf {
     delay_.plug(&delay_feedback_, Delay::kFeedback);
     delay_.plug(&delay_wet_, Delay::kWet);
 
-    addProcessor(&pitch_bend_);
+    voice_handler_.addPerformanceControls(&section_);
     addProcessor(&volume_);
     addProcessor(&volume_mult_);
     addProcessor(&voice_handler_);
@@ -200,8 +220,6 @@ namespace laf {
     addProcessor(&delay_wet_);
 
     section_.controls["volume"] = new Control(&volume_, 0, 1, 128);
-    section_.controls["pitch bend range"] =
-        new Control(&pitch_bend_range_, 0, 24, 24);
     section_.controls["delay time"] = new Control(&delay_time_, 0.01, 1, 128);
     section_.controls["delay feedback"] =
         new Control(&delay_feedback_, -1, 1, 128);
@@ -213,10 +231,6 @@ namespace laf {
     ProcessorRouter::process();
     memcpy(outputs_[0]->buffer, volume_mult_.output()->buffer,
            sizeof(laf_sample) * BUFFER_SIZE);
-  }
-
-  void TermiteSynth::pitchBend(laf_sample amount) {
-    pitch_bend_amount_.set(amount);
   }
 
   void TermiteSynth::noteOn(laf_sample note, laf_sample velocity) {
