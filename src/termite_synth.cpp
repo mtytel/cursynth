@@ -19,19 +19,15 @@
 namespace laf {
 
   TermiteOscillators::TermiteOscillators() {
-    registerInput(midi_input_.input());
+    registerInput(final_midi_.input(0));
     registerInput(oscillator_1_.input(Oscillator::kReset));
     registerInput(oscillator_2_.input(Oscillator::kReset));
-    portamento_.set(0.001);
 
     pitch_bend_range_.set(2);
     pitch_bend_amount_.set(0);
     pitch_bend_.plug(&pitch_bend_amount_, 0);
     pitch_bend_.plug(&pitch_bend_range_, 1);
 
-    midi_input_.plug(&portamento_, SmoothFilter::kDecay);
-
-    final_midi_.plug(&midi_input_, 0);
     final_midi_.plug(&pitch_bend_, 1);
 
     oscillator_1_wave_type_.set(Wave::kDownSaw);
@@ -50,7 +46,6 @@ namespace laf {
     oscillator_mix_.plug(&oscillator_1_, 0);
     oscillator_mix_.plug(&oscillator_2_, 1);
 
-    addProcessor(&midi_input_);
     addProcessor(&pitch_bend_);
     addProcessor(&final_midi_);
     addProcessor(&oscillator_1_);
@@ -61,8 +56,6 @@ namespace laf {
     addProcessor(&oscillator_mix_);
 
     registerOutput(oscillator_mix_.output());
-    section_.controls["portamento"] =
-        new Control(&portamento_, 0.0, 0.01, 128);
     section_.controls["oscillator 1 waveform"] =
         new Control(&oscillator_1_wave_type_, 0,
                     Wave::kNumWaveforms - 1, Wave::kNumWaveforms - 1);
@@ -150,7 +143,17 @@ namespace laf {
     amplitude_envelope_.plug(&amplitude_sustain_, Envelope::kSustain);
     amplitude_envelope_.plug(&amplitude_release_, Envelope::kRelease);
 
-    oscillators_.plug(&note_);
+    frequency_ready_.plug(legato_filter_.output(LegatoFilter::kRemain), 0);
+    frequency_ready_.plug(amplitude_envelope_.output(Envelope::kFinished), 1);
+
+    portamento_.set(0.01);
+    portamento_filter_.plug(&portamento_state_, PortamentoFilter::kPortamento);
+    portamento_filter_.plug(&legato_filter_, PortamentoFilter::kTrigger);
+    midi_sent_.plug(&note_, LinearSlope::kTarget);
+    midi_sent_.plug(&portamento_, LinearSlope::kRunSeconds);
+    midi_sent_.plug(&portamento_filter_, LinearSlope::kTriggerJump);
+
+    oscillators_.plug(&midi_sent_);
     oscillators_.plug(amplitude_envelope_.output(Envelope::kFinished), 1);
     oscillators_.plug(amplitude_envelope_.output(Envelope::kFinished), 2);
     filter_.plug(&oscillators_);
@@ -165,6 +168,9 @@ namespace laf {
     amplitude_.plug(&amplitude_envelope_, 1);
 
     addProcessor(&legato_filter_);
+    addProcessor(&frequency_ready_);
+    addProcessor(&portamento_filter_);
+    addProcessor(&midi_sent_);
     addProcessor(&amplitude_);
     addProcessor(&amplitude_envelope_);
     addProcessor(&note_);
@@ -176,6 +182,8 @@ namespace laf {
     setVoiceKiller(&amplitude_envelope_);
 
     section_.sub_groups["oscillators"] = oscillators_.getControls();
+    section_.sub_groups["oscillators"]->controls["portamento"] =
+        new Control(&portamento_, 0.0, 0.2, 128);
     section_.sub_groups["filter"] = filter_.getControls();
 
     section_.sub_groups["amplifier"] = &amplifier_group_;

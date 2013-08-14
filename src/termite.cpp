@@ -263,10 +263,13 @@ namespace laf {
 
     if (midi_learn_.find(midi_id) != midi_learn_.end()) {
       Control* midi_control = midi_learn_[midi_id];
+      laf_sample resolution = midi_control->resolution;
+      int index = resolution * midi_val / (MIDI_SIZE - 1);
       midi_control->current_value = midi_control->min +
-          midi_val * (midi_control->max - midi_control->min) / MIDI_SIZE;
+          index * (midi_control->max - midi_control->min) / resolution;
       midi_control->value->set(midi_control->current_value);
       gui_.drawControl(midi_control, selected_control == midi_control);
+      gui_.drawControlStatus(midi_control, false);
     }
     unlock();
   }

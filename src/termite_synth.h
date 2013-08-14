@@ -25,8 +25,9 @@
 #include "oscillator.h"
 #include "processor_router.h"
 #include "smooth_filter.h"
+#include "linear_slope.h"
 #include "smooth_value.h"
-#include "trigger_filters.h"
+#include "trigger_operators.h"
 #include "value.h"
 #include "voice_handler.h"
 #include "termite_common.h"
@@ -48,12 +49,10 @@ namespace laf {
       TermiteOscillators();
 
     private:
-      Value portamento_;
       Value pitch_bend_amount_;
       Value pitch_bend_range_;
       Multiply pitch_bend_;
       Add final_midi_;
-      SmoothFilter midi_input_;
       MidiScale oscillator_1_freq_;
       MidiScale oscillator_2_freq_;
       Oscillator oscillator_1_;
@@ -97,12 +96,16 @@ namespace laf {
     private:
       Value note_;
       Value legato_;
+      Value portamento_;
       Value portamento_state_;
       Value center_adjust_;
+      LinearSlope midi_sent_;
       Add note_from_center_;
       TermiteOscillators oscillators_;
       TermiteFilter filter_;
       LegatoFilter legato_filter_;
+      TriggerCombiner frequency_ready_;
+      PortamentoFilter portamento_filter_;
 
       ControlGroup amplifier_group_;
       Multiply amplitude_;
