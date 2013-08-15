@@ -95,6 +95,7 @@ namespace laf {
 
     private:
       Value note_;
+      TriggerWait note_wait_;
       Value legato_;
       Value portamento_;
       Value portamento_state_;

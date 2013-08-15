@@ -125,7 +125,7 @@ namespace laf {
 
   TermiteVoiceHandler::TermiteVoiceHandler() {
     setPolyphony(1);
-    note_.plug(note());
+    note_wait_.plug(note(), TriggerWait::kWait);
     portamento_state_.set(0);
     legato_.set(0);
 
@@ -137,7 +137,8 @@ namespace laf {
     amplitude_sustain_.set(0);
     amplitude_release_.set(0.3);
 
-    amplitude_envelope_.plug(&legato_filter_, Envelope::kTrigger);
+    amplitude_envelope_.plug(legato_filter_.output(LegatoFilter::kRetrigger),
+                             Envelope::kTrigger);
     amplitude_envelope_.plug(&amplitude_attack_, Envelope::kAttack);
     amplitude_envelope_.plug(&amplitude_decay_, Envelope::kDecay);
     amplitude_envelope_.plug(&amplitude_sustain_, Envelope::kSustain);
@@ -145,10 +146,12 @@ namespace laf {
 
     frequency_ready_.plug(legato_filter_.output(LegatoFilter::kRemain), 0);
     frequency_ready_.plug(amplitude_envelope_.output(Envelope::kFinished), 1);
+    note_wait_.plug(&frequency_ready_, TriggerWait::kTrigger);
+    note_.plug(&note_wait_);
 
     portamento_.set(0.01);
     portamento_filter_.plug(&portamento_state_, PortamentoFilter::kPortamento);
-    portamento_filter_.plug(&legato_filter_, PortamentoFilter::kTrigger);
+    portamento_filter_.plug(&frequency_ready_, PortamentoFilter::kTrigger);
     midi_sent_.plug(&note_, LinearSlope::kTarget);
     midi_sent_.plug(&portamento_, LinearSlope::kRunSeconds);
     midi_sent_.plug(&portamento_filter_, LinearSlope::kTriggerJump);
@@ -174,6 +177,7 @@ namespace laf {
     addProcessor(&amplitude_);
     addProcessor(&amplitude_envelope_);
     addProcessor(&note_);
+    addProcessor(&note_wait_);
     addProcessor(&note_from_center_);
     addProcessor(&oscillators_);
     addProcessor(&filter_);
