@@ -491,9 +491,9 @@ static char *print_object(cJSON *item,int depth,int fmt)
 	*out='{';ptr=out+1;if (fmt)*ptr++='\n';*ptr=0;
 	for (i=0;i<numentries;i++)
 	{
-		if (fmt) for (j=0;j<depth;j++) *ptr++='\t';
+		if (fmt) for (j=0;j<depth;j++) *ptr++=' ';
 		strcpy(ptr,names[i]);ptr+=strlen(names[i]);
-		*ptr++=':';if (fmt) *ptr++='\t';
+		*ptr++=':';if (fmt) *ptr++=' ';
 		strcpy(ptr,entries[i]);ptr+=strlen(entries[i]);
 		if (i!=numentries-1) *ptr++=',';
 		if (fmt) *ptr++='\n';*ptr=0;
@@ -501,7 +501,7 @@ static char *print_object(cJSON *item,int depth,int fmt)
 	}
 	
 	cJSON_free(names);cJSON_free(entries);
-	if (fmt) for (i=0;i<depth-1;i++) *ptr++='\t';
+	if (fmt) for (i=0;i<depth-1;i++) *ptr++=' ';
 	*ptr++='}';*ptr++=0;
 	return out;	
 }

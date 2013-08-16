@@ -44,6 +44,8 @@ namespace laf {
       bool textInput(int key);
       void setupAudio();
       void eraseMidiLearn(Control* control);
+      void load();
+      void save();
       void setupMidi();
       void setupControls();
       void setupGui();

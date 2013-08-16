@@ -16,8 +16,11 @@
 
 #include "termite.h"
 
+#include "cJSON.h"
+
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <stdio.h>
 #include <ncurses.h>
@@ -61,6 +64,7 @@ namespace laf {
     setupAudio();
     setupMidi();
     setupGui();
+    load();
 
     // Wait for input.
     while(textInput(getch()))
@@ -79,6 +83,12 @@ namespace laf {
         lock();
         midi_learn_armed_ = !midi_learn_armed_;
         unlock();
+        break;
+      case 'l':
+        load();
+        break;
+      case 's':
+        save();
         break;
       case 'c':
         lock();
@@ -131,6 +141,66 @@ namespace laf {
     gui_.drawControlStatus(control, midi_learn_armed_);
 
     return true;
+  }
+
+  void Termite::load() {
+    std::ifstream load_file;
+    load_file.open("save_file.mite");
+    if (!load_file.is_open())
+      return;
+
+    load_file.seekg(0, std::ios::end);
+    int length = load_file.tellg();
+    load_file.seekg(0, std::ios::beg);
+    char file_contents[length];
+    load_file.read(file_contents, length);
+    load_file.close();
+
+    cJSON* root = cJSON_Parse(file_contents);
+    cJSON* sections = cJSON_GetObjectItem(root, "sections");
+
+    lock();
+    for (unsigned int i = 0; i < groups_.size(); ++i) {
+      std::map<std::string, Control*>::iterator iter =
+          groups_[i]->controls.begin();
+      cJSON* section = cJSON_GetArrayItem(sections, i);
+      for(; iter != groups_[i]->controls.end(); ++iter) {
+        cJSON* value = cJSON_GetObjectItem(section, iter->first.c_str());
+        Control* control = iter->second;
+        control->current_value =
+            CLAMP(control->min, control->max, value->valuedouble);
+        control->value->set(value->valuedouble);
+        gui_.drawControl(control, false);
+      }
+    }
+    gui_.drawControl(control_iter_->second, true);
+    unlock();
+
+    cJSON_Delete(root);
+  }
+
+  void Termite::save() {
+    cJSON* root = cJSON_CreateObject();
+    cJSON* sections = cJSON_CreateArray();
+    cJSON_AddItemToObject(root, "sections", sections);
+
+    for (unsigned int i = 0; i < groups_.size(); ++i) {
+      std::map<std::string, Control*>::iterator iter =
+          groups_[i]->controls.begin();
+      cJSON* section = cJSON_CreateObject();
+      for(; iter != groups_[i]->controls.end(); ++iter) {
+        cJSON* value = cJSON_CreateNumber(iter->second->value->value());
+        cJSON_AddItemToObject(section, iter->first.c_str(), value);
+      }
+      cJSON_AddItemToArray(sections, section);
+    }
+
+    char* json = cJSON_Print(root);
+    std::ofstream save_file;
+    save_file.open("save_file.mite");
+    save_file << json;
+    save_file.close();
+    free(json);
   }
 
   void Termite::setupAudio() {
