@@ -73,9 +73,87 @@ namespace laf {
     stop();
   }
 
+  void Termite::loadNext() {
+
+  }
+
+  void Termite::loadPrev() {
+
+  }
+
+  void Termite::saveToFile() {
+    cJSON* root = cJSON_CreateObject();
+    cJSON* sections = cJSON_CreateArray();
+    cJSON_AddItemToObject(root, "sections", sections);
+
+    for (unsigned int i = 0; i < groups_.size(); ++i) {
+      std::map<std::string, Control*>::iterator iter =
+          groups_[i]->controls.begin();
+      cJSON* section = cJSON_CreateObject();
+      for(; iter != groups_[i]->controls.end(); ++iter) {
+        cJSON* value = cJSON_CreateNumber(iter->second->value->value());
+        cJSON_AddItemToObject(section, iter->first.c_str(), value);
+      }
+      cJSON_AddItemToArray(sections, section);
+    }
+
+    char* json = cJSON_Print(root);
+    std::ofstream save_file;
+    save_file.open(saveAsStream.str().c_str());
+    saveAsStream.str("");
+    save_file << json;
+    save_file.close();
+    free(json);
+  }
+
+  void Termite::loadTextInput(int key) {
+    switch(key) {
+      case '\n':
+        loading_ = false;
+        break;
+      case KEY_UP:
+        loadPrev();
+        break;
+      case KEY_DOWN:
+        loadNext();
+        break;
+    }
+  }
+
+  void Termite::saveTextInput(int key) {
+    std::string current = saveAsStream.str();
+    switch(key) {
+      case '\n':
+        saveToFile();
+        saving_ = false;
+        gui_.clearSave();
+        break;
+      case KEY_DC:
+      case KEY_BACKSPACE:
+      case 127:
+        saveAsStream.str(current.substr(0, current.length() - 1));
+        saveAsStream.seekp(saveAsStream.str().length());
+        gui_.drawSave(saveAsStream.str());
+        break;
+      default:
+        if (isprint(key))
+          saveAsStream << static_cast<char>(key);
+        gui_.drawSave(saveAsStream.str());
+        break;
+    }
+  }
+
   bool Termite::textInput(int key) {
     if (key == KEY_F(1))
       return false;
+    if (loading_) {
+      loadTextInput(key);
+      return true;
+    }
+    if (saving_) {
+      saveTextInput(key);
+      return true;
+    }
 
     Control* control = control_iter_->second;
     switch(key) {
@@ -88,7 +166,8 @@ namespace laf {
         load();
         break;
       case 's':
-        save();
+        saving_ = true;
+        gui_.drawSave("");
         break;
       case 'c':
         lock();
@@ -174,33 +253,10 @@ namespace laf {
       }
     }
     gui_.drawControl(control_iter_->second, true);
+    gui_.drawControlStatus(control_iter_->second, false);
     unlock();
 
     cJSON_Delete(root);
-  }
-
-  void Termite::save() {
-    cJSON* root = cJSON_CreateObject();
-    cJSON* sections = cJSON_CreateArray();
-    cJSON_AddItemToObject(root, "sections", sections);
-
-    for (unsigned int i = 0; i < groups_.size(); ++i) {
-      std::map<std::string, Control*>::iterator iter =
-          groups_[i]->controls.begin();
-      cJSON* section = cJSON_CreateObject();
-      for(; iter != groups_[i]->controls.end(); ++iter) {
-        cJSON* value = cJSON_CreateNumber(iter->second->value->value());
-        cJSON_AddItemToObject(section, iter->first.c_str(), value);
-      }
-      cJSON_AddItemToArray(sections, section);
-    }
-
-    char* json = cJSON_Print(root);
-    std::ofstream save_file;
-    save_file.open("save_file.mite");
-    save_file << json;
-    save_file.close();
-    free(json);
   }
 
   void Termite::setupAudio() {

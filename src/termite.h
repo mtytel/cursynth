@@ -41,11 +41,17 @@ namespace laf {
       void unlock() { pthread_mutex_unlock(&mutex_); }
 
     private:
+      void loadTextInput(int key);
+      void saveTextInput(int key);
       bool textInput(int key);
       void setupAudio();
       void eraseMidiLearn(Control* control);
+
       void load();
-      void save();
+      void loadNext();
+      void loadPrev();
+      void saveToFile();
+
       void setupMidi();
       void setupControls();
       void setupGui();
@@ -62,6 +68,9 @@ namespace laf {
       std::map<std::string, Control*>::iterator control_iter_;
 
       bool midi_learn_armed_;
+      bool saving_;
+      bool loading_;
+      std::stringstream saveAsStream;
       std::map<int, Control*> midi_learn_;
 
       Control* pitch_bend_;

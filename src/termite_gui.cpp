@@ -35,9 +35,11 @@
 #define OSCILLATOR_COLUMN 0
 #define FILTER_COLUMN 1
 #define AMPLIFIER_COLUMN 2
+#define SAVE_COLUMN 2
 #define PERFORMANCE_COLUMN 0
 #define PERFORMANCE_Y (TOP_Y + 18)
 #define MAX_STATUS_SIZE 5
+#define MAX_SAVE_SIZE 40
 
 namespace {
   int getWidth() {
@@ -75,6 +77,24 @@ namespace laf {
 
     move(LOGO_Y + 5, logo_x);
     printw("                          Little IO");
+  }
+
+  void TermiteGui::clearSave() {
+    int x = (getColumnWidth() + SPACE) * SAVE_COLUMN + SPACE;
+    move(1, x);
+    hline(' ', MAX_SAVE_SIZE);
+    refresh();
+  }
+
+  void TermiteGui::drawSave(std::string file_name) {
+    int x = (getColumnWidth() + SPACE) * SAVE_COLUMN + SPACE;
+    move(1, x);
+    printw("Save As: ");
+    attron(A_BOLD);
+    printw(file_name.c_str());
+    hline(' ', 2);
+    attroff(A_BOLD);
+    refresh();
   }
 
   void TermiteGui::drawMidi(std::string status) {
