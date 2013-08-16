@@ -57,6 +57,8 @@ namespace laf {
       void drawLogo();
       void drawMidi(std::string status);
       void drawStatus(std::string status);
+      void placeSliders(std::map<std::string, Control*> controls,
+                        int x, int y, int width);
 
       std::map<const Control*, Slider*> slider_lookup_;
   };

@@ -30,7 +30,13 @@
 #define START_X 20
 #define START_Y 7
 #define SPACE 3
-#define SECTION_Y 7
+#define TOP_Y 7
+#define TOTAL_COLUMNS 3
+#define OSCILLATOR_COLUMN 0
+#define FILTER_COLUMN 1
+#define AMPLIFIER_COLUMN 2
+#define PERFORMANCE_COLUMN 0
+#define PERFORMANCE_Y (TOP_Y + 18)
 #define MAX_STATUS_SIZE 5
 
 namespace {
@@ -39,6 +45,10 @@ namespace {
     int ydim;
     getmaxyx(stdscr, ydim, xdim);
     return xdim;
+  }
+
+  int getColumnWidth() {
+    return (getWidth() - (TOTAL_COLUMNS + 1) * SPACE) / TOTAL_COLUMNS;
   }
 }
 
@@ -168,71 +178,39 @@ namespace laf {
     endwin();
   }
 
-  void TermiteGui::addPerformanceControls(const ControlGroup* performance) {
-    std::map<std::string, Control*>::const_iterator iter =
-        performance->controls.begin();
-    int section_width = (getWidth() - 4 * SPACE) / 3;
-    for (int i = 0; iter != performance->controls.end(); ++iter, ++i) {
+  void TermiteGui::placeSliders(std::map<std::string, Control*> controls,
+                    int x, int y, int width) {
+    std::map<std::string, Control*>::const_iterator iter = controls.begin();
+    for (int i = 0; iter != controls.end(); ++iter, ++i) {
       Slider* slider = new Slider();
-      slider->x = SPACE;
-      slider->y = SECTION_Y + 18 + SPACE * i;
-      slider->width = section_width;
+      slider->x = x;
+      slider->y = y + SPACE * i;
+      slider->width = width;
       slider->label = iter->first;
       slider->bipolar = iter->second->min < 0;
 
       slider_lookup_[iter->second] = slider;
       drawControl(iter->second, false);
     }
+  }
+
+  void TermiteGui::addPerformanceControls(const ControlGroup* performance) {
+    int x = (getColumnWidth() + SPACE) * PERFORMANCE_COLUMN + SPACE;
+    placeSliders(performance->controls, x, PERFORMANCE_Y, getColumnWidth());
   }
 
   void TermiteGui::addOscillatorControls(const ControlGroup* oscillator) {
-    std::map<std::string, Control*>::const_iterator iter =
-        oscillator->controls.begin();
-    int section_width = (getWidth() - 4 * SPACE) / 3;
-    for (int i = 0; iter != oscillator->controls.end(); ++iter, ++i) {
-      Slider* slider = new Slider();
-      slider->x = SPACE;
-      slider->y = SECTION_Y + SPACE * i;
-      slider->width = section_width;
-      slider->label = iter->first;
-      slider->bipolar = iter->second->min < 0;
-
-      slider_lookup_[iter->second] = slider;
-      drawControl(iter->second, false);
-    }
+    int x = (getColumnWidth() + SPACE) * OSCILLATOR_COLUMN + SPACE;
+    placeSliders(oscillator->controls, x, TOP_Y, getColumnWidth());
   }
 
   void TermiteGui::addFilterControls(const ControlGroup* filter) {
-    std::map<std::string, Control*>::const_iterator iter =
-        filter->controls.begin();
-    int section_width = (getWidth() - 4 * SPACE) / 3;
-    for (int i = 0; iter != filter->controls.end(); ++iter, ++i) {
-      Slider* slider = new Slider();
-      slider->x = section_width + SPACE * 2;
-      slider->y = SECTION_Y + SPACE * i;
-      slider->width = section_width;
-      slider->label = iter->first;
-      slider->bipolar = iter->second->min < 0;
-
-      slider_lookup_[iter->second] = slider;
-      drawControl(iter->second, false);
-    }
+    int x = (getColumnWidth() + SPACE) * FILTER_COLUMN + SPACE;
+    placeSliders(filter->controls, x, TOP_Y, getColumnWidth());
   }
 
   void TermiteGui::addAmplifierControls(const ControlGroup* amplifier) {
-    std::map<std::string, Control*>::const_iterator iter =
-        amplifier->controls.begin();
-    int section_width = (getWidth() - 4 * SPACE) / 3;
-    for (int i = 0; iter != amplifier->controls.end(); ++iter, ++i) {
-      Slider* slider = new Slider();
-      slider->x = section_width * 2 + SPACE * 3;
-      slider->y = SECTION_Y + SPACE * i;
-      slider->width = section_width;
-      slider->label = iter->first;
-      slider->bipolar = iter->second->min < 0;
-
-      slider_lookup_[iter->second] = slider;
-      drawControl(iter->second, false);
-    }
+    int x = (getColumnWidth() + SPACE) * AMPLIFIER_COLUMN + SPACE;
+    placeSliders(amplifier->controls, x, TOP_Y, getColumnWidth());
   }
 } // namespace laf
