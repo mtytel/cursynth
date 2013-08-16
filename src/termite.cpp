@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <ncurses.h>
 
-#define KEYBOARD "awsedftgyhujkolp;'"
+#define KEYBOARD "AWSEDFTGYHUJKOLP;'"
 #define NUM_CHANNELS 2
 #define PITCH_BEND_PORT 224
 #define SUSTAIN_PORT 176

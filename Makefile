@@ -20,10 +20,11 @@ OUTPUT_DIR = debug
 SOURCE_DIR = src
 RTAUDIO_DIR = rtaudio
 RTMIDI_DIR = rtmidi
+CJSON_DIR = cJSON
 
 CXXFLAGS += -g -Wall -Wextra -O3
 CXX_INCLUDES = -I $(LAF_DIR)/src/ -I $(RTAUDIO_DIR) \
-               -I $(RTMIDI_DIR) -I $(SOURCE_DIR)
+               -I $(RTMIDI_DIR) -I $(CJSON_DIR) -I $(SOURCE_DIR)
 CXX_LIBS = $(LAF_DIR)/laf.a -lpthread -lncurses
 
 UNAME = $(shell uname)
@@ -50,7 +51,8 @@ directory:
 	@mkdir -p $(OUTPUT_DIR)/$(SOURCE_DIR)
 
 # Building
-$(TERMITE): $(OBJS) $(OUTPUT_DIR)/rtaudio.o $(OUTPUT_DIR)/rtmidi.o
+$(TERMITE): $(OBJS) $(OUTPUT_DIR)/cJSON.o \
+            $(OUTPUT_DIR)/rtaudio.o $(OUTPUT_DIR)/rtmidi.o
 	@echo 'Creating $@'
 	@$(CXX) $(CXXFLAGS) $^ -o $(TERMITE) $(CXX_LIBS) $(OS_LINK_FLAGS)
 	@echo 'Complete'
@@ -60,10 +62,14 @@ $(OUTPUT_DIR)/$(SOURCE_DIR)/%.o: $(SOURCE_DIR)/%.cpp
 	@echo 'Building $@'
 	@$(CXX) $(CXXFLAGS) $(CXX_INCLUDES) $(OS_COMPILE_FLAGS) -c $< -o $@
 
-$(OUTPUT_DIR)/rtaudio.o: rtaudio/RtAudio.cpp
+$(OUTPUT_DIR)/rtaudio.o: $(RTAUDIO_DIR)/RtAudio.cpp
 	@echo 'Building $@'
 	@$(CXX) $(CXXFLAGS) $(CXX_INCLUDES) $(OS_COMPILE_FLAGS) -c $< -o $@
 
-$(OUTPUT_DIR)/rtmidi.o: rtmidi/RtMidi.cpp
+$(OUTPUT_DIR)/rtmidi.o: $(RTMIDI_DIR)/RtMidi.cpp
 	@echo 'Building $@'
 	@$(CXX) $(CXXFLAGS) $(CXX_INCLUDES) $(OS_COMPILE_FLAGS) -c $< -o $@
+
+$(OUTPUT_DIR)/cJSON.o: $(CJSON_DIR)/cJSON.c
+	@echo 'Building $@'
+	@$(CC) $(CXXFLAGS) $(CXX_INCLUDES) $(OS_COMPILE_FLAGS) -c $< -o $@

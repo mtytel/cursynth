@@ -178,6 +178,7 @@ namespace laf {
       slider->y = SECTION_Y + 18 + SPACE * i;
       slider->width = section_width;
       slider->label = iter->first;
+      slider->bipolar = iter->second->min < 0;
 
       slider_lookup_[iter->second] = slider;
       drawControl(iter->second, false);
