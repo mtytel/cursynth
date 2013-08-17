@@ -19,13 +19,15 @@
 #include "cJSON.h"
 
 #include <cstdlib>
-#include <iostream>
+#include <dirent.h>
 #include <fstream>
+#include <iostream>
+#include <ncurses.h>
 #include <string>
 #include <stdio.h>
-#include <ncurses.h>
 
 #define KEYBOARD "AWSEDFTGYHUJKOLP;'"
+#define EXTENSION ".mite"
 #define NUM_CHANNELS 2
 #define PITCH_BEND_PORT 224
 #define SUSTAIN_PORT 176
@@ -56,7 +58,8 @@ namespace {
 
 namespace laf {
   Termite::Termite() :
-      active_group_(0),  midi_learn_armed_(false), pitch_bend_(0) {
+      active_group_(0),  midi_learn_armed_(false), saving_(false),
+      loading_(false), patch_index_(0), pitch_bend_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
 
@@ -64,7 +67,6 @@ namespace laf {
     setupAudio();
     setupMidi();
     setupGui();
-    load();
 
     // Wait for input.
     while(textInput(getch()))
@@ -73,43 +75,11 @@ namespace laf {
     stop();
   }
 
-  void Termite::loadNext() {
-
-  }
-
-  void Termite::loadPrev() {
-
-  }
-
-  void Termite::saveToFile() {
-    cJSON* root = cJSON_CreateObject();
-    cJSON* sections = cJSON_CreateArray();
-    cJSON_AddItemToObject(root, "sections", sections);
-
-    for (unsigned int i = 0; i < groups_.size(); ++i) {
-      std::map<std::string, Control*>::iterator iter =
-          groups_[i]->controls.begin();
-      cJSON* section = cJSON_CreateObject();
-      for(; iter != groups_[i]->controls.end(); ++iter) {
-        cJSON* value = cJSON_CreateNumber(iter->second->value->value());
-        cJSON_AddItemToObject(section, iter->first.c_str(), value);
-      }
-      cJSON_AddItemToArray(sections, section);
-    }
-
-    char* json = cJSON_Print(root);
-    std::ofstream save_file;
-    save_file.open(saveAsStream.str().c_str());
-    saveAsStream.str("");
-    save_file << json;
-    save_file.close();
-    free(json);
-  }
-
   void Termite::loadTextInput(int key) {
     switch(key) {
       case '\n':
         loading_ = false;
+        gui_.clearLoad();
         break;
       case KEY_UP:
         loadPrev();
@@ -163,7 +133,7 @@ namespace laf {
         unlock();
         break;
       case 'l':
-        load();
+        startLoad();
         break;
       case 's':
         saving_ = true;
@@ -222,20 +192,48 @@ namespace laf {
     return true;
   }
 
-  void Termite::load() {
-    std::ifstream load_file;
-    load_file.open("save_file.mite");
-    if (!load_file.is_open())
-      return;
+  void Termite::loadNext() {
+    patch_index_ = (patch_index_ + 1) % patches_.size();
+    loadFromFile(patches_[patch_index_]);
+  }
 
-    load_file.seekg(0, std::ios::end);
-    int length = load_file.tellg();
-    load_file.seekg(0, std::ios::beg);
-    char file_contents[length];
-    load_file.read(file_contents, length);
-    load_file.close();
+  void Termite::loadPrev() {
+    patch_index_ = (patches_.size() + patch_index_ - 1) % patches_.size();
+    loadFromFile(patches_[patch_index_]);
+  }
 
-    cJSON* root = cJSON_Parse(file_contents);
+  void Termite::saveToFile() {
+    std::ofstream save_file;
+    save_file.open(saveAsStream.str().c_str());
+    saveAsStream.str("");
+    save_file << writeStateToString();
+    save_file.close();
+  }
+
+  std::string Termite::writeStateToString() {
+    cJSON* root = cJSON_CreateObject();
+    cJSON* sections = cJSON_CreateArray();
+    cJSON_AddItemToObject(root, "sections", sections);
+
+    for (unsigned int i = 0; i < groups_.size(); ++i) {
+      std::map<std::string, Control*>::iterator iter =
+          groups_[i]->controls.begin();
+      cJSON* section = cJSON_CreateObject();
+      for(; iter != groups_[i]->controls.end(); ++iter) {
+        cJSON* value = cJSON_CreateNumber(iter->second->value->value());
+        cJSON_AddItemToObject(section, iter->first.c_str(), value);
+      }
+      cJSON_AddItemToArray(sections, section);
+    }
+
+    char* json = cJSON_Print(root);
+    std::string output = json;
+    free(json);
+    return output;
+  }
+
+  void Termite::readStateFromString(const std::string& state) {
+    cJSON* root = cJSON_Parse(state.c_str());
     cJSON* sections = cJSON_GetObjectItem(root, "sections");
 
     lock();
@@ -252,11 +250,50 @@ namespace laf {
         gui_.drawControl(control, false);
       }
     }
+
     gui_.drawControl(control_iter_->second, true);
     gui_.drawControlStatus(control_iter_->second, false);
     unlock();
 
     cJSON_Delete(root);
+  }
+
+  void Termite::loadFromFile(const std::string& file_name) {
+    std::ifstream load_file;
+    load_file.open(file_name.c_str());
+    if (!load_file.is_open())
+      return;
+
+    load_file.seekg(0, std::ios::end);
+    int length = load_file.tellg();
+    load_file.seekg(0, std::ios::beg);
+    char file_contents[length];
+    load_file.read(file_contents, length);
+    readStateFromString(file_contents);
+    load_file.close();
+
+    gui_.drawLoad(file_name);
+  }
+
+  void Termite::startLoad() {
+    DIR *dir;
+    struct dirent *ent;
+    patches_.clear();
+    if ((dir = opendir (".")) != NULL) {
+      while ((ent = readdir (dir)) != NULL) {
+        std::string name = ent->d_name;
+        if (name.find(EXTENSION) != std::string::npos)
+          patches_.push_back(name);
+      }
+      closedir (dir);
+    }
+
+    if (patches_.size() == 0)
+      return;
+
+    loading_ = true;
+    patch_index_ = 0;
+    loadFromFile(patches_[patch_index_]);
   }
 
   void Termite::setupAudio() {

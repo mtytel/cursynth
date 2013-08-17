@@ -48,6 +48,8 @@ namespace laf {
       void drawControlStatus(const Control* control, bool armed);
       void clearSave();
       void drawSave(std::string file_name);
+      void clearLoad();
+      void drawLoad(std::string file_name);
 
     private:
       struct Slider {

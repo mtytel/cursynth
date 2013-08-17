@@ -97,6 +97,24 @@ namespace laf {
     refresh();
   }
 
+  void TermiteGui::clearLoad() {
+    int x = (getColumnWidth() + SPACE) * SAVE_COLUMN + SPACE;
+    move(1, x);
+    hline(' ', MAX_SAVE_SIZE);
+    refresh();
+  }
+
+  void TermiteGui::drawLoad(std::string file_name) {
+    int x = (getColumnWidth() + SPACE) * SAVE_COLUMN + SPACE;
+    move(1, x);
+    printw("Load File: ");
+    attron(A_BOLD);
+    printw(file_name.c_str());
+    hline(' ', 2);
+    attroff(A_BOLD);
+    refresh();
+  }
+
   void TermiteGui::drawMidi(std::string status) {
     move(1,0);
     printw("MIDI Learn: ");

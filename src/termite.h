@@ -47,9 +47,12 @@ namespace laf {
       void setupAudio();
       void eraseMidiLearn(Control* control);
 
-      void load();
+      std::string writeStateToString();
+      void readStateFromString(const std::string& state);
+      void startLoad();
       void loadNext();
       void loadPrev();
+      void loadFromFile(const std::string& file_name);
       void saveToFile();
 
       void setupMidi();
@@ -70,6 +73,8 @@ namespace laf {
       bool midi_learn_armed_;
       bool saving_;
       bool loading_;
+      std::vector<std::string> patches_;
+      int patch_index_;
       std::stringstream saveAsStream;
       std::map<int, Control*> midi_learn_;
 
