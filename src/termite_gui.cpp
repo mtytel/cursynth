@@ -34,7 +34,7 @@
 #define TOTAL_COLUMNS 3
 #define OSCILLATOR_COLUMN 0
 #define FILTER_COLUMN 1
-#define AMPLIFIER_COLUMN 2
+#define ARTICULATION_COLUMN 2
 #define SAVE_COLUMN 2
 #define PERFORMANCE_COLUMN 0
 #define PERFORMANCE_Y (TOP_Y + 18)
@@ -247,8 +247,8 @@ namespace laf {
     placeSliders(filter->controls, x, TOP_Y, getColumnWidth());
   }
 
-  void TermiteGui::addAmplifierControls(const ControlGroup* amplifier) {
-    int x = (getColumnWidth() + SPACE) * AMPLIFIER_COLUMN + SPACE;
-    placeSliders(amplifier->controls, x, TOP_Y, getColumnWidth());
+  void TermiteGui::addArticulationControls(const ControlGroup* articulation) {
+    int x = (getColumnWidth() + SPACE) * ARTICULATION_COLUMN + SPACE;
+    placeSliders(articulation->controls, x, TOP_Y, getColumnWidth());
   }
 } // namespace laf

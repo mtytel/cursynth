@@ -123,14 +123,25 @@ namespace laf {
         new Control(&filter_release_, 0, 3, 128);
   }
 
-  TermiteVoiceHandler::TermiteVoiceHandler() {
-    setPolyphony(1);
-    note_wait_.plug(note(), TriggerWait::kWait);
+  TermiteArticulation::TermiteArticulation() {
+    registerInput(note_wait_.input(TriggerWait::kWait));
+    registerInput(legato_filter_.input(LegatoFilter::kTrigger));
+
+    portamento_.set(0.01);
     portamento_state_.set(0);
     legato_.set(0);
 
-    legato_filter_.plug(voice_event(), LegatoFilter::kTrigger);
     legato_filter_.plug(&legato_, LegatoFilter::kLegato);
+    frequency_ready_.plug(legato_filter_.output(LegatoFilter::kRemain), 0);
+    frequency_ready_.plug(amplitude_envelope_.output(Envelope::kFinished), 1);
+    note_wait_.plug(&frequency_ready_, TriggerWait::kTrigger);
+    note_.plug(&note_wait_);
+
+    portamento_filter_.plug(&portamento_state_, PortamentoFilter::kPortamento);
+    portamento_filter_.plug(&frequency_ready_, PortamentoFilter::kTrigger);
+    midi_sent_.plug(&note_, LinearSlope::kTarget);
+    midi_sent_.plug(&portamento_, LinearSlope::kRunSeconds);
+    midi_sent_.plug(&portamento_filter_, LinearSlope::kTriggerJump);
 
     amplitude_attack_.set(0.01);
     amplitude_decay_.set(0.6);
@@ -144,67 +155,64 @@ namespace laf {
     amplitude_envelope_.plug(&amplitude_sustain_, Envelope::kSustain);
     amplitude_envelope_.plug(&amplitude_release_, Envelope::kRelease);
 
-    frequency_ready_.plug(legato_filter_.output(LegatoFilter::kRemain), 0);
-    frequency_ready_.plug(amplitude_envelope_.output(Envelope::kFinished), 1);
-    note_wait_.plug(&frequency_ready_, TriggerWait::kTrigger);
-    note_.plug(&note_wait_);
+    registerOutput(midi_sent_.output());
+    registerOutput(amplitude_envelope_.output(Envelope::kFinished));
+    registerOutput(amplitude_envelope_.output(Envelope::kValue));
 
-    portamento_.set(0.01);
-    portamento_filter_.plug(&portamento_state_, PortamentoFilter::kPortamento);
-    portamento_filter_.plug(&frequency_ready_, PortamentoFilter::kTrigger);
-    midi_sent_.plug(&note_, LinearSlope::kTarget);
-    midi_sent_.plug(&portamento_, LinearSlope::kRunSeconds);
-    midi_sent_.plug(&portamento_filter_, LinearSlope::kTriggerJump);
-
-    oscillators_.plug(&midi_sent_);
-    oscillators_.plug(amplitude_envelope_.output(Envelope::kFinished), 1);
-    oscillators_.plug(amplitude_envelope_.output(Envelope::kFinished), 2);
-    filter_.plug(&oscillators_);
-    center_adjust_.set(-MIDI_SIZE / 2);
-    note_from_center_.plug(&center_adjust_, 0);
-    note_from_center_.plug(&note_, 1);
-    filter_.plug(&note_from_center_, 1);
-    filter_.plug(amplitude_envelope_.output(Envelope::kFinished), 2);
-    filter_.plug(amplitude_envelope_.output(Envelope::kFinished), 3);
-
-    amplitude_.plug(&filter_, 0);
-    amplitude_.plug(&amplitude_envelope_, 1);
-
+    addProcessor(&note_);
+    addProcessor(&note_wait_);
     addProcessor(&legato_filter_);
     addProcessor(&frequency_ready_);
     addProcessor(&portamento_filter_);
     addProcessor(&midi_sent_);
-    addProcessor(&amplitude_);
     addProcessor(&amplitude_envelope_);
-    addProcessor(&note_);
-    addProcessor(&note_wait_);
-    addProcessor(&note_from_center_);
-    addProcessor(&oscillators_);
-    addProcessor(&filter_);
 
-    setVoiceOutput(&amplitude_);
-    setVoiceKiller(&amplitude_envelope_);
-
-    section_.sub_groups["oscillators"] = oscillators_.getControls();
-    section_.sub_groups["oscillators"]->controls["portamento"] =
+    section_.controls["portamento"] =
         new Control(&portamento_, 0.0, 0.2, 128);
-    section_.sub_groups["filter"] = filter_.getControls();
-
-    section_.sub_groups["amplifier"] = &amplifier_group_;
-    amplifier_group_.controls["amp attack"] =
+    section_.controls["portamento state"] =
+        new Control(&portamento_state_, 0, 2, 2);
+    section_.controls["legato"] =
+        new Control(&legato_, 0, 1, 1);
+    section_.controls["amp attack"] =
         new Control(&amplitude_attack_, 0, 3, 128);
-    amplifier_group_.controls["amp decay"] =
+    section_.controls["amp decay"] =
         new Control(&amplitude_decay_, 0, 3, 128);
-    amplifier_group_.controls["amp sustain"] =
+    section_.controls["amp sustain"] =
         new Control(&amplitude_sustain_, 0, 1, 128);
-    amplifier_group_.controls["amp release"] =
+    section_.controls["amp release"] =
         new Control(&amplitude_release_, 0, 3, 128);
   }
 
-  void TermiteVoiceHandler::addPerformanceControls(ControlGroup* performance) {
-    performance->controls["portamento state"] =
-        new Control(&portamento_state_, 0, 2, 2);
-    performance->controls["legato"] = new Control(&legato_, 0, 1, 1);
+  TermiteVoiceHandler::TermiteVoiceHandler() {
+    setPolyphony(1);
+    articulation_.plug(note(), 0);
+    articulation_.plug(voice_event(), 1);
+
+    oscillators_.plug(articulation_.output(0));
+    oscillators_.plug(articulation_.output(1), 1);
+    oscillators_.plug(articulation_.output(1), 2);
+    center_adjust_.set(-MIDI_SIZE / 2);
+    note_from_center_.plug(&center_adjust_, 0);
+    note_from_center_.plug(articulation_.output(0), 1);
+    filter_.plug(&oscillators_, 0);
+    filter_.plug(&note_from_center_, 1);
+    filter_.plug(articulation_.output(1), 2);
+    filter_.plug(articulation_.output(1), 3);
+
+    output_.plug(&filter_, 0);
+    output_.plug(articulation_.output(2), 1);
+    addProcessor(&output_);
+    addProcessor(&note_from_center_);
+    addProcessor(&articulation_);
+    addProcessor(&oscillators_);
+    addProcessor(&filter_);
+
+    setVoiceOutput(&output_);
+    setVoiceKiller(articulation_.output(2));
+
+    section_.sub_groups["oscillators"] = oscillators_.getControls();
+    section_.sub_groups["filter"] = filter_.getControls();
+    section_.sub_groups["articulation"] = articulation_.getControls();
   }
 
   TermiteSynth::TermiteSynth() : ProcessorRouter(0, 1) {
@@ -221,7 +229,6 @@ namespace laf {
     delay_.plug(&delay_feedback_, Delay::kFeedback);
     delay_.plug(&delay_wet_, Delay::kWet);
 
-    voice_handler_.addPerformanceControls(&section_);
     addProcessor(&volume_);
     addProcessor(&volume_mult_);
     addProcessor(&voice_handler_);

@@ -339,13 +339,13 @@ namespace laf {
     ControlGroup* filter = voice_handler->sub_groups["filter"];
     gui_.addFilterControls(filter);
 
-    ControlGroup* amplifier = voice_handler->sub_groups["amplifier"];
-    gui_.addAmplifierControls(amplifier);
+    ControlGroup* articulation = voice_handler->sub_groups["articulation"];
+    gui_.addArticulationControls(articulation);
 
     groups_.push_back(oscillators);
     groups_.push_back(controls);
     groups_.push_back(filter);
-    groups_.push_back(amplifier);
+    groups_.push_back(articulation);
 
     active_group_ = 0;
     control_iter_ = groups_[active_group_]->controls.begin();

@@ -87,11 +87,9 @@ namespace laf {
       Value filter_release_;
   };
 
-  class TermiteVoiceHandler : public VoiceHandler, public TermiteSection {
+  class TermiteArticulation : public ProcessorRouter, public TermiteSection {
     public:
-      TermiteVoiceHandler();
-
-      void addPerformanceControls(ControlGroup* performance);
+      TermiteArticulation();
 
     private:
       Value note_;
@@ -99,22 +97,31 @@ namespace laf {
       Value legato_;
       Value portamento_;
       Value portamento_state_;
-      Value center_adjust_;
-      LinearSlope midi_sent_;
-      Add note_from_center_;
-      TermiteOscillators oscillators_;
-      TermiteFilter filter_;
       LegatoFilter legato_filter_;
-      TriggerCombiner frequency_ready_;
       PortamentoFilter portamento_filter_;
+      LinearSlope midi_sent_;
+      TriggerCombiner frequency_ready_;
 
-      ControlGroup amplifier_group_;
-      Multiply amplitude_;
       Envelope amplitude_envelope_;
       Value amplitude_attack_;
       Value amplitude_decay_;
       Value amplitude_sustain_;
       Value amplitude_release_;
+  };
+
+  class TermiteVoiceHandler : public VoiceHandler, public TermiteSection {
+    public:
+      TermiteVoiceHandler();
+
+    private:
+      TermiteArticulation articulation_;
+      Value center_adjust_;
+      Add note_from_center_;
+      TermiteOscillators oscillators_;
+      TermiteFilter filter_;
+      Multiply output_;
+
+      ControlGroup amplifier_group_;
   };
 
   class TermiteSynth : public ProcessorRouter, public TermiteSection {

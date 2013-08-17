@@ -42,7 +42,7 @@ namespace laf {
       void addPerformanceControls(const ControlGroup* controls);
       void addOscillatorControls(const ControlGroup* controls);
       void addFilterControls(const ControlGroup* controls);
-      void addAmplifierControls(const ControlGroup* controls);
+      void addArticulationControls(const ControlGroup* controls);
 
       void drawControl(const Control* control, bool active);
       void drawControlStatus(const Control* control, bool armed);
