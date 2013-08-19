@@ -184,7 +184,6 @@ namespace laf {
   }
 
   TermiteVoiceHandler::TermiteVoiceHandler() {
-    setPolyphony(1);
     articulation_.plug(note(), 0);
     articulation_.plug(voice_event(), 1);
 
@@ -216,6 +215,9 @@ namespace laf {
   }
 
   TermiteSynth::TermiteSynth() : ProcessorRouter(0, 1) {
+    polyphony_.set(1);
+    voice_handler_.setPolyphony(64);
+    voice_handler_.plug(&polyphony_, VoiceHandler::kPolyphony);
     volume_.setHard(0.6);
     volume_mult_.plug(&delay_, 0);
     volume_mult_.plug(&volume_, 1);
@@ -239,6 +241,7 @@ namespace laf {
     addProcessor(&delay_wet_);
 
     section_.controls["volume"] = new Control(&volume_, 0, 1, 128);
+    section_.controls["polyphony"] = new Control(&polyphony_, 1, 32, 31);
     section_.controls["delay time"] = new Control(&delay_time_, 0.01, 1, 128);
     section_.controls["delay feedback"] =
         new Control(&delay_feedback_, -1, 1, 128);

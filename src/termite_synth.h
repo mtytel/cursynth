@@ -135,6 +135,7 @@ namespace laf {
       void sustainOff() { voice_handler_.sustainOff(); }
 
     private:
+      Value polyphony_;
       TermiteVoiceHandler voice_handler_;
       Delay delay_;
       SmoothValue delay_time_;
