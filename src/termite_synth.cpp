@@ -252,14 +252,14 @@ namespace laf {
   void TermiteSynth::process() {
     ProcessorRouter::process();
     memcpy(outputs_[0]->buffer, volume_mult_.output()->buffer,
-           sizeof(laf_sample) * BUFFER_SIZE);
+           sizeof(laf_float) * BUFFER_SIZE);
   }
 
-  void TermiteSynth::noteOn(laf_sample note, laf_sample velocity) {
+  void TermiteSynth::noteOn(laf_float note, laf_float velocity) {
     voice_handler_.noteOn(note, velocity);
   }
 
-  void TermiteSynth::noteOff(laf_sample note) {
+  void TermiteSynth::noteOff(laf_float note) {
     voice_handler_.noteOff(note);
   }
 } // namespace laf

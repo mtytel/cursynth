@@ -151,8 +151,8 @@ namespace laf {
     attroff(COLOR_PAIR(SLIDER_BG_COLOR));
 
     // Find slider position.
-    laf_sample relative_value = control->current_value - control->min;
-    laf_sample relative_width = control->max - control->min;
+    laf_float relative_value = control->current_value - control->min;
+    laf_float relative_width = control->max - control->min;
     int position = round(slider->width * relative_value / relative_width);
     int slider_midpoint = (slider->width + 1) / 2;
 

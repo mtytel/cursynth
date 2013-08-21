@@ -129,8 +129,8 @@ namespace laf {
       TermiteSynth();
 
       void process();
-      void noteOn(laf_sample note, laf_sample velocity = 1);
-      void noteOff(laf_sample note);
+      void noteOn(laf_float note, laf_float velocity = 1);
+      void noteOff(laf_float note);
       void sustainOn() { voice_handler_.sustainOn(); }
       void sustainOff() { voice_handler_.sustainOff(); }
 

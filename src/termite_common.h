@@ -26,7 +26,7 @@
 namespace laf {
 
   struct Control {
-    Control(Value* value, laf_sample min, laf_sample max, int resolution) :
+    Control(Value* value, laf_float min, laf_float max, int resolution) :
         value(value), min(min), max(max),
         resolution(resolution), midi_learn(0) {
       current_value = value->value();
@@ -36,7 +36,7 @@ namespace laf {
                 resolution(0), midi_learn(0) { }
 
     Value* value;
-    laf_sample min, max, current_value;
+    laf_float min, max, current_value;
     int resolution, midi_learn;
   };
 

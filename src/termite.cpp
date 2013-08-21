@@ -51,14 +51,14 @@ namespace {
       std::cout << "Stream underflow detected!" << std::endl;
 
     laf::Termite* termite = static_cast<laf::Termite*>(user_data);
-    termite->processAudio((laf::laf_sample*)out_buffer, n_frames);
+    termite->processAudio((laf::laf_float*)out_buffer, n_frames);
     return 0;
   }
 } // namespace
 
 namespace laf {
   Termite::Termite() :
-      active_group_(0),  midi_learn_armed_(false), saving_(false),
+      active_group_(0), midi_learn_armed_(false), saving_(false),
       loading_(false), patch_index_(0), pitch_bend_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
@@ -354,11 +354,11 @@ namespace laf {
     gui_.drawControlStatus(control_iter_->second, false);
   }
 
-  void Termite::processAudio(laf_sample *out_buffer, unsigned int n_frames) {
+  void Termite::processAudio(laf_float *out_buffer, unsigned int n_frames) {
     lock();
     synth_.process();
     unlock();
-    const laf_sample* buffer = synth_.output()->buffer;
+    const laf_float* buffer = synth_.output()->buffer;
     for (size_t i = 0; i < n_frames; ++i) {
       for (int c = 0; c < NUM_CHANNELS; ++c)
         out_buffer[NUM_CHANNELS * i + c] = buffer[i];
@@ -374,13 +374,18 @@ namespace laf {
 
   void Termite::setupMidi() {
     // Setup MIDI
-    if (midi_in_.getPortCount() < 1) {
+    RtMidiIn* midi_in = new RtMidiIn();
+    if (midi_in->getPortCount() < 1) {
       std::cout << "No midi devices found.\n";
     }
-    else {
-      midi_in_.openPort(0);
-      midi_in_.setCallback(&midiCallback, (void*)this);
+    for (unsigned int i = 0; i < midi_in->getPortCount(); ++i) {
+      RtMidiIn* device = new RtMidiIn();
+      device->openPort(i);
+      device->setCallback(&midiCallback, (void*)this);
+      midi_ins_.push_back(device);
     }
+
+    delete midi_in;
   }
 
   void Termite::processMidi(std::vector<unsigned char>* message) {
@@ -426,7 +431,7 @@ namespace laf {
 
     if (midi_learn_.find(midi_id) != midi_learn_.end()) {
       Control* midi_control = midi_learn_[midi_id];
-      laf_sample resolution = midi_control->resolution;
+      laf_float resolution = midi_control->resolution;
       int index = resolution * midi_val / (MIDI_SIZE - 1);
       midi_control->current_value = midi_control->min +
           index * (midi_control->max - midi_control->min) / resolution;

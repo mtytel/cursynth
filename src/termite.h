@@ -34,7 +34,7 @@ namespace laf {
       Termite();
 
       void start();
-      void processAudio(laf_sample *out_buffer, unsigned int n_frames);
+      void processAudio(laf_float *out_buffer, unsigned int n_frames);
       void processMidi(std::vector<unsigned char>* message);
 
       void lock() { pthread_mutex_lock(&mutex_); }
@@ -63,7 +63,7 @@ namespace laf {
       TermiteSynth synth_;
       TermiteGui gui_;
       RtAudio dac_;
-      RtMidiIn midi_in_;
+      std::vector<RtMidiIn*> midi_ins_;
       pthread_mutex_t mutex_;
 
       int active_group_;
