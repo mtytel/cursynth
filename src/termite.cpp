@@ -57,9 +57,7 @@ namespace {
 } // namespace
 
 namespace laf {
-  Termite::Termite() :
-      active_group_(0), midi_learn_armed_(false), saving_(false),
-      loading_(false), patch_index_(0), pitch_bend_(0) {
+  Termite::Termite() : state_(STANDARD), pitch_bend_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
 
@@ -76,21 +74,24 @@ namespace laf {
   }
 
   void Termite::loadTextInput(int key) {
+    /*
     switch(key) {
       case '\n':
         loading_ = false;
         gui_.clearLoad();
         break;
       case KEY_UP:
-        loadPrev();
+        patch_handler_.loadPrev();
         break;
       case KEY_DOWN:
-        loadNext();
+        patch_handler_.loadNext();
         break;
     }
+    */
   }
 
   void Termite::saveTextInput(int key) {
+    /*
     std::string current = saveAsStream.str();
     switch(key) {
       case '\n':
@@ -111,16 +112,17 @@ namespace laf {
         gui_.drawSave(saveAsStream.str());
         break;
     }
+    */
   }
 
   bool Termite::textInput(int key) {
     if (key == KEY_F(1))
       return false;
-    if (loading_) {
+    if (state_ == LOADING) {
       loadTextInput(key);
       return true;
     }
-    if (saving_) {
+    if (state_ == SAVING) {
       saveTextInput(key);
       return true;
     }
@@ -129,9 +131,13 @@ namespace laf {
     switch(key) {
       case 'm':
         lock();
-        midi_learn_armed_ = !midi_learn_armed_;
+        if (state_ != MIDI_LEARN)
+          state_ = MIDI_LEARN;
+        else
+          state_ = STANDARD;
         unlock();
         break;
+        /*
       case 'l':
         startLoad();
         break;
@@ -139,10 +145,11 @@ namespace laf {
         saving_ = true;
         gui_.drawSave("");
         break;
+        */
       case 'c':
         lock();
         eraseMidiLearn(control);
-        midi_learn_armed_ = false;
+        state_ = STANDARD;
         unlock();
         break;
       case KEY_UP:
@@ -152,7 +159,7 @@ namespace laf {
           control_iter_ = groups_[active_group_]->controls.end();
         }
         control_iter_--;
-        midi_learn_armed_ = false;
+        state_ = STANDARD;
         gui_.drawControl(control, false);
         break;
       case KEY_DOWN:
@@ -161,7 +168,7 @@ namespace laf {
           active_group_ = (active_group_ + 1) % groups_.size();
           control_iter_ = groups_[active_group_]->controls.begin();
         }
-        midi_learn_armed_ = false;
+        state_ = STANDARD;
         gui_.drawControl(control, false);
         break;
       case KEY_RIGHT:
@@ -187,11 +194,12 @@ namespace laf {
 
     control->value->set(control->current_value);
     gui_.drawControl(control, true);
-    gui_.drawControlStatus(control, midi_learn_armed_);
+    gui_.drawControlStatus(control, state_ == MIDI_LEARN);
 
     return true;
   }
 
+  /*
   void Termite::loadNext() {
     patch_index_ = (patch_index_ + 1) % patches_.size();
     loadFromFile(patches_[patch_index_]);
@@ -295,6 +303,7 @@ namespace laf {
     patch_index_ = 0;
     loadFromFile(patches_[patch_index_]);
   }
+*/
 
   void Termite::setupAudio() {
     // Setup Audio
@@ -327,28 +336,8 @@ namespace laf {
     gui_.start();
 
     // Global Section.
-    ControlGroup* controls = synth_.getControls();
-    gui_.addPerformanceControls(controls);
-
-    ControlGroup* voice_handler = controls->sub_groups["voice handler"];
-
-    ControlGroup* oscillators = voice_handler->sub_groups["oscillators"];
-    pitch_bend_ = oscillators->controls["pitch bend amount"];
-    gui_.addOscillatorControls(oscillators);
-
-    ControlGroup* filter = voice_handler->sub_groups["filter"];
-    gui_.addFilterControls(filter);
-
-    ControlGroup* articulation = voice_handler->sub_groups["articulation"];
-    gui_.addArticulationControls(articulation);
-
-    groups_.push_back(oscillators);
-    groups_.push_back(controls);
-    groups_.push_back(filter);
-    groups_.push_back(articulation);
-
-    active_group_ = 0;
-    control_iter_ = groups_[active_group_]->controls.begin();
+    control_map* controls = synth_.getGlobalControls();
+    control_map* controls = synth_.getVoiceControls();
 
     gui_.drawControl(control_iter_->second, true);
     gui_.drawControlStatus(control_iter_->second, false);
@@ -420,12 +409,12 @@ namespace laf {
       else
         synth_.sustainOff();
     }
-    else if (midi_learn_armed_ && midi_port < 254) {
+    else if (state_ == MIDI_LEARN && midi_port < 254) {
       eraseMidiLearn(selected_control);
 
       midi_learn_[midi_id] = selected_control;
       selected_control->midi_learn = midi_id;
-      midi_learn_armed_ = false;
+      state_ = STANDARD;
       gui_.drawControlStatus(selected_control, false);
     }
 

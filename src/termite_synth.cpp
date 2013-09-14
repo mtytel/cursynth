@@ -18,248 +18,278 @@
 
 namespace laf {
 
-  TermiteOscillators::TermiteOscillators() {
-    registerInput(final_midi_.input(0));
-    registerInput(oscillator_1_.input(Oscillator::kReset));
-    registerInput(oscillator_2_.input(Oscillator::kReset));
+  void TermiteVoiceHandler::createOscillators(Output* midi, Output* reset) {
+    // Pitch bend.
+    Value* pitch_bend_range = new Value(2);
+    Multiply* pitch_bend = new Multiply();
+    pitch_bend->plug(pitch_bend_amount_, 0);
+    pitch_bend->plug(pitch_bend_range, 1);
+    Add* final_midi = new Add();
+    final_midi->plug(midi, 0);
+    final_midi->plug(pitch_bend, 1);
 
-    pitch_bend_range_.set(2);
-    pitch_bend_amount_.set(0);
-    pitch_bend_.plug(&pitch_bend_amount_, 0);
-    pitch_bend_.plug(&pitch_bend_range_, 1);
+    addGlobalProcessor(pitch_bend);
+    addProcessor(final_midi);
 
-    final_midi_.plug(&pitch_bend_, 1);
+    controls_["pitch bend range"] = new Control(pitch_bend_range, 0, 48, 48);
 
-    oscillator_1_wave_type_.set(Wave::kDownSaw);
-    oscillator_1_.plug(&oscillator_1_wave_type_, Oscillator::kWaveType);
-    oscillator_1_freq_.plug(&final_midi_);
-    oscillator_1_.plug(&oscillator_1_freq_, Oscillator::kFrequency);
+    // Oscillator 1.
+    Value* oscillator1_waveform = new Value(Wave::kDownSaw);
+    MidiScale* oscillator1_frequency = new MidiScale();
+    oscillator1_frequency->plug(final_midi);
+    oscillator1_ = new Oscillator();
+    oscillator1_->plug(reset, Oscillator::kReset);
+    oscillator1_->plug(oscillator1_waveform, Oscillator::kWaveform);
+    oscillator1_->plug(oscillator1_frequency, Oscillator::kFrequency);
 
-    oscillator_2_wave_type_.set(Wave::kDownSaw);
-    oscillator_2_.plug(&oscillator_2_wave_type_, Oscillator::kWaveType);
-    oscillator_2_transpose_.set(0);
-    oscillator_2_midi_.plug(&final_midi_, 0);
-    oscillator_2_midi_.plug(&oscillator_2_transpose_, 1);
-    oscillator_2_freq_.plug(&oscillator_2_midi_);
-    oscillator_2_.plug(&oscillator_2_freq_, Oscillator::kFrequency);
+    addProcessor(oscillator1_frequency);
+    addProcessor(oscillator1_);
 
-    oscillator_mix_.plug(&oscillator_1_, 0);
-    oscillator_mix_.plug(&oscillator_2_, 1);
+    int wave_resolution = Wave::kNumWaveforms - 1;
+    controls_["oscillator 1 waveform"] =
+        new Control(oscillator1_waveform, 0, wave_resolution, wave_resolution);
 
-    addProcessor(&pitch_bend_);
-    addProcessor(&final_midi_);
-    addProcessor(&oscillator_1_);
-    addProcessor(&oscillator_1_freq_);
-    addProcessor(&oscillator_2_midi_);
-    addProcessor(&oscillator_2_freq_);
-    addProcessor(&oscillator_2_);
-    addProcessor(&oscillator_mix_);
+    // Oscillator 2.
+    Value* oscillator2_waveform = new Value(Wave::kDownSaw);
+    Value* oscillator2_transpose = new Value(-12);
+    Add* oscillator2_midi = new Add();
+    oscillator2_midi->plug(final_midi, 0);
+    oscillator2_midi->plug(oscillator2_transpose, 1);
 
-    registerOutput(oscillator_mix_.output());
-    section_.controls["oscillator 1 waveform"] =
-        new Control(&oscillator_1_wave_type_, 0,
-                    Wave::kNumWaveforms - 1, Wave::kNumWaveforms - 1);
-    section_.controls["oscillator 2 waveform"] =
-        new Control(&oscillator_2_wave_type_, 0,
-                    Wave::kNumWaveforms - 1, Wave::kNumWaveforms - 1);
-    section_.controls["oscillator 2 transpose"] =
-        new Control(&oscillator_2_transpose_, -48, 48, 96);
-    section_.controls["pitch bend range"] =
-        new Control(&pitch_bend_range_, 0, 48, 48);
-    section_.controls["pitch bend amount"] =
-        new Control(&pitch_bend_amount_, -1, 1, 128);
+    MidiScale* oscillator2_frequency = new MidiScale();
+    oscillator2_frequency->plug(oscillator2_midi);
+    oscillator2_ = new Oscillator();
+    oscillator2_->plug(reset, Oscillator::kReset);
+    oscillator2_->plug(oscillator2_waveform, Oscillator::kWaveform);
+    oscillator2_->plug(oscillator2_frequency, Oscillator::kFrequency);
+
+    addProcessor(oscillator2_midi);
+    addProcessor(oscillator2_frequency);
+    addProcessor(oscillator2_);
+
+    controls_["oscillator 2 waveform"] =
+        new Control(oscillator2_waveform, 0, wave_resolution, wave_resolution);
+    controls_["oscillator 2 transpose"] =
+        new Control(oscillator2_transpose, -48, 48, 96);
+
+    // Oscillator mix.
+    oscillator_mix_ = new Add();
+    oscillator_mix_->plug(oscillator1_, 0);
+    oscillator_mix_->plug(oscillator2_, 1);
+
+    addProcessor(oscillator_mix_);
   }
 
-  TermiteFilter::TermiteFilter() {
-    registerInput(filter_.input(Filter::kAudio));
-    registerInput(keytrack_.input(0));
-    registerInput(filter_envelope_.input(Envelope::kTrigger));
-    registerInput(filter_.input(Filter::kReset));
-    keytrack_.plug(&keytrack_amount_, 1);
+  void TermiteVoiceHandler::createFilter(
+      Output* audio, Output* keytrack, Output* reset) {
+    // Filter envelope.
+    Value* filter_attack = new Value(0.0);
+    Value* filter_decay = new Value(0.3);
+    Value* filter_sustain = new Value(0);
+    Value* filter_release = new Value(0.3);
 
-    filter_attack_.set(0.2);
-    filter_decay_.set(0.1);
-    filter_sustain_.set(0);
-    filter_release_.set(0.3);
+    filter_envelope_ = new Envelope();
+    filter_envelope_->plug(filter_attack, Envelope::kAttack);
+    filter_envelope_->plug(filter_decay, Envelope::kDecay);
+    filter_envelope_->plug(filter_sustain, Envelope::kSustain);
+    filter_envelope_->plug(filter_release, Envelope::kRelease);
+    filter_envelope_->plug(reset, Envelope::kTrigger);
 
-    filter_envelope_.plug(&filter_attack_, Envelope::kAttack);
-    filter_envelope_.plug(&filter_decay_, Envelope::kDecay);
-    filter_envelope_.plug(&filter_sustain_, Envelope::kSustain);
-    filter_envelope_.plug(&filter_release_, Envelope::kRelease);
-    filter_envelope_depth_.set(12);
+    Value* filter_envelope_depth = new Value(12);
+    Multiply* scaled_envelope = new Multiply();
+    scaled_envelope->plug(filter_envelope_, 0);
+    scaled_envelope->plug(filter_envelope_depth, 1);
 
-    depth_scale_.plug(&filter_envelope_, 0);
-    depth_scale_.plug(&filter_envelope_depth_, 1);
-    base_cutoff_.set(92);
-    keytrack_cutoff_.plug(&base_cutoff_, 0);
-    keytrack_cutoff_.plug(&keytrack_, 1);
-    midi_cutoff_.plug(&keytrack_cutoff_, 0);
-    midi_cutoff_.plug(&depth_scale_, 1);
-    freq_cutoff_.plug(&midi_cutoff_);
+    addProcessor(filter_envelope_);
+    addProcessor(scaled_envelope);
 
-    resonance_.set(3);
-    filter_.plug(&freq_cutoff_, Filter::kCutoff);
-    filter_.plug(&resonance_, Filter::kResonance);
+    controls_["fil attack"] = new Control(filter_attack, 0, 3, 128);
+    controls_["fil decay"] = new Control(filter_decay, 0, 3, 128);
+    controls_["fil sustain"] = new Control(filter_sustain, 0, 1, 128);
+    controls_["fil release"] = new Control(filter_release, 0, 3, 128);
+    controls_["fil env depth"] =
+        new Control(filter_envelope_depth, -128, 128, 128);
 
-    addProcessor(&filter_);
-    addProcessor(&depth_scale_);
-    addProcessor(&freq_cutoff_);
-    addProcessor(&keytrack_);
-    addProcessor(&keytrack_cutoff_);
-    addProcessor(&midi_cutoff_);
-    addProcessor(&filter_envelope_);
+    // Filter.
+    Value* keytrack_amount = new Value(0);
+    Multiply* current_keytrack = new Multiply();
+    current_keytrack->plug(keytrack, 0);
+    current_keytrack->plug(keytrack_amount, 1);
 
-    registerOutput(filter_.output());
-    section_.controls["cutoff"] = new Control(&base_cutoff_, 28, 127, 128);
-    section_.controls["keytrack"] = new Control(&keytrack_amount_, -1, 1, 128);
-    section_.controls["resonance"] = new Control(&resonance_, 0.5, 15, 128);
-    section_.controls["fil env depth"] =
-        new Control(&filter_envelope_depth_, -128, 128, 128);
-    section_.controls["fil attack"] = new Control(&filter_attack_, 0, 3, 128);
-    section_.controls["fil decay"] = new Control(&filter_decay_, 0, 3, 128);
-    section_.controls["fil sustain"] =
-        new Control(&filter_sustain_, 0, 1, 128);
-    section_.controls["fil release"] =
-        new Control(&filter_release_, 0, 3, 128);
+    SmoothValue* base_cutoff = new SmoothValue(92);
+    Add* keytracked_cutoff = new Add();
+    keytracked_cutoff->plug(base_cutoff, 0);
+    keytracked_cutoff->plug(current_keytrack, 0);
+
+    Add* midi_cutoff = new Add();
+    midi_cutoff->plug(keytracked_cutoff, 0);
+    midi_cutoff->plug(scaled_envelope, 1);
+    MidiScale* frequency_cutoff = new MidiScale();
+    frequency_cutoff->plug(midi_cutoff);
+
+    Value* resonance = new Value(3);
+    filter_ = new Filter();
+    filter_->plug(audio, Filter::kAudio);
+    filter_->plug(reset, Filter::kReset);
+    filter_->plug(frequency_cutoff, Filter::kCutoff);
+    filter_->plug(resonance, Filter::kResonance);
+
+    addGlobalProcessor(base_cutoff);
+    addProcessor(current_keytrack);
+    addProcessor(keytracked_cutoff);
+    addProcessor(midi_cutoff);
+    addProcessor(frequency_cutoff);
+    addProcessor(filter_);
+
+    controls_["cutoff"] = new Control(base_cutoff, 28, 127, 128);
+    controls_["keytrack"] = new Control(keytrack_amount, -1, 1, 128);
+    controls_["resonance"] = new Control(resonance, 0.5, 15, 128);
   }
 
-  TermiteArticulation::TermiteArticulation() {
-    registerInput(note_wait_.input(TriggerWait::kWait));
-    registerInput(legato_filter_.input(LegatoFilter::kTrigger));
+  void TermiteVoiceHandler::createArticulation(
+      Output* note, Output* velocity, Output* trigger) {
+    UNUSED(velocity);
 
-    portamento_.set(0.01);
-    portamento_state_.set(0);
-    legato_.set(0);
+    // Legato.
+    Value* legato = new Value(0);
+    LegatoFilter* legato_filter = new LegatoFilter();
+    legato_filter->plug(legato, LegatoFilter::kLegato);
+    legato_filter->plug(trigger, LegatoFilter::kTrigger);
 
-    legato_filter_.plug(&legato_, LegatoFilter::kLegato);
-    frequency_ready_.plug(legato_filter_.output(LegatoFilter::kRemain), 0);
-    frequency_ready_.plug(amplitude_envelope_.output(Envelope::kFinished), 1);
-    note_wait_.plug(&frequency_ready_, TriggerWait::kTrigger);
-    note_.plug(&note_wait_);
+    controls_["legato"] = new Control(legato, 0, 1, 1);
+    addProcessor(legato_filter);
 
-    portamento_filter_.plug(&portamento_state_, PortamentoFilter::kPortamento);
-    portamento_filter_.plug(&frequency_ready_, PortamentoFilter::kTrigger);
-    midi_sent_.plug(&note_, LinearSlope::kTarget);
-    midi_sent_.plug(&portamento_, LinearSlope::kRunSeconds);
-    midi_sent_.plug(&portamento_filter_, LinearSlope::kTriggerJump);
+    // Amplitude envelope.
+    Value* amplitude_attack = new Value(0.01);
+    Value* amplitude_decay = new Value(0.6);
+    Value* amplitude_sustain = new SmoothValue(0);
+    Value* amplitude_release = new Value(0.3);
 
-    amplitude_attack_.set(0.01);
-    amplitude_decay_.set(0.6);
-    amplitude_sustain_.set(0);
-    amplitude_release_.set(0.3);
+    amplitude_envelope_ = new Envelope();
+    amplitude_envelope_->plug(legato_filter->output(LegatoFilter::kRetrigger),
+                              Envelope::kTrigger);
+    amplitude_envelope_->plug(amplitude_attack, Envelope::kAttack);
+    amplitude_envelope_->plug(amplitude_decay, Envelope::kDecay);
+    amplitude_envelope_->plug(amplitude_sustain, Envelope::kSustain);
+    amplitude_envelope_->plug(amplitude_release, Envelope::kRelease);
 
-    amplitude_envelope_.plug(legato_filter_.output(LegatoFilter::kRetrigger),
-                             Envelope::kTrigger);
-    amplitude_envelope_.plug(&amplitude_attack_, Envelope::kAttack);
-    amplitude_envelope_.plug(&amplitude_decay_, Envelope::kDecay);
-    amplitude_envelope_.plug(&amplitude_sustain_, Envelope::kSustain);
-    amplitude_envelope_.plug(&amplitude_release_, Envelope::kRelease);
+    addProcessor(amplitude_envelope_);
+    addGlobalProcessor(amplitude_sustain);
 
-    registerOutput(midi_sent_.output());
-    registerOutput(amplitude_envelope_.output(Envelope::kFinished));
-    registerOutput(amplitude_envelope_.output(Envelope::kValue));
+    controls_["amp attack"] = new Control(amplitude_attack, 0, 3, 128);
+    controls_["amp decay"] = new Control(amplitude_decay, 0, 3, 128);
+    controls_["amp sustain"] = new Control(amplitude_sustain, 0, 1, 128);
+    controls_["amp release"] = new Control(amplitude_release, 0, 3, 128);
 
-    addProcessor(&note_);
-    addProcessor(&note_wait_);
-    addProcessor(&legato_filter_);
-    addProcessor(&frequency_ready_);
-    addProcessor(&portamento_filter_);
-    addProcessor(&midi_sent_);
-    addProcessor(&amplitude_envelope_);
+    // Voice and frequency resetting logic.
+    TriggerCombiner* frequency_trigger = new TriggerCombiner();
+    frequency_trigger->plug(legato_filter->output(LegatoFilter::kRemain), 0);
+    frequency_trigger->plug(amplitude_envelope_->output(Envelope::kFinished), 1);
 
-    section_.controls["portamento"] =
-        new Control(&portamento_, 0.0, 0.2, 128);
-    section_.controls["portamento state"] =
-        new Control(&portamento_state_, 0, 2, 2);
-    section_.controls["legato"] =
-        new Control(&legato_, 0, 1, 1);
-    section_.controls["amp attack"] =
-        new Control(&amplitude_attack_, 0, 3, 128);
-    section_.controls["amp decay"] =
-        new Control(&amplitude_decay_, 0, 3, 128);
-    section_.controls["amp sustain"] =
-        new Control(&amplitude_sustain_, 0, 1, 128);
-    section_.controls["amp release"] =
-        new Control(&amplitude_release_, 0, 3, 128);
+    TriggerWait* note_wait = new TriggerWait();
+    Value* current_note = new Value();
+    note_wait->plug(note, TriggerWait::kWait);
+    note_wait->plug(frequency_trigger, TriggerWait::kTrigger);
+    current_note->plug(note_wait);
+
+    addProcessor(note_wait);
+    addProcessor(current_note);
+
+    // Keytracking.
+    Value* center_adjust = new Value(-MIDI_SIZE / 2);
+    note_from_center_ = new Add();
+    note_from_center_->plug(center_adjust, 0);
+    note_from_center_->plug(current_note, 1);
+
+    addProcessor(note_from_center_);
+    addGlobalProcessor(center_adjust);
+
+    // Portamento.
+    Value* portamento = new Value(0.01);
+    Value* portamento_state = new Value(0);
+    PortamentoFilter* portamento_filter = new PortamentoFilter();
+    portamento_filter->plug(portamento_state, PortamentoFilter::kPortamento);
+    portamento_filter->plug(frequency_trigger, PortamentoFilter::kTrigger);
+    addProcessor(portamento_filter);
+
+    LinearSlope* current_frequency = new LinearSlope();
+    current_frequency->plug(current_note, LinearSlope::kTarget);
+    current_frequency->plug(portamento, LinearSlope::kRunSeconds);
+    current_frequency->plug(portamento_filter, LinearSlope::kTriggerJump);
+
+    addProcessor(current_frequency);
+    controls_["portamento"] = new Control(portamento, 0.0, 0.2, 128);
+    controls_["portamento state"] = new Control(portamento_state, 0, 2, 2);
   }
 
   TermiteVoiceHandler::TermiteVoiceHandler() {
-    articulation_.plug(note(), 0);
-    articulation_.plug(voice_event(), 1);
+    pitch_bend_amount_ = new SmoothValue(0);
+    controls_["pitch bend amount"] =
+        new Control(pitch_bend_amount_, -1, 1, 128);
 
-    oscillators_.plug(articulation_.output(0));
-    oscillators_.plug(articulation_.output(1), 1);
-    oscillators_.plug(articulation_.output(1), 2);
-    center_adjust_.set(-MIDI_SIZE / 2);
-    note_from_center_.plug(&center_adjust_, 0);
-    note_from_center_.plug(articulation_.output(0), 1);
-    filter_.plug(&oscillators_, 0);
-    filter_.plug(&note_from_center_, 1);
-    filter_.plug(articulation_.output(1), 2);
-    filter_.plug(articulation_.output(1), 3);
+    createArticulation(note(), velocity(), voice_event());
+    createOscillators(frequency_->output(),
+                      amplitude_envelope_->output(Envelope::kFinished));
+    createFilter(oscillator_mix_->output(), note_from_center_->output(),
+                 amplitude_envelope_->output(Envelope::kFinished));
 
-    output_.plug(&filter_, 0);
-    output_.plug(articulation_.output(2), 1);
-    addProcessor(&output_);
-    addProcessor(&note_from_center_);
-    addProcessor(&articulation_);
-    addProcessor(&oscillators_);
-    addProcessor(&filter_);
+    output_ = new Multiply();
+    output_->plug(filter_->output(), 0);
+    output_->plug(amplitude_envelope_->output(Envelope::kValue), 1);
 
-    setVoiceOutput(&output_);
-    setVoiceKiller(articulation_.output(2));
-
-    section_.sub_groups["oscillators"] = oscillators_.getControls();
-    section_.sub_groups["filter"] = filter_.getControls();
-    section_.sub_groups["articulation"] = articulation_.getControls();
+    addProcessor(output_);
+    setVoiceOutput(output_);
+    setVoiceKiller(amplitude_envelope_->output(Envelope::kValue));
   }
 
-  TermiteSynth::TermiteSynth() : ProcessorRouter(0, 1) {
-    polyphony_.set(1);
-    voice_handler_.setPolyphony(64);
-    voice_handler_.plug(&polyphony_, VoiceHandler::kPolyphony);
-    volume_.setHard(0.6);
-    volume_mult_.plug(&delay_, 0);
-    volume_mult_.plug(&volume_, 1);
+  TermiteSynth::TermiteSynth() {
+    // Voice Handler.
+    Value* polyphony = new Value(1);
+    voice_handler_ = new TermiteVoiceHandler();
+    voice_handler_->setPolyphony(64);
+    voice_handler_->plug(polyphony, VoiceHandler::kPolyphony);
 
-    delay_time_.setHard(0.3);
-    delay_feedback_.setHard(0.4);
-    delay_wet_.setHard(0.2);
+    addProcessor(voice_handler_);
+    controls_["polyphony"] = new Control(polyphony, 1, 32, 31);
 
-    delay_.plug(&voice_handler_, Delay::kAudio);
-    delay_.plug(&delay_time_, Delay::kDelayTime);
-    delay_.plug(&delay_feedback_, Delay::kFeedback);
-    delay_.plug(&delay_wet_, Delay::kWet);
+    // Delay effect.
+    SmoothValue* delay_time = new SmoothValue(0.06);
+    SmoothValue* delay_feedback = new SmoothValue(-0.3);
+    SmoothValue* delay_wet = new SmoothValue(0.3);
 
-    addProcessor(&volume_);
-    addProcessor(&volume_mult_);
-    addProcessor(&voice_handler_);
+    Delay* delay = new Delay();
+    delay->plug(voice_handler_, Delay::kAudio);
+    delay->plug(delay_time, Delay::kDelayTime);
+    delay->plug(delay_feedback, Delay::kFeedback);
+    delay->plug(delay_wet, Delay::kWet);
 
-    addProcessor(&delay_);
-    addProcessor(&delay_time_);
-    addProcessor(&delay_feedback_);
-    addProcessor(&delay_wet_);
+    addProcessor(delay_time);
+    addProcessor(delay_feedback);
+    addProcessor(delay_wet);
+    addProcessor(delay);
 
-    section_.controls["volume"] = new Control(&volume_, 0, 1, 128);
-    section_.controls["polyphony"] = new Control(&polyphony_, 1, 32, 31);
-    section_.controls["delay time"] = new Control(&delay_time_, 0.01, 1, 128);
-    section_.controls["delay feedback"] =
-        new Control(&delay_feedback_, -1, 1, 128);
-    section_.controls["delay dry/wet"] = new Control(&delay_wet_, 0, 1, 128);
-    section_.sub_groups["voice handler"] = voice_handler_.getControls();
-  }
+    controls_["delay time"] = new Control(delay_time, 0.01, 1, 128);
+    controls_["delay feedback"] = new Control(delay_feedback, -1, 1, 128);
+    controls_["delay wet/dry"] = new Control(delay_wet, 0, 1, 128);
 
-  void TermiteSynth::process() {
-    ProcessorRouter::process();
-    memcpy(outputs_[0]->buffer, volume_mult_.output()->buffer,
-           sizeof(laf_float) * BUFFER_SIZE);
+    // Volume.
+    SmoothValue* volume = new SmoothValue(0.6);
+    Multiply* scaled_audio = new Multiply();
+    scaled_audio->plug(delay, 0);
+    scaled_audio->plug(volume, 1);
+
+    addProcessor(volume);
+    addProcessor(scaled_audio);
+    registerOutput(scaled_audio->output());
+
+    controls_["volume"] = new Control(volume, 0, 1, 128);
   }
 
   void TermiteSynth::noteOn(laf_float note, laf_float velocity) {
-    voice_handler_.noteOn(note, velocity);
+    voice_handler_->noteOn(note, velocity);
   }
 
   void TermiteSynth::noteOff(laf_float note) {
-    voice_handler_.noteOff(note);
+    voice_handler_->noteOff(note);
   }
 } // namespace laf
