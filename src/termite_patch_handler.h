@@ -18,6 +18,11 @@
 #ifndef TERMITE_PATCH_HANDLER_H
 #define TERMITE_PATCH_HANDLER_H
 
+#include "termite_common.h"
+
+#include <map>
+#include <vector>
+
 namespace laf {
 
   class TermitePatchHandler {

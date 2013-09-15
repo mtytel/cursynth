@@ -25,8 +25,6 @@
 #include "termite_synth.h"
 
 #include <pthread.h>
-#include <map>
-#include <vector>
 
 namespace laf {
 
@@ -71,7 +69,10 @@ namespace laf {
       RtAudio dac_;
       State state_;
       std::vector<RtMidiIn*> midi_ins_;
+      std::map<int, Control*> midi_learn_;
       pthread_mutex_t mutex_;
+      std::string current_control_;
+      control_map* global_controls_;
 
       Control* pitch_bend_;
   };

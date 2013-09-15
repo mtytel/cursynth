@@ -49,7 +49,7 @@ namespace laf {
 
       Add* note_from_center_;
       SmoothValue* pitch_bend_amount_;
-      LinearSlope* frequency_;
+      LinearSlope* current_frequency_;
       Envelope* amplitude_envelope_;
 
       Oscillator* oscillator1_;

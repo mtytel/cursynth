@@ -216,10 +216,10 @@ namespace laf {
     endwin();
   }
 
-  void TermiteGui::placeSliders(std::map<std::string, Control*> controls,
-                    int x, int y, int width) {
-    std::map<std::string, Control*>::const_iterator iter = controls.begin();
-    for (int i = 0; iter != controls.end(); ++iter, ++i) {
+  void TermiteGui::placeSliders(const control_map* controls,
+                                int x, int y, int width) {
+    std::map<std::string, Control*>::const_iterator iter = controls->begin();
+    for (int i = 0; iter != controls->end(); ++iter, ++i) {
       Slider* slider = new Slider();
       slider->x = x;
       slider->y = y + SPACE * i;
@@ -232,23 +232,13 @@ namespace laf {
     }
   }
 
-  void TermiteGui::addPerformanceControls(const ControlGroup* performance) {
+  void TermiteGui::addGlobalControls(const control_map* global_controls) {
     int x = (getColumnWidth() + SPACE) * PERFORMANCE_COLUMN + SPACE;
-    placeSliders(performance->controls, x, PERFORMANCE_Y, getColumnWidth());
+    placeSliders(global_controls, x, PERFORMANCE_Y, getColumnWidth());
   }
 
-  void TermiteGui::addOscillatorControls(const ControlGroup* oscillator) {
+  void TermiteGui::addVoiceControls(const control_map* voice_controls) {
     int x = (getColumnWidth() + SPACE) * OSCILLATOR_COLUMN + SPACE;
-    placeSliders(oscillator->controls, x, TOP_Y, getColumnWidth());
-  }
-
-  void TermiteGui::addFilterControls(const ControlGroup* filter) {
-    int x = (getColumnWidth() + SPACE) * FILTER_COLUMN + SPACE;
-    placeSliders(filter->controls, x, TOP_Y, getColumnWidth());
-  }
-
-  void TermiteGui::addArticulationControls(const ControlGroup* articulation) {
-    int x = (getColumnWidth() + SPACE) * ARTICULATION_COLUMN + SPACE;
-    placeSliders(articulation->controls, x, TOP_Y, getColumnWidth());
+    placeSliders(voice_controls, x, TOP_Y, getColumnWidth());
   }
 } // namespace laf

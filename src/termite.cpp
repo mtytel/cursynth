@@ -127,7 +127,7 @@ namespace laf {
       return true;
     }
 
-    Control* control = control_iter_->second;
+    // Control* control = global_controls_->at(current_control_);
     switch(key) {
       case 'm':
         lock();
@@ -148,10 +148,11 @@ namespace laf {
         */
       case 'c':
         lock();
-        eraseMidiLearn(control);
+        // eraseMidiLearn(control);
         state_ = STANDARD;
         unlock();
         break;
+        /*
       case KEY_UP:
         if (control_iter_ == groups_[active_group_]->controls.begin()) {
           active_group_ = (groups_.size() + active_group_ - 1) %
@@ -179,6 +180,7 @@ namespace laf {
         control->current_value -=
             (control->max - control->min) / control->resolution;
         break;
+        */
       default:
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
           if (KEYBOARD[i] == key) {
@@ -188,6 +190,7 @@ namespace laf {
           }
         }
     }
+    /*
     control = control_iter_->second;
     control->current_value =
       CLAMP(control->min, control->max, control->current_value);
@@ -195,6 +198,7 @@ namespace laf {
     control->value->set(control->current_value);
     gui_.drawControl(control, true);
     gui_.drawControlStatus(control, state_ == MIDI_LEARN);
+    */
 
     return true;
   }
@@ -337,10 +341,12 @@ namespace laf {
 
     // Global Section.
     control_map* controls = synth_.getGlobalControls();
-    control_map* controls = synth_.getVoiceControls();
+    control_map* voice_controls = synth_.getVoiceControls();
 
+    /*
     gui_.drawControl(control_iter_->second, true);
     gui_.drawControlStatus(control_iter_->second, false);
+    */
   }
 
   void Termite::processAudio(laf_float *out_buffer, unsigned int n_frames) {
@@ -385,7 +391,7 @@ namespace laf {
     int midi_port = message->at(0);
     int midi_id = message->at(1);
     int midi_val = message->at(2);
-    Control* selected_control = control_iter_->second;
+    Control* selected_control = global_controls_->at(current_control_);
     if (midi_port >= 144 && midi_port < 160) {
       int midi_note = midi_id;
       int midi_velocity = midi_val;

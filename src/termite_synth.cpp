@@ -162,7 +162,7 @@ namespace laf {
     // Amplitude envelope.
     Value* amplitude_attack = new Value(0.01);
     Value* amplitude_decay = new Value(0.6);
-    Value* amplitude_sustain = new SmoothValue(0);
+    Value* amplitude_sustain = new SmoothValue(0.0);
     Value* amplitude_release = new Value(0.3);
 
     amplitude_envelope_ = new Envelope();
@@ -184,7 +184,8 @@ namespace laf {
     // Voice and frequency resetting logic.
     TriggerCombiner* frequency_trigger = new TriggerCombiner();
     frequency_trigger->plug(legato_filter->output(LegatoFilter::kRemain), 0);
-    frequency_trigger->plug(amplitude_envelope_->output(Envelope::kFinished), 1);
+    frequency_trigger->plug(
+        amplitude_envelope_->output(Envelope::kFinished), 1);
 
     TriggerWait* note_wait = new TriggerWait();
     Value* current_note = new Value();
@@ -192,6 +193,7 @@ namespace laf {
     note_wait->plug(frequency_trigger, TriggerWait::kTrigger);
     current_note->plug(note_wait);
 
+    addProcessor(frequency_trigger);
     addProcessor(note_wait);
     addProcessor(current_note);
 
@@ -212,12 +214,12 @@ namespace laf {
     portamento_filter->plug(frequency_trigger, PortamentoFilter::kTrigger);
     addProcessor(portamento_filter);
 
-    LinearSlope* current_frequency = new LinearSlope();
-    current_frequency->plug(current_note, LinearSlope::kTarget);
-    current_frequency->plug(portamento, LinearSlope::kRunSeconds);
-    current_frequency->plug(portamento_filter, LinearSlope::kTriggerJump);
+    current_frequency_ = new LinearSlope();
+    current_frequency_->plug(current_note, LinearSlope::kTarget);
+    current_frequency_->plug(portamento, LinearSlope::kRunSeconds);
+    current_frequency_->plug(portamento_filter, LinearSlope::kTriggerJump);
 
-    addProcessor(current_frequency);
+    addProcessor(current_frequency_);
     controls_["portamento"] = new Control(portamento, 0.0, 0.2, 128);
     controls_["portamento state"] = new Control(portamento_state, 0, 2, 2);
   }
@@ -228,7 +230,7 @@ namespace laf {
         new Control(pitch_bend_amount_, -1, 1, 128);
 
     createArticulation(note(), velocity(), voice_event());
-    createOscillators(frequency_->output(),
+    createOscillators(current_frequency_->output(),
                       amplitude_envelope_->output(Envelope::kFinished));
     createFilter(oscillator_mix_->output(), note_from_center_->output(),
                  amplitude_envelope_->output(Envelope::kFinished));
@@ -244,7 +246,7 @@ namespace laf {
 
   TermiteSynth::TermiteSynth() {
     // Voice Handler.
-    Value* polyphony = new Value(1);
+    Value* polyphony = new Value(12);
     voice_handler_ = new TermiteVoiceHandler();
     voice_handler_->setPolyphony(64);
     voice_handler_->plug(polyphony, VoiceHandler::kPolyphony);
