@@ -31,12 +31,12 @@ namespace laf {
     final_midi_.plug(&pitch_bend_, 1);
 
     oscillator_1_wave_type_.set(Wave::kDownSaw);
-    oscillator_1_.plug(&oscillator_1_wave_type_, Oscillator::kWaveType);
+    oscillator_1_.plug(&oscillator_1_wave_type_, Oscillator::kWaveform);
     oscillator_1_freq_.plug(&final_midi_);
     oscillator_1_.plug(&oscillator_1_freq_, Oscillator::kFrequency);
 
     oscillator_2_wave_type_.set(Wave::kDownSaw);
-    oscillator_2_.plug(&oscillator_2_wave_type_, Oscillator::kWaveType);
+    oscillator_2_.plug(&oscillator_2_wave_type_, Oscillator::kWaveform);
     oscillator_2_transpose_.set(0);
     oscillator_2_midi_.plug(&final_midi_, 0);
     oscillator_2_midi_.plug(&oscillator_2_transpose_, 1);
