@@ -119,7 +119,7 @@ namespace laf {
     SmoothValue* base_cutoff = new SmoothValue(92);
     Add* keytracked_cutoff = new Add();
     keytracked_cutoff->plug(base_cutoff, 0);
-    keytracked_cutoff->plug(current_keytrack, 0);
+    keytracked_cutoff->plug(current_keytrack, 1);
 
     Add* midi_cutoff = new Add();
     midi_cutoff->plug(keytracked_cutoff, 0);
