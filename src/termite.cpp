@@ -73,57 +73,9 @@ namespace laf {
     stop();
   }
 
-  /*
-  void Termite::loadTextInput(int key) {
-    switch(key) {
-      case '\n':
-        state_ = STANDARD;
-        gui_.clearLoad();
-        break;
-      case KEY_UP:
-        loadPrev();
-        break;
-      case KEY_DOWN:
-        loadNext();
-        break;
-    }
-  }
-
-  void Termite::saveTextInput(int key) {
-    std::string current = save_as_stream_.str();
-    switch(key) {
-      case '\n':
-        // saveToFile();
-        state_ = STANDARD;
-        gui_.clearSave();
-        break;
-      case KEY_DC:
-      case KEY_BACKSPACE:
-      case 127:
-        save_as_stream_.str(current.substr(0, current.length() - 1));
-        save_as_stream_.seekp(save_as_stream_.str().length());
-        gui_.drawSave(save_as_stream_.str());
-        break;
-      default:
-        if (isprint(key))
-          save_as_stream_ << static_cast<char>(key);
-        gui_.drawSave(save_as_stream_.str());
-        break;
-    }
-  }
-  */
-
   bool Termite::textInput(int key) {
     if (key == KEY_F(1))
       return false;
-    if (state_ == LOADING) {
-      // loadTextInput(key);
-      return true;
-    }
-    if (state_ == SAVING) {
-      // saveTextInput(key);
-      return true;
-    }
 
     std::string current_control = gui_.getCurrentControl();
     Control* control = controls_.at(current_control);
@@ -181,7 +133,6 @@ namespace laf {
   }
 
   void Termite::setupAudio() {
-    // Setup Audio
     if (dac_.getDeviceCount() < 1) {
       std::cout << "No audio devices found.\n";
       exit(0);
@@ -210,7 +161,6 @@ namespace laf {
   void Termite::setupGui() {
     gui_.start();
 
-    // Global Section.
     controls_ = synth_.getControls();
     gui_.addControls(controls_);
 
@@ -238,7 +188,6 @@ namespace laf {
   }
 
   void Termite::setupMidi() {
-    // Setup MIDI
     RtMidiIn* midi_in = new RtMidiIn();
     if (midi_in->getPortCount() < 1) {
       std::cout << "No midi devices found.\n";

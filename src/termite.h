@@ -32,8 +32,6 @@ namespace laf {
       enum InputState {
         STANDARD,
         MIDI_LEARN,
-        LOADING,
-        SAVING
       };
 
       Termite();
