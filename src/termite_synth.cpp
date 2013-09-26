@@ -46,7 +46,7 @@ namespace laf {
     addProcessor(oscillator1_);
 
     int wave_resolution = Wave::kNumWaveforms - 1;
-    controls_["oscillator 1 waveform"] =
+    controls_["osc 1 waveform"] =
         new Control(oscillator1_waveform, 0, wave_resolution, wave_resolution);
 
     // Oscillator 2.
@@ -67,9 +67,9 @@ namespace laf {
     addProcessor(oscillator2_frequency);
     addProcessor(oscillator2_);
 
-    controls_["oscillator 2 waveform"] =
+    controls_["osc 2 waveform"] =
         new Control(oscillator2_waveform, 0, wave_resolution, wave_resolution);
-    controls_["oscillator 2 transpose"] =
+    controls_["osc 2 transpose"] =
         new Control(oscillator2_transpose, -48, 48, 96);
 
     // Oscillator mix.
@@ -85,7 +85,7 @@ namespace laf {
     // Filter envelope.
     Value* filter_attack = new Value(0.0);
     Value* filter_decay = new Value(0.3);
-    Value* filter_sustain = new Value(0);
+    Value* filter_sustain = new Value(1);
     Value* filter_release = new Value(0.3);
 
     filter_envelope_ = new Envelope();
@@ -161,8 +161,8 @@ namespace laf {
 
     // Amplitude envelope.
     Value* amplitude_attack = new Value(0.01);
-    Value* amplitude_decay = new Value(0.6);
-    Value* amplitude_sustain = new SmoothValue(0.0);
+    Value* amplitude_decay = new Value(2.0);
+    Value* amplitude_sustain = new SmoothValue(1.0);
     Value* amplitude_release = new Value(0.3);
 
     amplitude_envelope_ = new Envelope();
@@ -208,9 +208,9 @@ namespace laf {
 
     // Portamento.
     Value* portamento = new Value(0.01);
-    Value* portamento_state = new Value(0);
+    Value* portamento_type = new Value(0);
     PortamentoFilter* portamento_filter = new PortamentoFilter();
-    portamento_filter->plug(portamento_state, PortamentoFilter::kPortamento);
+    portamento_filter->plug(portamento_type, PortamentoFilter::kPortamento);
     portamento_filter->plug(frequency_trigger, PortamentoFilter::kTrigger);
     addProcessor(portamento_filter);
 
@@ -221,7 +221,7 @@ namespace laf {
 
     addProcessor(current_frequency_);
     controls_["portamento"] = new Control(portamento, 0.0, 0.2, 128);
-    controls_["portamento state"] = new Control(portamento_state, 0, 2, 2);
+    controls_["portamento type"] = new Control(portamento_type, 0, 2, 2);
   }
 
   TermiteVoiceHandler::TermiteVoiceHandler() {
@@ -285,6 +285,12 @@ namespace laf {
     registerOutput(scaled_audio->output());
 
     controls_["volume"] = new Control(volume, 0, 1, 128);
+  }
+
+  control_map TermiteSynth::getControls() {
+    control_map voice_controls = voice_handler_->getControls();
+    voice_controls.insert(controls_.begin(), controls_.end());
+    return voice_controls;
   }
 
   void TermiteSynth::noteOn(laf_float note, laf_float velocity) {

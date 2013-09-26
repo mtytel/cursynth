@@ -21,7 +21,6 @@
 #include "RtAudio.h"
 #include "RtMidi.h"
 #include "termite_gui.h"
-#include "termite_patch_handler.h"
 #include "termite_synth.h"
 
 #include <pthread.h>
@@ -30,11 +29,11 @@ namespace laf {
 
   class Termite {
     public:
-      enum State {
+      enum InputState {
         STANDARD,
         MIDI_LEARN,
-        SAVING,
         LOADING,
+        SAVING
       };
 
       Termite();
@@ -47,33 +46,32 @@ namespace laf {
       void unlock() { pthread_mutex_unlock(&mutex_); }
 
     private:
-      void loadTextInput(int key);
-      void saveTextInput(int key);
+      std::string writeStateToString();
+      void readStateFromString(const std::string& state);
+
       bool textInput(int key);
       void setupAudio();
       void eraseMidiLearn(Control* control);
-
-      std::string writeStateToString();
-      void readStateFromString(const std::string& state);
-      void startLoad();
 
       void setupMidi();
       void setupControls();
       void setupGui();
       void stop();
 
+      // Termite parts.
       TermiteSynth synth_;
       TermiteGui gui_;
-      TermitePatchHandler patch_handler_;
 
+      // IO.
       RtAudio dac_;
-      State state_;
       std::vector<RtMidiIn*> midi_ins_;
       std::map<int, Control*> midi_learn_;
-      pthread_mutex_t mutex_;
-      std::string current_control_;
-      control_map* global_controls_;
 
+      // State.
+      InputState state_;
+      control_map controls_;
+      std::string current_control_;
+      pthread_mutex_t mutex_;
       Control* pitch_bend_;
   };
 } // namespace laf

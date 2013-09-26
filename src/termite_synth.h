@@ -40,7 +40,7 @@ namespace laf {
     public:
       TermiteVoiceHandler();
 
-      control_map* getControls() { return &controls_; }
+      control_map getControls() { return controls_; }
 
     private:
       void createArticulation(Output* note, Output* velocity, Output* trigger);
@@ -68,8 +68,7 @@ namespace laf {
     public:
       TermiteSynth();
 
-      control_map* getGlobalControls() { return &controls_; }
-      control_map* getVoiceControls() { return voice_handler_->getControls(); }
+      control_map getControls();
 
       void noteOn(laf_float note, laf_float velocity = 1);
       void noteOff(laf_float note);

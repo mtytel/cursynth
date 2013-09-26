@@ -73,61 +73,60 @@ namespace laf {
     stop();
   }
 
+  /*
   void Termite::loadTextInput(int key) {
-    /*
     switch(key) {
       case '\n':
-        loading_ = false;
+        state_ = STANDARD;
         gui_.clearLoad();
         break;
       case KEY_UP:
-        patch_handler_.loadPrev();
+        loadPrev();
         break;
       case KEY_DOWN:
-        patch_handler_.loadNext();
+        loadNext();
         break;
     }
-    */
   }
 
   void Termite::saveTextInput(int key) {
-    /*
-    std::string current = saveAsStream.str();
+    std::string current = save_as_stream_.str();
     switch(key) {
       case '\n':
-        saveToFile();
-        saving_ = false;
+        // saveToFile();
+        state_ = STANDARD;
         gui_.clearSave();
         break;
       case KEY_DC:
       case KEY_BACKSPACE:
       case 127:
-        saveAsStream.str(current.substr(0, current.length() - 1));
-        saveAsStream.seekp(saveAsStream.str().length());
-        gui_.drawSave(saveAsStream.str());
+        save_as_stream_.str(current.substr(0, current.length() - 1));
+        save_as_stream_.seekp(save_as_stream_.str().length());
+        gui_.drawSave(save_as_stream_.str());
         break;
       default:
         if (isprint(key))
-          saveAsStream << static_cast<char>(key);
-        gui_.drawSave(saveAsStream.str());
+          save_as_stream_ << static_cast<char>(key);
+        gui_.drawSave(save_as_stream_.str());
         break;
     }
-    */
   }
+  */
 
   bool Termite::textInput(int key) {
     if (key == KEY_F(1))
       return false;
     if (state_ == LOADING) {
-      loadTextInput(key);
+      // loadTextInput(key);
       return true;
     }
     if (state_ == SAVING) {
-      saveTextInput(key);
+      // saveTextInput(key);
       return true;
     }
 
-    // Control* control = global_controls_->at(current_control_);
+    std::string current_control = gui_.getCurrentControl();
+    Control* control = controls_.at(current_control);
     switch(key) {
       case 'm':
         lock();
@@ -142,7 +141,7 @@ namespace laf {
         startLoad();
         break;
       case 's':
-        saving_ = true;
+        state_ = SAVING;
         gui_.drawSave("");
         break;
         */
@@ -152,23 +151,13 @@ namespace laf {
         state_ = STANDARD;
         unlock();
         break;
-        /*
       case KEY_UP:
-        if (control_iter_ == groups_[active_group_]->controls.begin()) {
-          active_group_ = (groups_.size() + active_group_ - 1) %
-                          groups_.size();
-          control_iter_ = groups_[active_group_]->controls.end();
-        }
-        control_iter_--;
+        current_control = gui_.getPrevControl();
         state_ = STANDARD;
         gui_.drawControl(control, false);
         break;
       case KEY_DOWN:
-        control_iter_++;
-        if (control_iter_ == groups_[active_group_]->controls.end()) {
-          active_group_ = (active_group_ + 1) % groups_.size();
-          control_iter_ = groups_[active_group_]->controls.begin();
-        }
+        current_control = gui_.getNextControl();
         state_ = STANDARD;
         gui_.drawControl(control, false);
         break;
@@ -180,7 +169,6 @@ namespace laf {
         control->current_value -=
             (control->max - control->min) / control->resolution;
         break;
-        */
       default:
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
           if (KEYBOARD[i] == key) {
@@ -190,38 +178,18 @@ namespace laf {
           }
         }
     }
-    /*
-    control = control_iter_->second;
+    control = controls_.at(current_control);
     control->current_value =
       CLAMP(control->min, control->max, control->current_value);
 
     control->value->set(control->current_value);
     gui_.drawControl(control, true);
     gui_.drawControlStatus(control, state_ == MIDI_LEARN);
-    */
 
     return true;
   }
 
   /*
-  void Termite::loadNext() {
-    patch_index_ = (patch_index_ + 1) % patches_.size();
-    loadFromFile(patches_[patch_index_]);
-  }
-
-  void Termite::loadPrev() {
-    patch_index_ = (patches_.size() + patch_index_ - 1) % patches_.size();
-    loadFromFile(patches_[patch_index_]);
-  }
-
-  void Termite::saveToFile() {
-    std::ofstream save_file;
-    save_file.open(saveAsStream.str().c_str());
-    saveAsStream.str("");
-    save_file << writeStateToString();
-    save_file.close();
-  }
-
   std::string Termite::writeStateToString() {
     cJSON* root = cJSON_CreateObject();
     cJSON* sections = cJSON_CreateArray();
@@ -281,7 +249,7 @@ namespace laf {
     load_file.seekg(0, std::ios::beg);
     char file_contents[length];
     load_file.read(file_contents, length);
-    readStateFromString(file_contents);
+    // readStateFromString(file_contents);
     load_file.close();
 
     gui_.drawLoad(file_name);
@@ -303,11 +271,11 @@ namespace laf {
     if (patches_.size() == 0)
       return;
 
-    loading_ = true;
+    state_ = LOADING;
     patch_index_ = 0;
     loadFromFile(patches_[patch_index_]);
   }
-*/
+  */
 
   void Termite::setupAudio() {
     // Setup Audio
@@ -340,13 +308,12 @@ namespace laf {
     gui_.start();
 
     // Global Section.
-    control_map* controls = synth_.getGlobalControls();
-    control_map* voice_controls = synth_.getVoiceControls();
+    controls_ = synth_.getControls();
+    gui_.addControls(controls_);
 
-    /*
-    gui_.drawControl(control_iter_->second, true);
-    gui_.drawControlStatus(control_iter_->second, false);
-    */
+    Control* control = controls_.at(gui_.getCurrentControl());
+    gui_.drawControl(control, true);
+    gui_.drawControlStatus(control, false);
   }
 
   void Termite::processAudio(laf_float *out_buffer, unsigned int n_frames) {
@@ -391,7 +358,7 @@ namespace laf {
     int midi_port = message->at(0);
     int midi_id = message->at(1);
     int midi_val = message->at(2);
-    Control* selected_control = global_controls_->at(current_control_);
+    Control* selected_control = controls_.at(current_control_);
     if (midi_port >= 144 && midi_port < 160) {
       int midi_note = midi_id;
       int midi_velocity = midi_val;
