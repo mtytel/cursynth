@@ -40,10 +40,8 @@ namespace laf {
     int resolution, midi_learn;
   };
 
-  struct ControlGroup {
-    std::map<std::string, Control*> controls;
-    std::map<std::string, ControlGroup*> sub_groups;
-  };
+  typedef std::map<std::string, Control*> control_map;
+
 } // namespace laf
 
 #endif // TERMITE_COMMON_H

@@ -25,41 +25,23 @@
 #include <sstream>
 #include <unistd.h>
 
+#define WIDTH 120
+#define HEIGHT 44
+
 #define LOGO_WIDTH 36
 #define LOGO_Y 0
-#define START_X 20
-#define START_Y 7
 #define SPACE 3
-#define TOP_Y 7
 #define TOTAL_COLUMNS 3
-#define OSCILLATOR_COLUMN 0
-#define FILTER_COLUMN 1
-#define ARTICULATION_COLUMN 2
-#define SAVE_COLUMN 2
-#define PERFORMANCE_COLUMN 0
-#define PERFORMANCE_Y (TOP_Y + 18)
 #define MAX_STATUS_SIZE 5
 #define MAX_SAVE_SIZE 40
-
-namespace {
-  int getWidth() {
-    int xdim;
-    int ydim;
-    getmaxyx(stdscr, ydim, xdim);
-    return xdim;
-  }
-
-  int getColumnWidth() {
-    return (getWidth() - (TOTAL_COLUMNS + 1) * SPACE) / TOTAL_COLUMNS;
-  }
-}
+#define SAVE_COLUMN 2
 
 namespace laf {
 
   void TermiteGui::drawLogo() {
     attron(A_BOLD);
     attron(COLOR_PAIR(LOGO_COLOR));
-    int logo_x = (getWidth() - LOGO_WIDTH) / 2;
+    int logo_x = (WIDTH - LOGO_WIDTH) / 2;
 
     move(LOGO_Y, logo_x);
     printw("   __                        __");
@@ -79,6 +61,7 @@ namespace laf {
     printw("                          Little IO");
   }
 
+  /*
   void TermiteGui::clearSave() {
     int x = (getColumnWidth() + SPACE) * SAVE_COLUMN + SPACE;
     move(1, x);
@@ -114,9 +97,10 @@ namespace laf {
     attroff(A_BOLD);
     refresh();
   }
+  */
 
   void TermiteGui::drawMidi(std::string status) {
-    move(1,0);
+    move(2, 2);
     printw("MIDI Learn: ");
     attron(A_BOLD);
     hline(' ', MAX_STATUS_SIZE);
@@ -126,7 +110,7 @@ namespace laf {
   }
 
   void TermiteGui::drawStatus(std::string status) {
-    move(0,0);
+    move(1, 2);
     printw("Current Value: ");
     attron(A_BOLD);
     hline(' ', MAX_STATUS_SIZE);
@@ -216,39 +200,92 @@ namespace laf {
     endwin();
   }
 
-  void TermiteGui::placeSliders(std::map<std::string, Control*> controls,
-                    int x, int y, int width) {
-    std::map<std::string, Control*>::const_iterator iter = controls.begin();
-    for (int i = 0; iter != controls.end(); ++iter, ++i) {
-      Slider* slider = new Slider();
-      slider->x = x;
-      slider->y = y + SPACE * i;
-      slider->width = width;
-      slider->label = iter->first;
-      slider->bipolar = iter->second->min < 0;
+  void TermiteGui::placeSlider(std::string name, const Control* control,
+                               int x, int y, int width) {
+    Slider* slider = new Slider();
+    slider->x = x;
+    slider->y = y;
+    slider->width = width;
+    slider->label = name;
+    slider->bipolar = control->min < 0;
 
-      slider_lookup_[iter->second] = slider;
-      drawControl(iter->second, false);
-    }
+    slider_lookup_[control] = slider;
+    drawControl(control, false);
+    control_order_.push_back(name);
   }
 
-  void TermiteGui::addPerformanceControls(const ControlGroup* performance) {
-    int x = (getColumnWidth() + SPACE) * PERFORMANCE_COLUMN + SPACE;
-    placeSliders(performance->controls, x, PERFORMANCE_Y, getColumnWidth());
+  void TermiteGui::addControls(const control_map& controls) {
+    // Oscillators.
+    placeSlider("osc 1 waveform", controls.at("osc 1 waveform"),
+                2, 7, 18);
+    placeSlider("osc 2 waveform", controls.at("osc 2 waveform"),
+                22, 7, 18);
+    placeSlider("osc 2 transpose", controls.at("osc 2 transpose"),
+                2, 10, 38);
+
+    // Filter.
+    placeSlider("cutoff", controls.at("cutoff"),
+                42, 7, 38);
+    placeSlider("resonance", controls.at("resonance"),
+                42, 10, 38);
+    placeSlider("keytrack", controls.at("keytrack"),
+                42, 13, 38);
+    placeSlider("fil env depth", controls.at("fil env depth"),
+                42, 16, 38);
+    placeSlider("fil attack", controls.at("fil attack"),
+                42, 19, 38);
+    placeSlider("fil decay", controls.at("fil decay"),
+                42, 22, 38);
+    placeSlider("fil sustain", controls.at("fil sustain"),
+                42, 25, 38);
+    placeSlider("fil release", controls.at("fil release"),
+                42, 28, 38);
+
+    // Performance.
+    placeSlider("polyphony", controls.at("polyphony"),
+                82, 7, 30);
+    placeSlider("legato", controls.at("legato"),
+                114, 7, 6);
+    placeSlider("portamento", controls.at("portamento"),
+                82, 10, 30);
+    placeSlider("portamento type", controls.at("portamento type"),
+                114, 10, 6);
+    placeSlider("pitch bend range", controls.at("pitch bend range"),
+                82, 13, 38);
+
+    // Amplitude Envelope.
+    placeSlider("amp attack", controls.at("amp attack"),
+                82, 19, 38);
+    placeSlider("amp decay", controls.at("amp decay"),
+                82, 22, 38);
+    placeSlider("amp sustain", controls.at("amp sustain"),
+                82, 25, 38);
+    placeSlider("amp release", controls.at("amp release"),
+                82, 28, 38);
+
+    // Volume / Delay.
+    placeSlider("volume", controls.at("volume"),
+                82, 34, 38);
+    placeSlider("delay time", controls.at("delay time"),
+                82, 37, 38);
+    placeSlider("delay feedback", controls.at("delay feedback"),
+                82, 40, 18);
+    placeSlider("delay wet/dry", controls.at("delay wet/dry"),
+                102, 40, 18);
   }
 
-  void TermiteGui::addOscillatorControls(const ControlGroup* oscillator) {
-    int x = (getColumnWidth() + SPACE) * OSCILLATOR_COLUMN + SPACE;
-    placeSliders(oscillator->controls, x, TOP_Y, getColumnWidth());
+  std::string TermiteGui::getCurrentControl() {
+    return control_order_[control_index_];
   }
 
-  void TermiteGui::addFilterControls(const ControlGroup* filter) {
-    int x = (getColumnWidth() + SPACE) * FILTER_COLUMN + SPACE;
-    placeSliders(filter->controls, x, TOP_Y, getColumnWidth());
+  std::string TermiteGui::getNextControl() {
+    control_index_ = (control_index_ + 1) % control_order_.size();
+    return getCurrentControl();
   }
 
-  void TermiteGui::addArticulationControls(const ControlGroup* articulation) {
-    int x = (getColumnWidth() + SPACE) * ARTICULATION_COLUMN + SPACE;
-    placeSliders(articulation->controls, x, TOP_Y, getColumnWidth());
+  std::string TermiteGui::getPrevControl() {
+    control_index_ = (control_index_ + control_order_.size() - 1) %
+                     control_order_.size();
+    return getCurrentControl();
   }
 } // namespace laf

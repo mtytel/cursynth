@@ -30,26 +30,24 @@ namespace laf {
 
   class TermiteGui {
     public:
-      enum {
+      enum ColorIds {
         SLIDER_FG_COLOR = 1,
         SLIDER_BG_COLOR,
         LOGO_COLOR,
       };
 
+      TermiteGui() : control_index_(0) { }
+
       void start();
       void stop();
 
-      void addPerformanceControls(const ControlGroup* controls);
-      void addOscillatorControls(const ControlGroup* controls);
-      void addFilterControls(const ControlGroup* controls);
-      void addArticulationControls(const ControlGroup* controls);
+      void addControls(const control_map& controls);
 
       void drawControl(const Control* control, bool active);
       void drawControlStatus(const Control* control, bool armed);
-      void clearSave();
-      void drawSave(std::string file_name);
-      void clearLoad();
-      void drawLoad(std::string file_name);
+      std::string getCurrentControl();
+      std::string getNextControl();
+      std::string getPrevControl();
 
     private:
       struct Slider {
@@ -61,10 +59,12 @@ namespace laf {
       void drawLogo();
       void drawMidi(std::string status);
       void drawStatus(std::string status);
-      void placeSliders(std::map<std::string, Control*> controls,
-                        int x, int y, int width);
+      void placeSlider(std::string name, const Control* control,
+                       int x, int y, int width);
 
       std::map<const Control*, Slider*> slider_lookup_;
+      std::vector<std::string> control_order_;
+      int control_index_;
   };
 } // namespace laf
 

@@ -24,13 +24,18 @@
 #include "termite_synth.h"
 
 #include <pthread.h>
-#include <map>
-#include <vector>
 
 namespace laf {
 
   class Termite {
     public:
+      enum InputState {
+        STANDARD,
+        MIDI_LEARN,
+        LOADING,
+        SAVING
+      };
+
       Termite();
 
       void start();
@@ -41,43 +46,32 @@ namespace laf {
       void unlock() { pthread_mutex_unlock(&mutex_); }
 
     private:
-      void loadTextInput(int key);
-      void saveTextInput(int key);
+      std::string writeStateToString();
+      void readStateFromString(const std::string& state);
+
       bool textInput(int key);
       void setupAudio();
       void eraseMidiLearn(Control* control);
-
-      std::string writeStateToString();
-      void readStateFromString(const std::string& state);
-      void startLoad();
-      void loadNext();
-      void loadPrev();
-      void loadFromFile(const std::string& file_name);
-      void saveToFile();
 
       void setupMidi();
       void setupControls();
       void setupGui();
       void stop();
 
+      // Termite parts.
       TermiteSynth synth_;
       TermiteGui gui_;
+
+      // IO.
       RtAudio dac_;
       std::vector<RtMidiIn*> midi_ins_;
-      pthread_mutex_t mutex_;
-
-      int active_group_;
-      std::vector<ControlGroup*> groups_;
-      std::map<std::string, Control*>::iterator control_iter_;
-
-      bool midi_learn_armed_;
-      bool saving_;
-      bool loading_;
-      std::vector<std::string> patches_;
-      int patch_index_;
-      std::stringstream saveAsStream;
       std::map<int, Control*> midi_learn_;
 
+      // State.
+      InputState state_;
+      control_map controls_;
+      std::string current_control_;
+      pthread_mutex_t mutex_;
       Control* pitch_bend_;
   };
 } // namespace laf

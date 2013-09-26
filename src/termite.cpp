@@ -57,9 +57,7 @@ namespace {
 } // namespace
 
 namespace laf {
-  Termite::Termite() :
-      active_group_(0), midi_learn_armed_(false), saving_(false),
-      loading_(false), patch_index_(0), pitch_bend_(0) {
+  Termite::Termite() : state_(STANDARD), pitch_bend_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
 
@@ -75,10 +73,11 @@ namespace laf {
     stop();
   }
 
+  /*
   void Termite::loadTextInput(int key) {
     switch(key) {
       case '\n':
-        loading_ = false;
+        state_ = STANDARD;
         gui_.clearLoad();
         break;
       case KEY_UP:
@@ -91,77 +90,66 @@ namespace laf {
   }
 
   void Termite::saveTextInput(int key) {
-    std::string current = saveAsStream.str();
+    std::string current = save_as_stream_.str();
     switch(key) {
       case '\n':
-        saveToFile();
-        saving_ = false;
+        // saveToFile();
+        state_ = STANDARD;
         gui_.clearSave();
         break;
       case KEY_DC:
       case KEY_BACKSPACE:
       case 127:
-        saveAsStream.str(current.substr(0, current.length() - 1));
-        saveAsStream.seekp(saveAsStream.str().length());
-        gui_.drawSave(saveAsStream.str());
+        save_as_stream_.str(current.substr(0, current.length() - 1));
+        save_as_stream_.seekp(save_as_stream_.str().length());
+        gui_.drawSave(save_as_stream_.str());
         break;
       default:
         if (isprint(key))
-          saveAsStream << static_cast<char>(key);
-        gui_.drawSave(saveAsStream.str());
+          save_as_stream_ << static_cast<char>(key);
+        gui_.drawSave(save_as_stream_.str());
         break;
     }
   }
+  */
 
   bool Termite::textInput(int key) {
     if (key == KEY_F(1))
       return false;
-    if (loading_) {
-      loadTextInput(key);
+    if (state_ == LOADING) {
+      // loadTextInput(key);
       return true;
     }
-    if (saving_) {
-      saveTextInput(key);
+    if (state_ == SAVING) {
+      // saveTextInput(key);
       return true;
     }
 
-    Control* control = control_iter_->second;
+    std::string current_control = gui_.getCurrentControl();
+    Control* control = controls_.at(current_control);
     switch(key) {
       case 'm':
         lock();
-        midi_learn_armed_ = !midi_learn_armed_;
+        if (state_ != MIDI_LEARN)
+          state_ = MIDI_LEARN;
+        else
+          state_ = STANDARD;
         unlock();
-        break;
-      case 'l':
-        startLoad();
-        break;
-      case 's':
-        saving_ = true;
-        gui_.drawSave("");
         break;
       case 'c':
         lock();
         eraseMidiLearn(control);
-        midi_learn_armed_ = false;
+        state_ = STANDARD;
         unlock();
         break;
       case KEY_UP:
-        if (control_iter_ == groups_[active_group_]->controls.begin()) {
-          active_group_ = (groups_.size() + active_group_ - 1) %
-                          groups_.size();
-          control_iter_ = groups_[active_group_]->controls.end();
-        }
-        control_iter_--;
-        midi_learn_armed_ = false;
+        current_control = gui_.getPrevControl();
+        state_ = STANDARD;
         gui_.drawControl(control, false);
         break;
       case KEY_DOWN:
-        control_iter_++;
-        if (control_iter_ == groups_[active_group_]->controls.end()) {
-          active_group_ = (active_group_ + 1) % groups_.size();
-          control_iter_ = groups_[active_group_]->controls.begin();
-        }
-        midi_learn_armed_ = false;
+        current_control = gui_.getNextControl();
+        state_ = STANDARD;
         gui_.drawControl(control, false);
         break;
       case KEY_RIGHT:
@@ -181,119 +169,15 @@ namespace laf {
           }
         }
     }
-    control = control_iter_->second;
+    control = controls_.at(current_control);
     control->current_value =
-      CLAMP(control->min, control->max, control->current_value);
+      CLAMP(control->current_value, control->min, control->max);
 
     control->value->set(control->current_value);
     gui_.drawControl(control, true);
-    gui_.drawControlStatus(control, midi_learn_armed_);
+    gui_.drawControlStatus(control, state_ == MIDI_LEARN);
 
     return true;
-  }
-
-  void Termite::loadNext() {
-    patch_index_ = (patch_index_ + 1) % patches_.size();
-    loadFromFile(patches_[patch_index_]);
-  }
-
-  void Termite::loadPrev() {
-    patch_index_ = (patches_.size() + patch_index_ - 1) % patches_.size();
-    loadFromFile(patches_[patch_index_]);
-  }
-
-  void Termite::saveToFile() {
-    std::ofstream save_file;
-    save_file.open(saveAsStream.str().c_str());
-    saveAsStream.str("");
-    save_file << writeStateToString();
-    save_file.close();
-  }
-
-  std::string Termite::writeStateToString() {
-    cJSON* root = cJSON_CreateObject();
-    cJSON* sections = cJSON_CreateArray();
-    cJSON_AddItemToObject(root, "sections", sections);
-
-    for (unsigned int i = 0; i < groups_.size(); ++i) {
-      std::map<std::string, Control*>::iterator iter =
-          groups_[i]->controls.begin();
-      cJSON* section = cJSON_CreateObject();
-      for(; iter != groups_[i]->controls.end(); ++iter) {
-        cJSON* value = cJSON_CreateNumber(iter->second->value->value());
-        cJSON_AddItemToObject(section, iter->first.c_str(), value);
-      }
-      cJSON_AddItemToArray(sections, section);
-    }
-
-    char* json = cJSON_Print(root);
-    std::string output = json;
-    free(json);
-    return output;
-  }
-
-  void Termite::readStateFromString(const std::string& state) {
-    cJSON* root = cJSON_Parse(state.c_str());
-    cJSON* sections = cJSON_GetObjectItem(root, "sections");
-
-    lock();
-    for (unsigned int i = 0; i < groups_.size(); ++i) {
-      std::map<std::string, Control*>::iterator iter =
-          groups_[i]->controls.begin();
-      cJSON* section = cJSON_GetArrayItem(sections, i);
-      for(; iter != groups_[i]->controls.end(); ++iter) {
-        cJSON* value = cJSON_GetObjectItem(section, iter->first.c_str());
-        Control* control = iter->second;
-        control->current_value =
-            CLAMP(control->min, control->max, value->valuedouble);
-        control->value->set(value->valuedouble);
-        gui_.drawControl(control, false);
-      }
-    }
-
-    gui_.drawControl(control_iter_->second, true);
-    gui_.drawControlStatus(control_iter_->second, false);
-    unlock();
-
-    cJSON_Delete(root);
-  }
-
-  void Termite::loadFromFile(const std::string& file_name) {
-    std::ifstream load_file;
-    load_file.open(file_name.c_str());
-    if (!load_file.is_open())
-      return;
-
-    load_file.seekg(0, std::ios::end);
-    int length = load_file.tellg();
-    load_file.seekg(0, std::ios::beg);
-    char file_contents[length];
-    load_file.read(file_contents, length);
-    readStateFromString(file_contents);
-    load_file.close();
-
-    gui_.drawLoad(file_name);
-  }
-
-  void Termite::startLoad() {
-    DIR *dir;
-    struct dirent *ent;
-    patches_.clear();
-    if ((dir = opendir (".")) != NULL) {
-      while ((ent = readdir (dir)) != NULL) {
-        std::string name = ent->d_name;
-        if (name.find(EXTENSION) != std::string::npos)
-          patches_.push_back(name);
-      }
-      closedir (dir);
-    }
-
-    if (patches_.size() == 0)
-      return;
-
-    loading_ = true;
-    patch_index_ = 0;
-    loadFromFile(patches_[patch_index_]);
   }
 
   void Termite::setupAudio() {
@@ -327,31 +211,12 @@ namespace laf {
     gui_.start();
 
     // Global Section.
-    ControlGroup* controls = synth_.getControls();
-    gui_.addPerformanceControls(controls);
+    controls_ = synth_.getControls();
+    gui_.addControls(controls_);
 
-    ControlGroup* voice_handler = controls->sub_groups["voice handler"];
-
-    ControlGroup* oscillators = voice_handler->sub_groups["oscillators"];
-    pitch_bend_ = oscillators->controls["pitch bend amount"];
-    gui_.addOscillatorControls(oscillators);
-
-    ControlGroup* filter = voice_handler->sub_groups["filter"];
-    gui_.addFilterControls(filter);
-
-    ControlGroup* articulation = voice_handler->sub_groups["articulation"];
-    gui_.addArticulationControls(articulation);
-
-    groups_.push_back(oscillators);
-    groups_.push_back(controls);
-    groups_.push_back(filter);
-    groups_.push_back(articulation);
-
-    active_group_ = 0;
-    control_iter_ = groups_[active_group_]->controls.begin();
-
-    gui_.drawControl(control_iter_->second, true);
-    gui_.drawControlStatus(control_iter_->second, false);
+    Control* control = controls_.at(gui_.getCurrentControl());
+    gui_.drawControl(control, true);
+    gui_.drawControlStatus(control, false);
   }
 
   void Termite::processAudio(laf_float *out_buffer, unsigned int n_frames) {
@@ -396,7 +261,7 @@ namespace laf {
     int midi_port = message->at(0);
     int midi_id = message->at(1);
     int midi_val = message->at(2);
-    Control* selected_control = control_iter_->second;
+    Control* selected_control = controls_.at(current_control_);
     if (midi_port >= 144 && midi_port < 160) {
       int midi_note = midi_id;
       int midi_velocity = midi_val;
@@ -420,12 +285,12 @@ namespace laf {
       else
         synth_.sustainOff();
     }
-    else if (midi_learn_armed_ && midi_port < 254) {
+    else if (state_ == MIDI_LEARN && midi_port < 254) {
       eraseMidiLearn(selected_control);
 
       midi_learn_[midi_id] = selected_control;
       selected_control->midi_learn = midi_id;
-      midi_learn_armed_ = false;
+      state_ = STANDARD;
       gui_.drawControlStatus(selected_control, false);
     }
 
