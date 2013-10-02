@@ -15,7 +15,7 @@
 
 TERMITE = termite
 
-LAF_DIR = ../laf
+LAF_DIR = laf
 OUTPUT_DIR = debug
 SOURCE_DIR = src
 RTAUDIO_DIR = rtaudio
@@ -41,16 +41,22 @@ endif
 OBJS := $(patsubst $(SOURCE_DIR)/%.cpp,$(OUTPUT_DIR)/$(SOURCE_DIR)/%.o, \
         $(wildcard $(SOURCE_DIR)/*.cpp))
 
-all: directory $(TERMITE)
+all: laf_lib directory $(TERMITE)
 
 clean:
-	rm -rf $(OUTPUT_DIR) $(TERMITE)
+	@$(MAKE) clean -C $(LAF_DIR)
+	@echo 'Cleaning $(TERMITE) build files'
+	@rm -rf $(OUTPUT_DIR) $(TERMITE)
 
 # Build Directories
 directory:
 	@mkdir -p $(OUTPUT_DIR)/$(SOURCE_DIR)
 
 # Building
+laf_lib:
+	@echo 'Building $(LAF_DIR)'
+	@$(MAKE) -C $(LAF_DIR)
+
 $(TERMITE): $(OBJS) $(OUTPUT_DIR)/cJSON.o \
             $(OUTPUT_DIR)/rtaudio.o $(OUTPUT_DIR)/rtmidi.o
 	@echo 'Creating $@'
