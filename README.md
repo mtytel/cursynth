@@ -1,23 +1,10 @@
-    Copyright 2013 Little IO <littleioaudio@gmail.com>
-
-    termite is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    termite is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with termite.  If not, see <http://www.gnu.org/licenses/>.
-
 termite v0.1
 ------------
 termite is a MIDI enabled, subtractive synth that runs in your terminal with an ascii interface.
 This is a first iteration so the features are minimal. termite will connect to all MIDI devices and send output to the default audio
 device on your system.
+
+![alt tag](http://littleio.co/static/img/termite_screen_shot.png)
 
 ### Building
 run 'make' and it will compile a 'termite' executable which you can run.
@@ -47,3 +34,5 @@ run 'make' and it will compile a 'termite' executable which you can run.
 * Lot's more..
 
 Questions? Bugs? email littleioaudio@gmail.com
+
+Copyright 2013 Little IO <littleioaudio@gmail.com>
