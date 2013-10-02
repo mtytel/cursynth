@@ -274,11 +274,14 @@ namespace laf {
     controls_["delay wet/dry"] = new Control(delay_wet, 0, 1, 128);
 
     // Volume.
+    Clamp* clamp = new Clamp();
+    clamp->plug(delay);
     SmoothValue* volume = new SmoothValue(0.6);
     Multiply* scaled_audio = new Multiply();
-    scaled_audio->plug(delay, 0);
+    scaled_audio->plug(clamp, 0);
     scaled_audio->plug(volume, 1);
 
+    addProcessor(clamp);
     addProcessor(volume);
     addProcessor(scaled_audio);
     registerOutput(scaled_audio->output());

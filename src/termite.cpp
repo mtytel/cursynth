@@ -26,7 +26,7 @@
 #include <string>
 #include <stdio.h>
 
-#define KEYBOARD "AWSEDFTGYHUJKOLP;'"
+#define KEYBOARD "awsedftgyhujkolp;'"
 #define EXTENSION ".mite"
 #define NUM_CHANNELS 2
 #define PITCH_BEND_PORT 224
