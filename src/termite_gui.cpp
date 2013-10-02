@@ -223,6 +223,16 @@ namespace laf {
     placeSlider("osc 2 transpose", controls.at("osc 2 transpose"),
                 2, 10, 38);
 
+    // Volume / Delay.
+    placeSlider("volume", controls.at("volume"),
+                2, 22, 38);
+    placeSlider("delay time", controls.at("delay time"),
+                2, 25, 38);
+    placeSlider("delay feedback", controls.at("delay feedback"),
+                2, 28, 18);
+    placeSlider("delay wet/dry", controls.at("delay wet/dry"),
+                22, 28, 18);
+
     // Filter.
     placeSlider("cutoff", controls.at("cutoff"),
                 42, 7, 38);
@@ -247,9 +257,9 @@ namespace laf {
     placeSlider("legato", controls.at("legato"),
                 114, 7, 6);
     placeSlider("portamento", controls.at("portamento"),
-                82, 10, 30);
+                82, 10, 21);
     placeSlider("portamento type", controls.at("portamento type"),
-                114, 10, 6);
+                105, 10, 15);
     placeSlider("pitch bend range", controls.at("pitch bend range"),
                 82, 13, 38);
 
@@ -262,16 +272,6 @@ namespace laf {
                 82, 25, 38);
     placeSlider("amp release", controls.at("amp release"),
                 82, 28, 38);
-
-    // Volume / Delay.
-    placeSlider("volume", controls.at("volume"),
-                82, 34, 38);
-    placeSlider("delay time", controls.at("delay time"),
-                82, 37, 38);
-    placeSlider("delay feedback", controls.at("delay feedback"),
-                82, 40, 18);
-    placeSlider("delay wet/dry", controls.at("delay wet/dry"),
-                102, 40, 18);
   }
 
   std::string TermiteGui::getCurrentControl() {
