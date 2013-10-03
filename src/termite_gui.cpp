@@ -19,6 +19,7 @@
 #include "value.h"
 #include "termite_synth.h"
 
+#include <math.h>
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +33,7 @@
 #define LOGO_Y 0
 #define SPACE 3
 #define TOTAL_COLUMNS 3
-#define MAX_STATUS_SIZE 5
+#define MAX_STATUS_SIZE 20
 #define MAX_SAVE_SIZE 40
 #define SAVE_COLUMN 2
 
@@ -60,44 +61,6 @@ namespace laf {
     move(LOGO_Y + 5, logo_x);
     printw("                          Little IO");
   }
-
-  /*
-  void TermiteGui::clearSave() {
-    int x = (getColumnWidth() + SPACE) * SAVE_COLUMN + SPACE;
-    move(1, x);
-    hline(' ', MAX_SAVE_SIZE);
-    refresh();
-  }
-
-  void TermiteGui::drawSave(std::string file_name) {
-    int x = (getColumnWidth() + SPACE) * SAVE_COLUMN + SPACE;
-    move(1, x);
-    printw("Save As: ");
-    attron(A_BOLD);
-    printw(file_name.c_str());
-    hline(' ', 2);
-    attroff(A_BOLD);
-    refresh();
-  }
-
-  void TermiteGui::clearLoad() {
-    int x = (getColumnWidth() + SPACE) * SAVE_COLUMN + SPACE;
-    move(1, x);
-    hline(' ', MAX_SAVE_SIZE);
-    refresh();
-  }
-
-  void TermiteGui::drawLoad(std::string file_name) {
-    int x = (getColumnWidth() + SPACE) * SAVE_COLUMN + SPACE;
-    move(1, x);
-    printw("Load File: ");
-    attron(A_BOLD);
-    printw(file_name.c_str());
-    hline(' ', 2);
-    attroff(A_BOLD);
-    refresh();
-  }
-  */
 
   void TermiteGui::drawMidi(std::string status) {
     move(2, 2);
@@ -170,7 +133,12 @@ namespace laf {
     drawMidi(midi_learn.str());
 
     std::ostringstream status;
-    status << control->current_value;
+    if (control->display_strings) {
+      int display_index = static_cast<int>(control->current_value);
+      status << control->display_strings[display_index];
+    }
+    else
+      status << control->current_value;
     drawStatus(status.str());
   }
 

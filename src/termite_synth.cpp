@@ -16,7 +16,20 @@
 
 #include "termite_synth.h"
 
+#include "delay.h"
+#include "envelope.h"
+#include "filter.h"
+#include "operators.h"
+#include "oscillator.h"
+#include "processor_router.h"
+#include "linear_slope.h"
+#include "smooth_value.h"
+#include "termite_strings.h"
+#include "trigger_operators.h"
+#include "value.h"
+
 namespace laf {
+
   void TermiteVoiceHandler::createOscillators(Output* midi, Output* reset) {
     // Pitch bend.
     Value* pitch_bend_range = new Value(2);
@@ -45,8 +58,9 @@ namespace laf {
     addProcessor(oscillator1_);
 
     int wave_resolution = Wave::kNumWaveforms - 1;
-    controls_["osc 1 waveform"] =
-        new Control(oscillator1_waveform, 0, wave_resolution, wave_resolution);
+    controls_["osc 1 waveform"] = new Control(oscillator1_waveform,
+                                              TermiteStrings::wave_strings_,
+                                              wave_resolution);
 
     // Oscillator 2.
     Value* oscillator2_waveform = new Value(Wave::kDownSaw);
@@ -66,8 +80,9 @@ namespace laf {
     addProcessor(oscillator2_frequency);
     addProcessor(oscillator2_);
 
-    controls_["osc 2 waveform"] =
-        new Control(oscillator2_waveform, 0, wave_resolution, wave_resolution);
+    controls_["osc 2 waveform"] = new Control(oscillator2_waveform,
+                                              TermiteStrings::wave_strings_,
+                                              wave_resolution);
     controls_["osc 2 transpose"] =
         new Control(oscillator2_transpose, -48, 48, 96);
 
@@ -155,7 +170,8 @@ namespace laf {
     legato_filter->plug(legato, LegatoFilter::kLegato);
     legato_filter->plug(trigger, LegatoFilter::kTrigger);
 
-    controls_["legato"] = new Control(legato, 0, 1, 1);
+    controls_["legato"] =
+        new Control(legato, TermiteStrings::legato_strings_, 1);
     addProcessor(legato_filter);
 
     // Amplitude envelope.
@@ -220,7 +236,10 @@ namespace laf {
 
     addProcessor(current_frequency_);
     controls_["portamento"] = new Control(portamento, 0.0, 0.2, 128);
-    controls_["portamento type"] = new Control(portamento_type, 0, 2, 2);
+    int port_type_resolution = PortamentoFilter::kNumPortamentoStates - 1;
+    controls_["portamento type"] =
+        new Control(portamento_type, TermiteStrings::portamento_strings_,
+                    port_type_resolution);
   }
 
   TermiteVoiceHandler::TermiteVoiceHandler() {
@@ -274,12 +293,12 @@ namespace laf {
     controls_["delay wet/dry"] = new Control(delay_wet, 0, 1, 128);
 
     // Volume.
-    Clamp* clamp = new Clamp();
-    clamp->plug(delay);
     SmoothValue* volume = new SmoothValue(0.6);
     Multiply* scaled_audio = new Multiply();
-    scaled_audio->plug(clamp, 0);
+    scaled_audio->plug(delay, 0);
     scaled_audio->plug(volume, 1);
+    Clamp* clamp = new Clamp();
+    clamp->plug(scaled_audio);
 
     addProcessor(clamp);
     addProcessor(volume);

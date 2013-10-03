@@ -18,23 +18,19 @@
 #ifndef TERMITE_SYNTH_H
 #define TERMITE_SYNTH_H
 
-#include "delay.h"
-#include "envelope.h"
-#include "filter.h"
-#include "operators.h"
-#include "oscillator.h"
-#include "processor_router.h"
-#include "smooth_filter.h"
-#include "linear_slope.h"
-#include "smooth_value.h"
-#include "trigger_operators.h"
-#include "value.h"
-#include "voice_handler.h"
 #include "termite_common.h"
+#include "voice_handler.h"
 
 #include <vector>
 
 namespace laf {
+  class Add;
+  class Envelope;
+  class Filter;
+  class LinearSlope;
+  class Multiply;
+  class Oscillator;
+  class SmoothValue;
 
   class TermiteVoiceHandler : public VoiceHandler {
     public:
