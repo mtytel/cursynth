@@ -65,9 +65,13 @@ namespace laf {
     // Oscillator 2.
     Value* oscillator2_waveform = new Value(Wave::kDownSaw);
     Value* oscillator2_transpose = new Value(-12);
+    Value* oscillator2_tune = new Value(0.08);
+    Add* oscillator2_transposed = new Add();
+    oscillator2_transposed->plug(final_midi, 0);
+    oscillator2_transposed->plug(oscillator2_transpose, 1);
     Add* oscillator2_midi = new Add();
-    oscillator2_midi->plug(final_midi, 0);
-    oscillator2_midi->plug(oscillator2_transpose, 1);
+    oscillator2_midi->plug(oscillator2_transposed, 0);
+    oscillator2_midi->plug(oscillator2_tune, 1);
 
     MidiScale* oscillator2_frequency = new MidiScale();
     oscillator2_frequency->plug(oscillator2_midi);
@@ -76,6 +80,7 @@ namespace laf {
     oscillator2_->plug(oscillator2_waveform, Oscillator::kWaveform);
     oscillator2_->plug(oscillator2_frequency, Oscillator::kFrequency);
 
+    addProcessor(oscillator2_transposed);
     addProcessor(oscillator2_midi);
     addProcessor(oscillator2_frequency);
     addProcessor(oscillator2_);
@@ -85,6 +90,8 @@ namespace laf {
                                               wave_resolution);
     controls_["osc 2 transpose"] =
         new Control(oscillator2_transpose, -48, 48, 96);
+    controls_["osc 2 tune"] =
+        new Control(oscillator2_tune, -1, 1, 128);
 
     // Oscillator mix.
     oscillator_mix_ = new Add();

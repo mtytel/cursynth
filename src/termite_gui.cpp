@@ -190,6 +190,8 @@ namespace laf {
                 22, 7, 18);
     placeSlider("osc 2 transpose", controls.at("osc 2 transpose"),
                 2, 10, 38);
+    placeSlider("osc 2 tune", controls.at("osc 2 tune"),
+                2, 13, 38);
 
     // Volume / Delay.
     placeSlider("volume", controls.at("volume"),
