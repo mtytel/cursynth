@@ -22,6 +22,7 @@ namespace laf {
 
   class TermiteStrings {
     public:
+      static const char* filter_strings_[];
       static const char* legato_strings_[];
       static const char* portamento_strings_[];
       static const char* wave_strings_[];

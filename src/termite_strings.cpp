@@ -18,6 +18,12 @@
 
 namespace laf {
 
+  const char* TermiteStrings::filter_strings_[] = {
+    "low pass",
+    "high pass",
+    "band pass"
+  };
+
   const char* TermiteStrings::legato_strings_[] = {
     "off",
     "on"

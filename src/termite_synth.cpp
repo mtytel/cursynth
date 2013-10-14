@@ -132,6 +132,7 @@ namespace laf {
         new Control(filter_envelope_depth, -128, 128, 128);
 
     // Filter.
+    Value* filter_type = new Value(Filter::kLP12);
     Value* keytrack_amount = new Value(0);
     Multiply* current_keytrack = new Multiply();
     current_keytrack->plug(keytrack, 0);
@@ -151,6 +152,7 @@ namespace laf {
     Value* resonance = new Value(3);
     filter_ = new Filter();
     filter_->plug(audio, Filter::kAudio);
+    filter_->plug(filter_type, Filter::kType);
     filter_->plug(reset, Filter::kReset);
     filter_->plug(frequency_cutoff, Filter::kCutoff);
     filter_->plug(resonance, Filter::kResonance);
@@ -162,6 +164,9 @@ namespace laf {
     addProcessor(frequency_cutoff);
     addProcessor(filter_);
 
+    controls_["filter type"] = new Control(filter_type,
+                                           TermiteStrings::filter_strings_,
+                                           Filter::kNumTypes - 1);
     controls_["cutoff"] = new Control(base_cutoff, 28, 127, 128);
     controls_["keytrack"] = new Control(keytrack_amount, -1, 1, 128);
     controls_["resonance"] = new Control(resonance, 0.5, 15, 128);

@@ -204,22 +204,24 @@ namespace laf {
                 22, 28, 18);
 
     // Filter.
-    placeSlider("cutoff", controls.at("cutoff"),
+    placeSlider("filter type", controls.at("filter type"),
                 42, 7, 38);
-    placeSlider("resonance", controls.at("resonance"),
+    placeSlider("cutoff", controls.at("cutoff"),
                 42, 10, 38);
-    placeSlider("keytrack", controls.at("keytrack"),
+    placeSlider("resonance", controls.at("resonance"),
                 42, 13, 38);
-    placeSlider("fil env depth", controls.at("fil env depth"),
+    placeSlider("keytrack", controls.at("keytrack"),
                 42, 16, 38);
-    placeSlider("fil attack", controls.at("fil attack"),
+    placeSlider("fil env depth", controls.at("fil env depth"),
                 42, 19, 38);
-    placeSlider("fil decay", controls.at("fil decay"),
+    placeSlider("fil attack", controls.at("fil attack"),
                 42, 22, 38);
-    placeSlider("fil sustain", controls.at("fil sustain"),
+    placeSlider("fil decay", controls.at("fil decay"),
                 42, 25, 38);
-    placeSlider("fil release", controls.at("fil release"),
+    placeSlider("fil sustain", controls.at("fil sustain"),
                 42, 28, 38);
+    placeSlider("fil release", controls.at("fil release"),
+                42, 31, 38);
 
     // Performance.
     placeSlider("polyphony", controls.at("polyphony"),
