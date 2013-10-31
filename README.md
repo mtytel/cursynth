@@ -7,7 +7,12 @@ device on your system.
 ![alt tag](http://littleio.co/static/img/termite_screen_shot.png)
 
 ### Building
-run 'make' and it will compile a 'termite' executable which you can run.
+First check if you have the laf submodule
+```
+git submodule init
+git submodule update
+```
+Then run 'make' and it will compile a 'termite' executable which you can run.
 
 ### Controls
 * awsedftgyhujkolp;' - a playable keyboard (no key up events)

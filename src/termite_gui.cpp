@@ -42,7 +42,7 @@ namespace laf {
   void TermiteGui::drawLogo() {
     attron(A_BOLD);
     attron(COLOR_PAIR(LOGO_COLOR));
-    int logo_x = (WIDTH - LOGO_WIDTH) / 2;
+    int logo_x = (WIDTH - LOGO_WIDTH) / 2 + 1;
 
     move(LOGO_Y, logo_x);
     printw("   __                        __");
