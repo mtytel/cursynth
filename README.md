@@ -34,10 +34,8 @@ Then run 'make' and it will compile a 'termite' executable which you can run.
 * Routable LFOs.
 * Routable Envelopes.
 * Velocity mapping.
-* Patch saving loading (with JSON).
 * On startup select audio output device.
 * On startup select MIDI input device.
-* Better GUI text elements.
 * Lot's more..
 
 Questions? Bugs? email littleioaudio@gmail.com
