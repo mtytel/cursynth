@@ -32,6 +32,8 @@ namespace laf {
       enum InputState {
         STANDARD,
         MIDI_LEARN,
+        PATCH_LOADING,
+        PATCH_SAVING,
       };
 
       Termite();
@@ -46,6 +48,10 @@ namespace laf {
     private:
       std::string writeStateToString();
       void readStateFromString(const std::string& state);
+      void saveToFile(const std::string& file_name);
+      void loadFromFile(const std::string& file_name);
+      void startLoad();
+      void startSave();
 
       bool textInput(int key);
       void setupAudio();
@@ -71,6 +77,10 @@ namespace laf {
       std::string current_control_;
       pthread_mutex_t mutex_;
       Control* pitch_bend_;
+
+      // Loading and Saving.
+      std::vector<std::string> patches_;
+      int patch_load_index_;
   };
 } // namespace laf
 

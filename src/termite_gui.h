@@ -22,6 +22,7 @@
 #include "termite_common.h"
 
 #include <map>
+#include <ncurses.h>
 #include <string>
 
 namespace laf {
@@ -34,6 +35,7 @@ namespace laf {
         SLIDER_FG_COLOR = 1,
         SLIDER_BG_COLOR,
         LOGO_COLOR,
+        PATCH_LOAD_COLOR,
       };
 
       TermiteGui() : control_index_(0) { }
@@ -45,6 +47,9 @@ namespace laf {
 
       void drawControl(const Control* control, bool active);
       void drawControlStatus(const Control* control, bool armed);
+      void drawPatchLoading(std::vector<std::string> patches, int index);
+      void drawPatchSaving(std::string patch_name);
+      void clearPatches();
       std::string getCurrentControl();
       std::string getNextControl();
       std::string getPrevControl();

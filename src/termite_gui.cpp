@@ -36,6 +36,8 @@
 #define MAX_STATUS_SIZE 20
 #define MAX_SAVE_SIZE 40
 #define SAVE_COLUMN 2
+#define PATCH_BROWSER_ROWS 5
+#define PATCH_BROWSER_WIDTH 26
 
 namespace laf {
 
@@ -82,8 +84,58 @@ namespace laf {
     refresh();
   }
 
+  void TermiteGui::clearPatches() {
+    int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
+    move(1 + selection_row, 82);
+    hline(' ', PATCH_BROWSER_WIDTH);
+    for (int i = 0; i < PATCH_BROWSER_ROWS; ++i) {
+      move(1 + i, 94);
+      hline(' ', PATCH_BROWSER_WIDTH);
+    }
+  }
+
+  void TermiteGui::drawPatchSaving(std::string patch_name) {
+    int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
+    move(1 + selection_row, 82);
+    printw("            ");
+    hline(' ', PATCH_BROWSER_WIDTH);
+    move(1 + selection_row, 82);
+    printw("Save Patch: ");
+    printw(patch_name.c_str());
+  }
+
+  void TermiteGui::drawPatchLoading(std::vector<std::string> patches,
+                                    int selected_index) {
+    int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
+    move(1 + selection_row, 82);
+    printw("Load Patch:");
+
+    int patch_index = selected_index - selection_row;
+    int num_patches = patches.size();
+    for (int i = 0; i < PATCH_BROWSER_ROWS; ++i) {
+      if (i % 2)
+        attroff(COLOR_PAIR(PATCH_LOAD_COLOR));
+      else
+        attron(COLOR_PAIR(PATCH_LOAD_COLOR));
+
+      move(1 + i, 94);
+      hline(' ', PATCH_BROWSER_WIDTH);
+      if (patch_index == selected_index)
+        attron(A_BOLD);
+
+      if (patch_index >= 0 && patch_index < num_patches)
+        printw(patches[patch_index].c_str());
+      attroff(A_BOLD);
+      patch_index++;
+    }
+    attroff(COLOR_PAIR(PATCH_LOAD_COLOR));
+    refresh();
+  }
+
   void TermiteGui::drawControl(const Control* control, bool active) {
     Slider* slider = slider_lookup_[control];
+    if (!slider)
+      return;
     char slider_char = active ? '=' : ' ';
     if (active)
       attron(A_BOLD);
@@ -158,9 +210,10 @@ namespace laf {
     init_pair(SLIDER_FG_COLOR, COLOR_WHITE, COLOR_YELLOW);
     init_pair(SLIDER_BG_COLOR, COLOR_YELLOW, COLOR_WHITE);
     init_pair(LOGO_COLOR, COLOR_RED, COLOR_BLACK);
+    init_pair(PATCH_LOAD_COLOR, COLOR_BLACK, COLOR_CYAN);
 
+    refresh();
     drawLogo();
-
     curs_set(0);
   }
 
@@ -169,7 +222,7 @@ namespace laf {
   }
 
   void TermiteGui::placeSlider(std::string name, const Control* control,
-                               int x, int y, int width) {
+      int x, int y, int width) {
     Slider* slider = new Slider();
     slider->x = x;
     slider->y = y;
@@ -185,65 +238,65 @@ namespace laf {
   void TermiteGui::addControls(const control_map& controls) {
     // Oscillators.
     placeSlider("osc 1 waveform", controls.at("osc 1 waveform"),
-                2, 7, 18);
+        2, 7, 18);
     placeSlider("osc 2 waveform", controls.at("osc 2 waveform"),
-                22, 7, 18);
+        22, 7, 18);
     placeSlider("osc 2 transpose", controls.at("osc 2 transpose"),
-                2, 10, 38);
+        2, 10, 38);
     placeSlider("osc 2 tune", controls.at("osc 2 tune"),
-                2, 13, 38);
+        2, 13, 38);
 
     // Volume / Delay.
     placeSlider("volume", controls.at("volume"),
-                2, 22, 38);
+        2, 22, 38);
     placeSlider("delay time", controls.at("delay time"),
-                2, 25, 38);
+        2, 25, 38);
     placeSlider("delay feedback", controls.at("delay feedback"),
-                2, 28, 18);
+        2, 28, 18);
     placeSlider("delay wet/dry", controls.at("delay wet/dry"),
-                22, 28, 18);
+        22, 28, 18);
 
     // Filter.
     placeSlider("filter type", controls.at("filter type"),
-                42, 7, 38);
+        42, 7, 38);
     placeSlider("cutoff", controls.at("cutoff"),
-                42, 10, 38);
+        42, 10, 38);
     placeSlider("resonance", controls.at("resonance"),
-                42, 13, 38);
+        42, 13, 38);
     placeSlider("keytrack", controls.at("keytrack"),
-                42, 16, 38);
+        42, 16, 38);
     placeSlider("fil env depth", controls.at("fil env depth"),
-                42, 19, 38);
+        42, 19, 38);
     placeSlider("fil attack", controls.at("fil attack"),
-                42, 22, 38);
+        42, 22, 38);
     placeSlider("fil decay", controls.at("fil decay"),
-                42, 25, 38);
+        42, 25, 38);
     placeSlider("fil sustain", controls.at("fil sustain"),
-                42, 28, 38);
+        42, 28, 38);
     placeSlider("fil release", controls.at("fil release"),
-                42, 31, 38);
+        42, 31, 38);
 
     // Performance.
     placeSlider("polyphony", controls.at("polyphony"),
-                82, 7, 30);
+        82, 7, 30);
     placeSlider("legato", controls.at("legato"),
-                114, 7, 6);
+        114, 7, 6);
     placeSlider("portamento", controls.at("portamento"),
-                82, 10, 21);
+        82, 10, 21);
     placeSlider("portamento type", controls.at("portamento type"),
-                105, 10, 15);
+        105, 10, 15);
     placeSlider("pitch bend range", controls.at("pitch bend range"),
-                82, 13, 38);
+        82, 13, 38);
 
     // Amplitude Envelope.
     placeSlider("amp attack", controls.at("amp attack"),
-                82, 19, 38);
+        82, 19, 38);
     placeSlider("amp decay", controls.at("amp decay"),
-                82, 22, 38);
+        82, 22, 38);
     placeSlider("amp sustain", controls.at("amp sustain"),
-                82, 25, 38);
+        82, 25, 38);
     placeSlider("amp release", controls.at("amp release"),
-                82, 28, 38);
+        82, 28, 38);
   }
 
   std::string TermiteGui::getCurrentControl() {
@@ -257,7 +310,7 @@ namespace laf {
 
   std::string TermiteGui::getPrevControl() {
     control_index_ = (control_index_ + control_order_.size() - 1) %
-                     control_order_.size();
+      control_order_.size();
     return getCurrentControl();
   }
 } // namespace laf

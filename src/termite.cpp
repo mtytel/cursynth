@@ -28,6 +28,7 @@
 
 #define KEYBOARD "awsedftgyhujkolp;'"
 #define EXTENSION ".mite"
+#define PATCH_DIRECTORY "patches"
 #define NUM_CHANNELS 2
 #define PITCH_BEND_PORT 224
 #define SUSTAIN_PORT 176
@@ -57,7 +58,7 @@ namespace {
 } // namespace
 
 namespace laf {
-  Termite::Termite() : state_(STANDARD), pitch_bend_(0) {
+  Termite::Termite() : state_(STANDARD), pitch_bend_(0), patch_load_index_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
 
@@ -77,9 +78,35 @@ namespace laf {
     if (key == KEY_F(1))
       return false;
 
+    if (state_ == PATCH_LOADING) {
+      int num_patches = patches_.size();
+      switch(key) {
+        case '\n':
+          state_ = STANDARD;
+          gui_.clearPatches();
+          return true;
+        case KEY_UP:
+          patch_load_index_ = CLAMP(patch_load_index_ - 1, 0, num_patches - 1);
+          gui_.drawPatchLoading(patches_, patch_load_index_);
+          loadFromFile(patches_[patch_load_index_]);
+          return true;
+        case KEY_DOWN:
+          patch_load_index_ = CLAMP(patch_load_index_ + 1, 0, num_patches - 1);
+          gui_.drawPatchLoading(patches_, patch_load_index_);
+          loadFromFile(patches_[patch_load_index_]);
+          return true;
+      }
+    }
+
     std::string current_control = gui_.getCurrentControl();
     Control* control = controls_.at(current_control);
     switch(key) {
+      case 'S':
+        startSave();
+        break;
+      case 'L':
+        startLoad();
+        break;
       case 'm':
         lock();
         if (state_ != MIDI_LEARN)
@@ -268,5 +295,125 @@ namespace laf {
 
     if (dac_.isStreamOpen())
       dac_.closeStream();
+  }
+
+  // Loading and Saving.
+
+  void Termite::startSave() {
+    curs_set(1);
+    std::stringstream save_stream;
+    gui_.drawPatchSaving(save_stream.str());
+    int key = 0;
+    while(1) {
+      key = getch();
+      std::string current = save_stream.str();
+      switch(key) {
+        case '\n':
+          saveToFile(save_stream.str() + EXTENSION);
+          state_ = STANDARD;
+          gui_.clearPatches();
+          curs_set(0);
+          return;
+        case KEY_DC:
+        case KEY_BACKSPACE:
+        case 127:
+          save_stream.str(current.substr(0, current.length() - 1));
+          save_stream.seekp(save_stream.str().length());
+          gui_.drawPatchSaving(save_stream.str());
+          break;
+        default:
+          if (isprint(key))
+            save_stream << static_cast<char>(key);
+          gui_.drawPatchSaving(save_stream.str());
+          break;
+      }
+    }
+  }
+
+  void Termite::startLoad() {
+    DIR *dir;
+    struct dirent *ent;
+    patches_.clear();
+    if ((dir = opendir(PATCH_DIRECTORY)) != NULL) {
+      while ((ent = readdir(dir)) != NULL) {
+        std::string name = ent->d_name;
+        if (name.find(EXTENSION) != std::string::npos)
+          patches_.push_back(name);
+      }
+      closedir (dir);
+    }
+
+    if (patches_.size() == 0)
+      return;
+
+    state_ = PATCH_LOADING;
+    patch_load_index_ = 0;
+    loadFromFile(patches_[patch_load_index_]);
+  }
+
+  void Termite::saveToFile(const std::string& file_name) {
+    std::ofstream save_file;
+    std::string path = PATCH_DIRECTORY;
+    path = path + "/" + file_name;
+    save_file.open(path.c_str());
+    save_file << writeStateToString();
+    save_file.close();
+  }
+
+  void Termite::loadFromFile(const std::string& file_name) {
+    std::string path = PATCH_DIRECTORY;
+    path += "/";
+    path += file_name;
+    std::ifstream load_file;
+    load_file.open(path.c_str());
+    if (!load_file.is_open())
+      return;
+
+    load_file.seekg(0, std::ios::end);
+    int length = load_file.tellg();
+    load_file.seekg(0, std::ios::beg);
+    char file_contents[length];
+    load_file.read(file_contents, length);
+    readStateFromString(file_contents);
+    load_file.close();
+
+    gui_.drawPatchLoading(patches_, patch_load_index_);
+  }
+
+  std::string Termite::writeStateToString() {
+    cJSON* root = cJSON_CreateObject();
+
+    control_map::iterator iter = controls_.begin();
+    for(; iter != controls_.end(); ++iter) {
+      cJSON* value = cJSON_CreateNumber(iter->second->value->value());
+      cJSON_AddItemToObject(root, iter->first.c_str(), value);
+    }
+
+    char* json = cJSON_Print(root);
+    std::string output = json;
+    free(json);
+    return output;
+  }
+
+  void Termite::readStateFromString(const std::string& state) {
+    cJSON* root = cJSON_Parse(state.c_str());
+
+    lock();
+    control_map::iterator iter = controls_.begin();
+    for(; iter != controls_.end(); ++iter) {
+      cJSON* value = cJSON_GetObjectItem(root, iter->first.c_str());
+      Control* control = iter->second;
+      control->current_value =
+          CLAMP(value->valuedouble, control->min, control->max);
+      control->value->set(value->valuedouble);
+      gui_.drawControl(control, false);
+    }
+
+    Control* current_control = controls_.at(gui_.getCurrentControl());
+    gui_.drawControl(current_control, true);
+    gui_.drawControlStatus(current_control, false);
+    unlock();
+
+    cJSON_Delete(root);
   }
 } // namespace laf
