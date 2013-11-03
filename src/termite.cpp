@@ -107,6 +107,7 @@ namespace laf {
       case 'L':
         startLoad();
         break;
+      case 'M':
       case 'm':
         lock();
         if (state_ != MIDI_LEARN)
@@ -115,6 +116,7 @@ namespace laf {
           state_ = STANDARD;
         unlock();
         break;
+      case 'C':
       case 'c':
         lock();
         eraseMidiLearn(control);
@@ -132,12 +134,10 @@ namespace laf {
         gui_.drawControl(control, false);
         break;
       case KEY_RIGHT:
-        control->current_value +=
-            (control->max - control->min) / control->resolution;
+        control->increment();
         break;
       case KEY_LEFT:
-        control->current_value -=
-            (control->max - control->min) / control->resolution;
+        control->decrement();
         break;
       default:
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
@@ -149,10 +149,6 @@ namespace laf {
         }
     }
     control = controls_.at(current_control);
-    control->current_value =
-      CLAMP(control->current_value, control->min, control->max);
-
-    control->value->set(control->current_value);
     gui_.drawControl(control, true);
     gui_.drawControlStatus(control, state_ == MIDI_LEARN);
 
@@ -208,9 +204,9 @@ namespace laf {
   }
 
   void Termite::eraseMidiLearn(Control* control) {
-    if (control->midi_learn) {
-      midi_learn_.erase(control->midi_learn);
-      control->midi_learn = 0;
+    if (control->midi_learn()) {
+      midi_learn_.erase(control->midi_learn());
+      control->midi_learn(0);
     }
   }
 
@@ -252,7 +248,7 @@ namespace laf {
       synth_.noteOff(midi_note);
     }
     else if (midi_port == PITCH_BEND_PORT) {
-      pitch_bend_->value->set((2.0 * midi_val) / (MIDI_SIZE - 1) - 1);
+      pitch_bend_->set((2.0 * midi_val) / (MIDI_SIZE - 1) - 1);
       gui_.drawControl(pitch_bend_, selected_control == pitch_bend_);
     }
     else if (midi_port == SUSTAIN_PORT && midi_id == SUSTAIN_ID) {
@@ -265,18 +261,14 @@ namespace laf {
       eraseMidiLearn(selected_control);
 
       midi_learn_[midi_id] = selected_control;
-      selected_control->midi_learn = midi_id;
+      selected_control->midi_learn(midi_id);
       state_ = STANDARD;
       gui_.drawControlStatus(selected_control, false);
     }
 
     if (midi_learn_.find(midi_id) != midi_learn_.end()) {
       Control* midi_control = midi_learn_[midi_id];
-      laf_float resolution = midi_control->resolution;
-      int index = resolution * midi_val / (MIDI_SIZE - 1);
-      midi_control->current_value = midi_control->min +
-          index * (midi_control->max - midi_control->min) / resolution;
-      midi_control->value->set(midi_control->current_value);
+      midi_control->setMidi(midi_val);
       gui_.drawControl(midi_control, selected_control == midi_control);
       gui_.drawControlStatus(midi_control, false);
     }
@@ -300,6 +292,7 @@ namespace laf {
   // Loading and Saving.
 
   void Termite::startSave() {
+    gui_.clearPatches();
     curs_set(1);
     std::stringstream save_stream;
     gui_.drawPatchSaving(save_stream.str());
@@ -385,7 +378,7 @@ namespace laf {
 
     control_map::iterator iter = controls_.begin();
     for(; iter != controls_.end(); ++iter) {
-      cJSON* value = cJSON_CreateNumber(iter->second->value->value());
+      cJSON* value = cJSON_CreateNumber(iter->second->value()->value());
       cJSON_AddItemToObject(root, iter->first.c_str(), value);
     }
 
@@ -403,9 +396,7 @@ namespace laf {
     for(; iter != controls_.end(); ++iter) {
       cJSON* value = cJSON_GetObjectItem(root, iter->first.c_str());
       Control* control = iter->second;
-      control->current_value =
-          CLAMP(value->valuedouble, control->min, control->max);
-      control->value->set(value->valuedouble);
+      control->set(value->valuedouble);
       gui_.drawControl(control, false);
     }
 

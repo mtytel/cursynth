@@ -29,6 +29,12 @@ namespace laf {
   class Value;
   class TermiteSynth;
 
+  struct DisplayDetails {
+    int x, y, width;
+    std::string label;
+    bool bipolar;
+  };
+
   class TermiteGui {
     public:
       enum ColorIds {
@@ -36,6 +42,7 @@ namespace laf {
         SLIDER_BG_COLOR,
         LOGO_COLOR,
         PATCH_LOAD_COLOR,
+        CONTROL_TEXT_COLOR
       };
 
       TermiteGui() : control_index_(0) { }
@@ -45,6 +52,10 @@ namespace laf {
 
       void addControls(const control_map& controls);
 
+      void drawSlider(const DisplayDetails* slider,
+                      float percentage, bool active);
+      void drawText(const DisplayDetails* details,
+                    std::string text, bool active);
       void drawControl(const Control* control, bool active);
       void drawControlStatus(const Control* control, bool armed);
       void drawPatchLoading(std::vector<std::string> patches, int index);
@@ -55,19 +66,13 @@ namespace laf {
       std::string getPrevControl();
 
     private:
-      struct Slider {
-        int x, y, width;
-        std::string label;
-        bool bipolar;
-      };
-
       void drawLogo();
       void drawMidi(std::string status);
       void drawStatus(std::string status);
-      void placeSlider(std::string name, const Control* control,
+      void placeControl(std::string name, const Control* control,
                        int x, int y, int width);
 
-      std::map<const Control*, Slider*> slider_lookup_;
+      std::map<const Control*, DisplayDetails*> details_lookup_;
       std::vector<std::string> control_order_;
       int control_index_;
   };

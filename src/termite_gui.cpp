@@ -132,27 +132,17 @@ namespace laf {
     refresh();
   }
 
-  void TermiteGui::drawControl(const Control* control, bool active) {
-    Slider* slider = slider_lookup_[control];
-    if (!slider)
-      return;
-    char slider_char = active ? '=' : ' ';
-    if (active)
-      attron(A_BOLD);
-    move(slider->y, slider->x);
-    printw(slider->label.c_str());
-    attroff(A_BOLD);
-
+  void TermiteGui::drawSlider(const DisplayDetails* slider,
+                              float percentage, bool active) {
     // Clear slider.
+    char slider_char = active ? '=' : ' ';
     move(slider->y + 1, slider->x);
     attron(COLOR_PAIR(SLIDER_BG_COLOR));
     hline(slider_char, slider->width);
     attroff(COLOR_PAIR(SLIDER_BG_COLOR));
 
     // Find slider position.
-    laf_float relative_value = control->current_value - control->min;
-    laf_float relative_width = control->max - control->min;
-    int position = round(slider->width * relative_value / relative_width);
+    int position = round(slider->width * percentage);
     int slider_midpoint = (slider->width + 1) / 2;
 
     attron(COLOR_PAIR(SLIDER_FG_COLOR));
@@ -174,23 +164,60 @@ namespace laf {
     refresh();
   }
 
+  void TermiteGui::drawText(const DisplayDetails* details,
+                            std::string text, bool active) {
+    // Clear area.
+    move(details->y + 1, details->x);
+    attron(COLOR_PAIR(CONTROL_TEXT_COLOR));
+    hline(' ', details->width);
+
+    // Draw text.
+    move(details->y + 1, details->x);
+    if (active)
+      attron(A_BOLD);
+    printw(text.c_str());
+    attroff(A_BOLD);
+    attroff(COLOR_PAIR(CONTROL_TEXT_COLOR));
+  }
+
+  void TermiteGui::drawControl(const Control* control, bool active) {
+    DisplayDetails* details = details_lookup_[control];
+    if (!details)
+      return;
+
+    // Draw label.
+    if (active)
+      attron(A_BOLD);
+    move(details->y, details->x);
+    printw(details->label.c_str());
+    attroff(A_BOLD);
+
+    // Draw status.
+    if (control->display_strings()) {
+      int display_index = static_cast<int>(control->current_value());
+      drawText(details, control->display_strings()[display_index], active);
+    }
+    else
+      drawSlider(details, control->getPercentage(), active);
+  }
+
   void TermiteGui::drawControlStatus(const Control* control, bool midi_armed) {
     std::ostringstream midi_learn;
     if (midi_armed)
       midi_learn << "ARMED";
-    else if (control->midi_learn)
-      midi_learn << control->midi_learn;
+    else if (control->midi_learn())
+      midi_learn << control->midi_learn();
     else
       midi_learn << "-";
     drawMidi(midi_learn.str());
 
     std::ostringstream status;
-    if (control->display_strings) {
-      int display_index = static_cast<int>(control->current_value);
-      status << control->display_strings[display_index];
+    if (control->display_strings()) {
+      int display_index = static_cast<int>(control->current_value());
+      status << control->display_strings()[display_index];
     }
     else
-      status << control->current_value;
+      status << control->current_value();
     drawStatus(status.str());
   }
 
@@ -211,6 +238,7 @@ namespace laf {
     init_pair(SLIDER_BG_COLOR, COLOR_YELLOW, COLOR_WHITE);
     init_pair(LOGO_COLOR, COLOR_RED, COLOR_BLACK);
     init_pair(PATCH_LOAD_COLOR, COLOR_BLACK, COLOR_CYAN);
+    init_pair(CONTROL_TEXT_COLOR, COLOR_BLACK, COLOR_WHITE);
 
     refresh();
     drawLogo();
@@ -221,81 +249,81 @@ namespace laf {
     endwin();
   }
 
-  void TermiteGui::placeSlider(std::string name, const Control* control,
+  void TermiteGui::placeControl(std::string name, const Control* control,
       int x, int y, int width) {
-    Slider* slider = new Slider();
-    slider->x = x;
-    slider->y = y;
-    slider->width = width;
-    slider->label = name;
-    slider->bipolar = control->min < 0;
+    DisplayDetails* details = new DisplayDetails();
+    details->x = x;
+    details->y = y;
+    details->width = width;
+    details->label = name;
+    details->bipolar = control->isBipolar();
 
-    slider_lookup_[control] = slider;
+    details_lookup_[control] = details;
     drawControl(control, false);
     control_order_.push_back(name);
   }
 
   void TermiteGui::addControls(const control_map& controls) {
     // Oscillators.
-    placeSlider("osc 1 waveform", controls.at("osc 1 waveform"),
+    placeControl("osc 1 waveform", controls.at("osc 1 waveform"),
         2, 7, 18);
-    placeSlider("osc 2 waveform", controls.at("osc 2 waveform"),
+    placeControl("osc 2 waveform", controls.at("osc 2 waveform"),
         22, 7, 18);
-    placeSlider("osc 2 transpose", controls.at("osc 2 transpose"),
+    placeControl("osc 2 transpose", controls.at("osc 2 transpose"),
         2, 10, 38);
-    placeSlider("osc 2 tune", controls.at("osc 2 tune"),
+    placeControl("osc 2 tune", controls.at("osc 2 tune"),
         2, 13, 38);
 
     // Volume / Delay.
-    placeSlider("volume", controls.at("volume"),
+    placeControl("volume", controls.at("volume"),
         2, 22, 38);
-    placeSlider("delay time", controls.at("delay time"),
+    placeControl("delay time", controls.at("delay time"),
         2, 25, 38);
-    placeSlider("delay feedback", controls.at("delay feedback"),
+    placeControl("delay feedback", controls.at("delay feedback"),
         2, 28, 18);
-    placeSlider("delay wet/dry", controls.at("delay wet/dry"),
+    placeControl("delay wet/dry", controls.at("delay wet/dry"),
         22, 28, 18);
 
     // Filter.
-    placeSlider("filter type", controls.at("filter type"),
+    placeControl("filter type", controls.at("filter type"),
         42, 7, 38);
-    placeSlider("cutoff", controls.at("cutoff"),
+    placeControl("cutoff", controls.at("cutoff"),
         42, 10, 38);
-    placeSlider("resonance", controls.at("resonance"),
+    placeControl("resonance", controls.at("resonance"),
         42, 13, 38);
-    placeSlider("keytrack", controls.at("keytrack"),
+    placeControl("keytrack", controls.at("keytrack"),
         42, 16, 38);
-    placeSlider("fil env depth", controls.at("fil env depth"),
+    placeControl("fil env depth", controls.at("fil env depth"),
         42, 19, 38);
-    placeSlider("fil attack", controls.at("fil attack"),
+    placeControl("fil attack", controls.at("fil attack"),
         42, 22, 38);
-    placeSlider("fil decay", controls.at("fil decay"),
+    placeControl("fil decay", controls.at("fil decay"),
         42, 25, 38);
-    placeSlider("fil sustain", controls.at("fil sustain"),
+    placeControl("fil sustain", controls.at("fil sustain"),
         42, 28, 38);
-    placeSlider("fil release", controls.at("fil release"),
+    placeControl("fil release", controls.at("fil release"),
         42, 31, 38);
 
     // Performance.
-    placeSlider("polyphony", controls.at("polyphony"),
+    placeControl("polyphony", controls.at("polyphony"),
         82, 7, 30);
-    placeSlider("legato", controls.at("legato"),
+    placeControl("legato", controls.at("legato"),
         114, 7, 6);
-    placeSlider("portamento", controls.at("portamento"),
+    placeControl("portamento", controls.at("portamento"),
         82, 10, 21);
-    placeSlider("portamento type", controls.at("portamento type"),
+    placeControl("portamento type", controls.at("portamento type"),
         105, 10, 15);
-    placeSlider("pitch bend range", controls.at("pitch bend range"),
+    placeControl("pitch bend range", controls.at("pitch bend range"),
         82, 13, 38);
 
     // Amplitude Envelope.
-    placeSlider("amp attack", controls.at("amp attack"),
+    placeControl("amp attack", controls.at("amp attack"),
         82, 19, 38);
-    placeSlider("amp decay", controls.at("amp decay"),
+    placeControl("amp decay", controls.at("amp decay"),
         82, 22, 38);
-    placeSlider("amp sustain", controls.at("amp sustain"),
+    placeControl("amp sustain", controls.at("amp sustain"),
         82, 25, 38);
-    placeSlider("amp release", controls.at("amp release"),
+    placeControl("amp release", controls.at("amp release"),
         82, 28, 38);
   }
 

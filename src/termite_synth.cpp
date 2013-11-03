@@ -99,6 +99,9 @@ namespace laf {
     oscillator_mix_->plug(oscillator2_, 1);
 
     addProcessor(oscillator_mix_);
+
+    mod_sources_["osc 1"] = oscillator1_->output();
+    mod_sources_["osc 2"] = oscillator2_->output();
   }
 
   void TermiteVoiceHandler::createFilter(
@@ -170,12 +173,12 @@ namespace laf {
     controls_["cutoff"] = new Control(base_cutoff, 28, 127, 128);
     controls_["keytrack"] = new Control(keytrack_amount, -1, 1, 128);
     controls_["resonance"] = new Control(resonance, 0.5, 15, 128);
+
+    mod_sources_["filter env"] = filter_envelope_->output();
   }
 
   void TermiteVoiceHandler::createArticulation(
       Output* note, Output* velocity, Output* trigger) {
-    UNUSED(velocity);
-
     // Legato.
     Value* legato = new Value(0);
     LegatoFilter* legato_filter = new LegatoFilter();
@@ -252,6 +255,10 @@ namespace laf {
     controls_["portamento type"] =
         new Control(portamento_type, TermiteStrings::portamento_strings_,
                     port_type_resolution);
+
+    mod_sources_["amp env"] = amplitude_envelope_->output();
+    mod_sources_["note"] = current_note->output();
+    mod_sources_["velocity"] = velocity;
   }
 
   TermiteVoiceHandler::TermiteVoiceHandler() {
@@ -272,6 +279,8 @@ namespace laf {
     addProcessor(output_);
     setVoiceOutput(output_);
     setVoiceKiller(amplitude_envelope_->output(Envelope::kValue));
+
+    mod_sources_["pitch wheel"] = pitch_bend_amount_->output();
   }
 
   TermiteSynth::TermiteSynth() {

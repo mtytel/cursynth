@@ -58,6 +58,8 @@ namespace laf {
       Multiply* output_;
 
       control_map controls_;
+      output_map mod_sources_;
+      input_map mod_destinations_;
   };
 
   class TermiteSynth : public ProcessorRouter {

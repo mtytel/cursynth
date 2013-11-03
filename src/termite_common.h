@@ -25,29 +25,67 @@
 
 namespace laf {
 
-  struct Control {
-    Control(Value* value, laf_float min, laf_float max, int resolution) :
-        value(value), min(min), max(max),
-        resolution(resolution), midi_learn(0), display_strings(0) {
-      current_value = value->value();
-    }
+  class Control {
+    public:
+      Control(Value* value, laf_float min, laf_float max, int resolution) :
+        value_(value), min_(min), max_(max),
+        resolution_(resolution), midi_learn_(0), display_strings_(0) {
+          current_value_ = value->value();
+      }
 
-    Control(Value* value, const char** strings, int resolution) :
-        value(value), min(0), max(resolution),
-        resolution(resolution), midi_learn(0), display_strings(strings) {
-      current_value = value->value();
-    }
+      Control(Value* value, const char** strings, int resolution) :
+        value_(value), min_(0), max_(resolution),
+        resolution_(resolution), midi_learn_(0), display_strings_(strings) {
+          current_value_ = value->value();
+      }
 
-    Control() : value(0), min(0), max(0), current_value(0),
-                resolution(0), midi_learn(0), display_strings(0) { }
+      Control() : value_(0), min_(0), max_(0), current_value_(0),
+                  resolution_(0), midi_learn_(0), display_strings_(0) { }
 
-    Value* value;
-    laf_float min, max, current_value;
-    int resolution, midi_learn;
-    const char** display_strings;
+      void set(laf_float val) {
+        current_value_ = CLAMP(val, min_, max_);
+        value_->set(current_value_);
+      }
+
+      void setMidi(int midi_val) {
+        int index = resolution_ * midi_val / (MIDI_SIZE - 1);
+        set(min_ + index * (max_ - min_) / resolution_);
+      }
+
+      void increment() {
+        set(current_value_ + (max_ - min_) / resolution_);
+      }
+
+      void decrement() {
+        set(current_value_ - (max_ - min_) / resolution_);
+      }
+
+      laf_float getPercentage() const {
+        return (current_value_ - min_) / (max_ - min_);
+      }
+
+      int midi_learn() const { return midi_learn_; }
+
+      void midi_learn(float midi) { midi_learn_ = midi; }
+
+      const char** display_strings() const { return display_strings_; }
+
+      laf_float current_value() const { return current_value_; }
+
+      const Value* value() const { return value_; }
+
+      bool isBipolar() const { return max_ == -min_; }
+
+    private:
+      Value* value_;
+      laf_float min_, max_, current_value_;
+      int resolution_, midi_learn_;
+      const char** display_strings_;
   };
 
   typedef std::map<std::string, Control*> control_map;
+  typedef std::map<std::string, Processor::Input*> input_map;
+  typedef std::map<std::string, Processor::Output*> output_map;
 
 } // namespace laf
 
