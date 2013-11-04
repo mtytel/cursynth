@@ -98,7 +98,6 @@ namespace laf {
       }
     }
 
-    lock();
     std::string current_control = gui_.getCurrentControl();
     Control* control = controls_.at(current_control);
     switch(key) {
@@ -106,9 +105,7 @@ namespace laf {
         startSave();
         break;
       case 'L':
-        unlock();
         startLoad();
-        lock();
         break;
       case 'M':
       case 'm':
@@ -125,18 +122,26 @@ namespace laf {
       case KEY_UP:
         current_control = gui_.getPrevControl();
         state_ = STANDARD;
+        lock();
         gui_.drawControl(control, false);
+        unlock();
         break;
       case KEY_DOWN:
         current_control = gui_.getNextControl();
         state_ = STANDARD;
+        lock();
         gui_.drawControl(control, false);
+        unlock();
         break;
       case KEY_RIGHT:
+        lock();
         control->increment();
+        unlock();
         break;
       case KEY_LEFT:
+        lock();
         control->decrement();
+        unlock();
         break;
       default:
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
@@ -145,11 +150,13 @@ namespace laf {
           }
         }
     }
+
+    lock();
     control = controls_.at(current_control);
     gui_.drawControl(control, true);
     gui_.drawControlStatus(control, state_ == MIDI_LEARN);
-
     unlock();
+
     return true;
   }
 
