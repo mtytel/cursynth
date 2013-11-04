@@ -50,6 +50,7 @@ namespace laf {
       void readStateFromString(const std::string& state);
       void saveToFile(const std::string& file_name);
       void loadFromFile(const std::string& file_name);
+      void startHelp();
       void startLoad();
       void startSave();
 

@@ -29,5 +29,6 @@
  "portamento": 0.010000,
  "portamento type": 0,
  "resonance": 3,
+ "velocity track": 0.3,
  "volume": 0.600000
 }

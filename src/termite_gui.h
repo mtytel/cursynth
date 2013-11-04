@@ -52,6 +52,8 @@ namespace laf {
 
       void addControls(const control_map& controls);
 
+      void drawHelp();
+      void drawMain();
       void drawSlider(const DisplayDetails* slider,
                       float percentage, bool active);
       void drawText(const DisplayDetails* details,

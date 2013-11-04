@@ -75,9 +75,6 @@ namespace laf {
   }
 
   bool Termite::textInput(int key) {
-    if (key == KEY_F(1))
-      return false;
-
     if (state_ == PATCH_LOADING) {
       int num_patches = patches_.size();
       switch(key) {
@@ -101,6 +98,10 @@ namespace laf {
     std::string current_control = gui_.getCurrentControl();
     Control* control = controls_.at(current_control);
     switch(key) {
+      case 'H':
+      case KEY_F(1):
+        startHelp();
+        break;
       case 'S':
         startSave();
         break;
@@ -292,6 +293,22 @@ namespace laf {
 
     if (dac_.isStreamOpen())
       dac_.closeStream();
+  }
+
+  // Help.
+
+  void Termite::startHelp() {
+    gui_.drawHelp();
+    getch();
+
+    gui_.drawMain();
+    std::string current = gui_.getCurrentControl();
+    std::string name = gui_.getNextControl();
+    while (name != current) {
+      gui_.drawControl(controls_.at(name), false);
+      name = gui_.getNextControl();
+    }
+    gui_.drawControl(controls_.at(current), true);
   }
 
   // Loading and Saving.

@@ -41,6 +41,38 @@
 
 namespace laf {
 
+  void TermiteGui::drawHelp() {
+    erase();
+    drawLogo();
+    move(10, 41);
+    attron(A_BOLD);
+    printw("CONTROLS:");
+    attroff(A_BOLD);
+    move(12, 43);
+    printw("awsedftgyhujkolp;' - a playable keyboard");
+    move(13, 43);
+    printw("                     (no key up events)");
+    move(15, 43);
+    printw("up/down - previous/next control");
+    move(17, 43);
+    printw("left/right - decrement/increment control");
+    move(19, 43);
+    printw("F1 (or [shift] + H) - help/controls");
+    move(21, 43);
+    printw("[shift] + L - browse/load patches");
+    move(23, 43);
+    printw("[shift] + S - save patch");
+    move(25, 43);
+    printw("m - arm midi learn");
+    move(27, 43);
+    printw("c - erase midi learn");
+  }
+
+  void TermiteGui::drawMain() {
+    erase();
+    drawLogo();
+  }
+
   void TermiteGui::drawLogo() {
     attron(A_BOLD);
     attron(COLOR_PAIR(LOGO_COLOR));
