@@ -106,7 +106,9 @@ namespace laf {
         startSave();
         break;
       case 'L':
+        unlock();
         startLoad();
+        lock();
         break;
       case 'M':
       case 'm':
