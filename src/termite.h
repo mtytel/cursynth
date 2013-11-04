@@ -74,7 +74,6 @@ namespace laf {
       // State.
       InputState state_;
       control_map controls_;
-      std::string current_control_;
       pthread_mutex_t mutex_;
       Control* pitch_bend_;
 

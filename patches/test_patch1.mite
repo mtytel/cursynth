@@ -6,7 +6,7 @@
  "cutoff": 63.382812,
  "delay feedback": -0.409375,
  "delay time": 0.060000,
- "delay wet/dry": 0.300000,
+ "delay dry/wet": 0.300000,
  "fil attack": 0.468750,
  "fil decay": 0.300000,
  "fil env depth": 46,

@@ -98,6 +98,7 @@ namespace laf {
       }
     }
 
+    lock();
     std::string current_control = gui_.getCurrentControl();
     Control* control = controls_.at(current_control);
     switch(key) {
@@ -109,19 +110,15 @@ namespace laf {
         break;
       case 'M':
       case 'm':
-        lock();
         if (state_ != MIDI_LEARN)
           state_ = MIDI_LEARN;
         else
           state_ = STANDARD;
-        unlock();
         break;
       case 'C':
       case 'c':
-        lock();
         eraseMidiLearn(control);
         state_ = STANDARD;
-        unlock();
         break;
       case KEY_UP:
         current_control = gui_.getPrevControl();
@@ -142,9 +139,7 @@ namespace laf {
       default:
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
           if (KEYBOARD[i] == key) {
-            lock();
             synth_.noteOn(48 + i);
-            unlock();
           }
         }
     }
@@ -152,6 +147,7 @@ namespace laf {
     gui_.drawControl(control, true);
     gui_.drawControlStatus(control, state_ == MIDI_LEARN);
 
+    unlock();
     return true;
   }
 
@@ -212,7 +208,7 @@ namespace laf {
 
   void Termite::setupMidi() {
     RtMidiIn* midi_in = new RtMidiIn();
-    if (midi_in->getPortCount() < 1) {
+    if (midi_in->getPortCount() <= 0) {
       std::cout << "No midi devices found.\n";
     }
     for (unsigned int i = 0; i < midi_in->getPortCount(); ++i) {
@@ -233,7 +229,7 @@ namespace laf {
     int midi_port = message->at(0);
     int midi_id = message->at(1);
     int midi_val = message->at(2);
-    Control* selected_control = controls_.at(current_control_);
+    Control* selected_control = controls_.at(gui_.getCurrentControl());
     if (midi_port >= 144 && midi_port < 160) {
       int midi_note = midi_id;
       int midi_velocity = midi_val;

@@ -311,7 +311,7 @@ namespace laf {
 
     controls_["delay time"] = new Control(delay_time, 0.01, 1, 128);
     controls_["delay feedback"] = new Control(delay_feedback, -1, 1, 128);
-    controls_["delay wet/dry"] = new Control(delay_wet, 0, 1, 128);
+    controls_["delay dry/wet"] = new Control(delay_wet, 0, 1, 128);
 
     // Volume.
     SmoothValue* volume = new SmoothValue(0.6);

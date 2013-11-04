@@ -281,7 +281,7 @@ namespace laf {
         2, 25, 38);
     placeControl("delay feedback", controls.at("delay feedback"),
         2, 28, 18);
-    placeControl("delay wet/dry", controls.at("delay wet/dry"),
+    placeControl("delay dry/wet", controls.at("delay dry/wet"),
         22, 28, 18);
 
     // Filter.
