@@ -91,7 +91,41 @@ namespace laf {
     controls_["osc 2 transpose"] =
         new Control(oscillator2_transpose, -48, 48, 96);
     controls_["osc 2 tune"] =
-        new Control(oscillator2_tune, -1, 1, 128);
+        new Control(oscillator2_tune, -1, 1, MIDI_SIZE);
+
+    // LFO 1.
+    Value* lfo1_waveform = new Value(Wave::kSin);
+    SmoothValue* lfo1_frequency = new SmoothValue(2);
+    lfo1_ = new Oscillator();
+    lfo1_->plug(reset, Oscillator::kReset);
+    lfo1_->plug(lfo1_waveform, Oscillator::kWaveform);
+    lfo1_->plug(lfo1_frequency, Oscillator::kFrequency);
+
+    addProcessor(lfo1_frequency);
+    addProcessor(lfo1_);
+
+    controls_["lfo 1 waveform"] = new Control(lfo1_waveform,
+                                            TermiteStrings::wave_strings_,
+                                            wave_resolution);
+    controls_["lfo 1 frequency"] =
+        new Control(lfo1_frequency, 0, 10, MIDI_SIZE);
+
+    // LFO 2.
+    Value* lfo2_waveform = new Value(Wave::kSin);
+    SmoothValue* lfo2_frequency = new SmoothValue(2);
+    lfo2_ = new Oscillator();
+    lfo2_->plug(reset, Oscillator::kReset);
+    lfo2_->plug(lfo2_waveform, Oscillator::kWaveform);
+    lfo2_->plug(lfo2_frequency, Oscillator::kFrequency);
+
+    addProcessor(lfo2_frequency);
+    addProcessor(lfo2_);
+
+    controls_["lfo 2 waveform"] = new Control(lfo2_waveform,
+                                            TermiteStrings::wave_strings_,
+                                            wave_resolution);
+    controls_["lfo 2 frequency"] =
+        new Control(lfo2_frequency, 0, 10, MIDI_SIZE);
 
     // Oscillator mix.
     oscillator_mix_ = new Add();
@@ -127,12 +161,12 @@ namespace laf {
     addProcessor(filter_envelope_);
     addProcessor(scaled_envelope);
 
-    controls_["fil attack"] = new Control(filter_attack, 0, 3, 128);
-    controls_["fil decay"] = new Control(filter_decay, 0, 3, 128);
-    controls_["fil sustain"] = new Control(filter_sustain, 0, 1, 128);
-    controls_["fil release"] = new Control(filter_release, 0, 3, 128);
+    controls_["fil attack"] = new Control(filter_attack, 0, 3, MIDI_SIZE);
+    controls_["fil decay"] = new Control(filter_decay, 0, 3, MIDI_SIZE);
+    controls_["fil sustain"] = new Control(filter_sustain, 0, 1, MIDI_SIZE);
+    controls_["fil release"] = new Control(filter_release, 0, 3, MIDI_SIZE);
     controls_["fil env depth"] =
-        new Control(filter_envelope_depth, -128, 128, 128);
+        new Control(filter_envelope_depth, -MIDI_SIZE, MIDI_SIZE, MIDI_SIZE);
 
     // Filter.
     Value* filter_type = new Value(Filter::kLP12);
@@ -170,9 +204,9 @@ namespace laf {
     controls_["filter type"] = new Control(filter_type,
                                            TermiteStrings::filter_strings_,
                                            Filter::kNumTypes - 1);
-    controls_["cutoff"] = new Control(base_cutoff, 28, 127, 128);
-    controls_["keytrack"] = new Control(keytrack_amount, -1, 1, 128);
-    controls_["resonance"] = new Control(resonance, 0.5, 15, 128);
+    controls_["cutoff"] = new Control(base_cutoff, 28, 127, MIDI_SIZE);
+    controls_["keytrack"] = new Control(keytrack_amount, -1, 1, MIDI_SIZE);
+    controls_["resonance"] = new Control(resonance, 0.5, 15, MIDI_SIZE);
 
     mod_sources_["filter env"] = filter_envelope_->output();
   }
@@ -206,10 +240,10 @@ namespace laf {
     addProcessor(amplitude_envelope_);
     addGlobalProcessor(amplitude_sustain);
 
-    controls_["amp attack"] = new Control(amplitude_attack, 0, 3, 128);
-    controls_["amp decay"] = new Control(amplitude_decay, 0, 3, 128);
-    controls_["amp sustain"] = new Control(amplitude_sustain, 0, 1, 128);
-    controls_["amp release"] = new Control(amplitude_release, 0, 3, 128);
+    controls_["amp attack"] = new Control(amplitude_attack, 0, 3, MIDI_SIZE);
+    controls_["amp decay"] = new Control(amplitude_decay, 0, 3, MIDI_SIZE);
+    controls_["amp sustain"] = new Control(amplitude_sustain, 0, 1, MIDI_SIZE);
+    controls_["amp release"] = new Control(amplitude_release, 0, 3, MIDI_SIZE);
 
     // Voice and frequency resetting logic.
     TriggerCombiner* frequency_trigger = new TriggerCombiner();
@@ -227,7 +261,10 @@ namespace laf {
     addProcessor(note_wait);
     addProcessor(current_note);
 
-    // Keytracking.
+    // Key tracking.
+    TriggerWait* velocity_wait = new TriggerWait();
+    Value* current_velocity = new Value();
+
     Value* center_adjust = new Value(-MIDI_SIZE / 2);
     note_from_center_ = new Add();
     note_from_center_->plug(center_adjust, 0);
@@ -235,6 +272,8 @@ namespace laf {
 
     addProcessor(note_from_center_);
     addGlobalProcessor(center_adjust);
+
+    // Velocity tracking.
 
     // Portamento.
     Value* portamento = new Value(0.01);
@@ -250,7 +289,7 @@ namespace laf {
     current_frequency_->plug(portamento_filter, LinearSlope::kTriggerJump);
 
     addProcessor(current_frequency_);
-    controls_["portamento"] = new Control(portamento, 0.0, 0.2, 128);
+    controls_["portamento"] = new Control(portamento, 0.0, 0.2, MIDI_SIZE);
     int port_type_resolution = PortamentoFilter::kNumPortamentoStates - 1;
     controls_["portamento type"] =
         new Control(portamento_type, TermiteStrings::portamento_strings_,
@@ -264,7 +303,7 @@ namespace laf {
   TermiteVoiceHandler::TermiteVoiceHandler() {
     pitch_bend_amount_ = new SmoothValue(0);
     controls_["pitch bend amount"] =
-        new Control(pitch_bend_amount_, -1, 1, 128);
+        new Control(pitch_bend_amount_, -1, 1, MIDI_SIZE);
 
     createArticulation(note(), velocity(), voice_event());
     createOscillators(current_frequency_->output(),
@@ -309,9 +348,9 @@ namespace laf {
     addProcessor(delay_wet);
     addProcessor(delay);
 
-    controls_["delay time"] = new Control(delay_time, 0.01, 1, 128);
-    controls_["delay feedback"] = new Control(delay_feedback, -1, 1, 128);
-    controls_["delay dry/wet"] = new Control(delay_wet, 0, 1, 128);
+    controls_["delay time"] = new Control(delay_time, 0.01, 1, MIDI_SIZE);
+    controls_["delay feedback"] = new Control(delay_feedback, -1, 1, MIDI_SIZE);
+    controls_["delay dry/wet"] = new Control(delay_wet, 0, 1, MIDI_SIZE);
 
     // Volume.
     SmoothValue* volume = new SmoothValue(0.6);
@@ -326,7 +365,7 @@ namespace laf {
     addProcessor(scaled_audio);
     registerOutput(scaled_audio->output());
 
-    controls_["volume"] = new Control(volume, 0, 1, 128);
+    controls_["volume"] = new Control(volume, 0, 1, MIDI_SIZE);
   }
 
   control_map TermiteSynth::getControls() {

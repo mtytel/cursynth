@@ -50,6 +50,8 @@ namespace laf {
 
       Oscillator* oscillator1_;
       Oscillator* oscillator2_;
+      Oscillator* lfo1_;
+      Oscillator* lfo2_;
       Add* oscillator_mix_;
 
       Filter* filter_;

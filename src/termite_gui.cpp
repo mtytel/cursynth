@@ -274,15 +274,26 @@ namespace laf {
     placeControl("osc 2 tune", controls.at("osc 2 tune"),
         2, 13, 38);
 
+    // LFOs.
+    placeControl("lfo 1 waveform", controls.at("lfo 1 waveform"),
+        2, 16, 18);
+    placeControl("lfo 1 frequency", controls.at("lfo 1 frequency"),
+        22, 16, 18);
+    placeControl("lfo 2 waveform", controls.at("lfo 2 waveform"),
+        2, 19, 18);
+    placeControl("lfo 2 frequency", controls.at("lfo 2 frequency"),
+        22, 19, 18);
+
+
     // Volume / Delay.
     placeControl("volume", controls.at("volume"),
-        2, 22, 38);
-    placeControl("delay time", controls.at("delay time"),
         2, 25, 38);
+    placeControl("delay time", controls.at("delay time"),
+        2, 28, 38);
     placeControl("delay feedback", controls.at("delay feedback"),
-        2, 28, 18);
+        2, 31, 18);
     placeControl("delay dry/wet", controls.at("delay dry/wet"),
-        22, 28, 18);
+        22, 31, 18);
 
     // Filter.
     placeControl("filter type", controls.at("filter type"),
