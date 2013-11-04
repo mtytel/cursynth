@@ -23,10 +23,13 @@
 
 #include <vector>
 
+#define MOD_MATRIX_SIZE 6
+
 namespace laf {
   class Add;
   class Envelope;
   class Filter;
+  class Interpolate;
   class LinearSlope;
   class Multiply;
   class Oscillator;
@@ -53,7 +56,7 @@ namespace laf {
       Oscillator* oscillator2_;
       Oscillator* lfo1_;
       Oscillator* lfo2_;
-      Add* oscillator_mix_;
+      Interpolate* oscillator_mix_;
 
       Filter* filter_;
       Envelope* filter_envelope_;

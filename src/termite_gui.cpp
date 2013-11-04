@@ -53,18 +53,20 @@ namespace laf {
     move(13, 43);
     printw("                     (no key up events)");
     move(15, 43);
-    printw("up/down - previous/next control");
+    printw("`1234567890 - a slider for the current selected control");
     move(17, 43);
-    printw("left/right - decrement/increment control");
+    printw("up/down - previous/next control");
     move(19, 43);
-    printw("F1 (or [shift] + H) - help/controls");
+    printw("left/right - decrement/increment control");
     move(21, 43);
-    printw("[shift] + L - browse/load patches");
+    printw("F1 (or [shift] + H) - help/controls");
     move(23, 43);
-    printw("[shift] + S - save patch");
+    printw("[shift] + L - browse/load patches");
     move(25, 43);
-    printw("m - arm midi learn");
+    printw("[shift] + S - save patch");
     move(27, 43);
+    printw("m - arm midi learn");
+    move(29, 43);
     printw("c - erase midi learn");
   }
 
@@ -301,10 +303,12 @@ namespace laf {
         2, 7, 18);
     placeControl("osc 2 waveform", controls.at("osc 2 waveform"),
         22, 7, 18);
-    placeControl("osc 2 transpose", controls.at("osc 2 transpose"),
+    placeControl("osc mix", controls.at("osc mix"),
         2, 10, 38);
+    placeControl("osc 2 transpose", controls.at("osc 2 transpose"),
+        2, 13, 18);
     placeControl("osc 2 tune", controls.at("osc 2 tune"),
-        2, 13, 38);
+        22, 13, 18);
 
     // LFOs.
     placeControl("lfo 1 waveform", controls.at("lfo 1 waveform"),
@@ -315,7 +319,6 @@ namespace laf {
         2, 19, 18);
     placeControl("lfo 2 frequency", controls.at("lfo 2 frequency"),
         22, 19, 18);
-
 
     // Volume / Delay.
     placeControl("volume", controls.at("volume"),

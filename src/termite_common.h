@@ -64,6 +64,10 @@ namespace laf {
         return (current_value_ - min_) / (max_ - min_);
       }
 
+      void setPercentage(laf_float percentage) {
+        set(min_ + percentage * (max_ - min_));
+      }
+
       int midi_learn() const { return midi_learn_; }
 
       void midi_learn(float midi) { midi_learn_ = midi; }
@@ -84,7 +88,7 @@ namespace laf {
   };
 
   typedef std::map<std::string, Control*> control_map;
-  typedef std::map<std::string, Processor::Input*> input_map;
+  typedef std::map<std::string, Processor*> input_map;
   typedef std::map<std::string, Processor::Output*> output_map;
 
 } // namespace laf

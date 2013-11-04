@@ -36,11 +36,23 @@ namespace laf {
     Multiply* pitch_bend = new Multiply();
     pitch_bend->plug(pitch_bend_amount_, 0);
     pitch_bend->plug(pitch_bend_range, 1);
+    Add* bent_midi = new Add();
+    bent_midi->plug(midi, 0);
+    bent_midi->plug(pitch_bend, 1);
+
+    Value* midi_size = new Value(MIDI_SIZE);
+    VariableAdd* midi_modulation_sources = new VariableAdd(MOD_MATRIX_SIZE);
+    Multiply* midi_modulation = new Multiply();
+    midi_modulation->plug(midi_size, 0);
+    midi_modulation->plug(midi_modulation_sources, 1);
     Add* final_midi = new Add();
-    final_midi->plug(midi, 0);
-    final_midi->plug(pitch_bend, 1);
+    final_midi->plug(bent_midi, 0);
+    final_midi->plug(midi_modulation, 1);
 
     addGlobalProcessor(pitch_bend);
+    addProcessor(bent_midi);
+    addProcessor(midi_modulation_sources);
+    addProcessor(midi_modulation);
     addProcessor(final_midi);
 
     controls_["pitch bend range"] = new Control(pitch_bend_range, 0, 48, 48);
@@ -93,6 +105,17 @@ namespace laf {
     controls_["osc 2 tune"] =
         new Control(oscillator2_tune, -1, 1, MIDI_SIZE);
 
+    // Oscillator mix.
+    Value* oscillator_mix_amount = new Value(0.5);
+    oscillator_mix_ = new Interpolate();
+    oscillator_mix_->plug(oscillator1_, Interpolate::kFrom);
+    oscillator_mix_->plug(oscillator2_, Interpolate::kTo);
+    oscillator_mix_->plug(oscillator_mix_amount, Interpolate::kFractional);
+
+    addProcessor(oscillator_mix_);
+    controls_["osc mix"] =
+        new Control(oscillator_mix_amount, 0, 1, MIDI_SIZE);
+
     // LFO 1.
     Value* lfo1_waveform = new Value(Wave::kSin);
     SmoothValue* lfo1_frequency = new SmoothValue(2);
@@ -105,8 +128,8 @@ namespace laf {
     addGlobalProcessor(lfo1_);
 
     controls_["lfo 1 waveform"] = new Control(lfo1_waveform,
-                                            TermiteStrings::wave_strings_,
-                                            wave_resolution);
+                                              TermiteStrings::wave_strings_,
+                                              wave_resolution);
     controls_["lfo 1 frequency"] =
         new Control(lfo1_frequency, 0, 10, MIDI_SIZE);
 
@@ -122,20 +145,18 @@ namespace laf {
     addGlobalProcessor(lfo2_);
 
     controls_["lfo 2 waveform"] = new Control(lfo2_waveform,
-                                            TermiteStrings::wave_strings_,
-                                            wave_resolution);
+                                              TermiteStrings::wave_strings_,
+                                              wave_resolution);
     controls_["lfo 2 frequency"] =
         new Control(lfo2_frequency, 0, 10, MIDI_SIZE);
 
-    // Oscillator mix.
-    oscillator_mix_ = new Add();
-    oscillator_mix_->plug(oscillator1_, 0);
-    oscillator_mix_->plug(oscillator2_, 1);
-
-    addProcessor(oscillator_mix_);
-
+    // Modulation sources/destinations.
     mod_sources_["osc 1"] = oscillator1_->output();
     mod_sources_["osc 2"] = oscillator2_->output();
+    mod_sources_["lfo 1"] = lfo1_->output();
+    mod_sources_["lfo 2"] = lfo2_->output();
+
+    mod_destinations_["pitch"] = midi_modulation_sources;
   }
 
   void TermiteVoiceHandler::createFilter(
