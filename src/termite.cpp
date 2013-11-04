@@ -27,6 +27,7 @@
 #include <stdio.h>
 
 #define KEYBOARD "awsedftgyhujkolp;'"
+#define SLIDER "`1234567890"
 #define EXTENSION ".mite"
 #define PATCH_DIRECTORY "patches"
 #define NUM_CHANNELS 2
@@ -145,9 +146,17 @@ namespace laf {
         unlock();
         break;
       default:
+        size_t slider_size = strlen(SLIDER) - 1;
+        for (size_t i = 0; i <= slider_size; ++i) {
+          if (SLIDER[i] == key) {
+            control->setPercentage((1.0 * i) / slider_size);
+            break;
+          }
+        }
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
           if (KEYBOARD[i] == key) {
             synth_.noteOn(48 + i);
+            return true;
           }
         }
     }

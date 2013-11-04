@@ -16,8 +16,10 @@ Then run 'make' and it will compile a 'termite' executable which you can run.
 
 ### Controls
 * awsedftgyhujkolp;' - a playable keyboard (no key up events)
+* \`1234567890 - a slider for the current selected control
 * up/down - previous/next control
 * left/right - decrement/increment control
+* F1 (or [shift] + H) - help/controls
 * [shift] + L - browse/load patches
 * [shift] + S - save patch
 * m - arm midi learn
