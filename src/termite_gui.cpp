@@ -336,6 +336,8 @@ namespace laf {
         82, 25, 38);
     placeControl("amp release", controls.at("amp release"),
         82, 28, 38);
+    placeControl("velocity track", controls.at("velocity track"),
+        82, 31, 38);
   }
 
   std::string TermiteGui::getCurrentControl() {

@@ -102,7 +102,7 @@ namespace laf {
     lfo1_->plug(lfo1_frequency, Oscillator::kFrequency);
 
     addProcessor(lfo1_frequency);
-    addProcessor(lfo1_);
+    addGlobalProcessor(lfo1_);
 
     controls_["lfo 1 waveform"] = new Control(lfo1_waveform,
                                             TermiteStrings::wave_strings_,
@@ -119,7 +119,7 @@ namespace laf {
     lfo2_->plug(lfo2_frequency, Oscillator::kFrequency);
 
     addProcessor(lfo2_frequency);
-    addProcessor(lfo2_);
+    addGlobalProcessor(lfo2_);
 
     controls_["lfo 2 waveform"] = new Control(lfo2_waveform,
                                             TermiteStrings::wave_strings_,
@@ -204,7 +204,8 @@ namespace laf {
     controls_["filter type"] = new Control(filter_type,
                                            TermiteStrings::filter_strings_,
                                            Filter::kNumTypes - 1);
-    controls_["cutoff"] = new Control(base_cutoff, 28, 127, MIDI_SIZE);
+    controls_["cutoff"] =
+        new Control(base_cutoff, 28, MIDI_SIZE - 1, MIDI_SIZE);
     controls_["keytrack"] = new Control(keytrack_amount, -1, 1, MIDI_SIZE);
     controls_["resonance"] = new Control(resonance, 0.5, 15, MIDI_SIZE);
 
@@ -262,9 +263,6 @@ namespace laf {
     addProcessor(current_note);
 
     // Key tracking.
-    TriggerWait* velocity_wait = new TriggerWait();
-    Value* current_velocity = new Value();
-
     Value* center_adjust = new Value(-MIDI_SIZE / 2);
     note_from_center_ = new Add();
     note_from_center_->plug(center_adjust, 0);
@@ -274,6 +272,38 @@ namespace laf {
     addGlobalProcessor(center_adjust);
 
     // Velocity tracking.
+    TriggerWait* velocity_wait = new TriggerWait();
+    Value* current_velocity = new Value();
+    velocity_wait->plug(velocity, TriggerWait::kWait);
+    velocity_wait->plug(frequency_trigger, TriggerWait::kTrigger);
+    current_velocity->plug(velocity_wait);
+
+    addProcessor(velocity_wait);
+    addProcessor(current_velocity);
+
+    Value* velocity_track_amount = new Value(0.3);
+    Value* max_midi_invert = new Value(1.0 / (MIDI_SIZE - 1));
+    Value* one = new Value(1.0);
+    Multiply* velocity_percentage = new Multiply();
+    velocity_percentage->plug(max_midi_invert, 0);
+    velocity_percentage->plug(current_velocity, 1);
+
+    Interpolate* velocity_track_mult = new Interpolate();
+    velocity_track_mult->plug(one, Interpolate::kFrom);
+    velocity_track_mult->plug(velocity_percentage, Interpolate::kTo);
+    velocity_track_mult->plug(velocity_track_amount, Interpolate::kFractional);
+
+    addProcessor(velocity_percentage);
+    addProcessor(velocity_track_mult);
+    controls_["velocity track"] =
+        new Control(velocity_track_amount, 0.0, 1.0, MIDI_SIZE);
+
+    // Current amplitude using envelope and velocity.
+    amplitude_ = new Multiply();
+    amplitude_->plug(amplitude_envelope_->output(Envelope::kValue), 0);
+    amplitude_->plug(velocity_track_mult, 1);
+
+    addProcessor(amplitude_);
 
     // Portamento.
     Value* portamento = new Value(0.01);
@@ -297,7 +327,7 @@ namespace laf {
 
     mod_sources_["amp env"] = amplitude_envelope_->output();
     mod_sources_["note"] = current_note->output();
-    mod_sources_["velocity"] = velocity;
+    mod_sources_["velocity"] = current_velocity->output();
   }
 
   TermiteVoiceHandler::TermiteVoiceHandler() {
@@ -313,7 +343,7 @@ namespace laf {
 
     output_ = new Multiply();
     output_->plug(filter_->output(), 0);
-    output_->plug(amplitude_envelope_->output(Envelope::kValue), 1);
+    output_->plug(amplitude_, 1);
 
     addProcessor(output_);
     setVoiceOutput(output_);

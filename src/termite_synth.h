@@ -47,6 +47,7 @@ namespace laf {
       SmoothValue* pitch_bend_amount_;
       LinearSlope* current_frequency_;
       Envelope* amplitude_envelope_;
+      Multiply* amplitude_;
 
       Oscillator* oscillator1_;
       Oscillator* oscillator2_;
@@ -70,7 +71,7 @@ namespace laf {
 
       control_map getControls();
 
-      void noteOn(laf_float note, laf_float velocity = 1);
+      void noteOn(laf_float note, laf_float velocity = 1.0);
       void noteOff(laf_float note);
       void sustainOn() { voice_handler_->sustainOn(); }
       void sustainOff() { voice_handler_->sustainOff(); }
