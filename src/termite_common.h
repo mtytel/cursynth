@@ -47,9 +47,17 @@ namespace laf {
         value_->set(current_value_);
       }
 
-      void setMidi(int midi_val) {
-        int index = resolution_ * midi_val / (MIDI_SIZE - 1);
+      laf_float getPercentage() const {
+        return (current_value_ - min_) / (max_ - min_);
+      }
+
+      void setPercentage(laf_float percentage) {
+        int index = resolution_ * percentage;
         set(min_ + index * (max_ - min_) / resolution_);
+      }
+
+      void setMidi(int midi_val) {
+        setPercentage(midi_val / (MIDI_SIZE - 1.0));
       }
 
       void increment() {
@@ -58,14 +66,6 @@ namespace laf {
 
       void decrement() {
         set(current_value_ - (max_ - min_) / resolution_);
-      }
-
-      laf_float getPercentage() const {
-        return (current_value_ - min_) / (max_ - min_);
-      }
-
-      void setPercentage(laf_float percentage) {
-        set(min_ + percentage * (max_ - min_));
       }
 
       int midi_learn() const { return midi_learn_; }
