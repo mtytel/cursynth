@@ -332,12 +332,6 @@ namespace laf {
       key = getch();
       std::string current = save_stream.str();
       switch(key) {
-        case '\n':
-          saveToFile(save_stream.str() + EXTENSION);
-          state_ = STANDARD;
-          gui_.clearPatches();
-          curs_set(0);
-          return;
         case KEY_DC:
         case KEY_BACKSPACE:
         case 127:
@@ -345,6 +339,13 @@ namespace laf {
           save_stream.seekp(save_stream.str().length());
           gui_.drawPatchSaving(save_stream.str());
           break;
+        case '\n':
+          if (save_stream.str().length() > 0)
+            saveToFile(save_stream.str() + EXTENSION);
+          state_ = STANDARD;
+          gui_.clearPatches();
+          curs_set(0);
+          return;
         default:
           if (isprint(key))
             save_stream << static_cast<char>(key);
