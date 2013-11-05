@@ -45,6 +45,7 @@ namespace laf {
       void createArticulation(Output* note, Output* velocity, Output* trigger);
       void createOscillators(Output* frequency, Output* reset);
       void createFilter(Output* audio, Output* keytrack, Output* reset);
+      void createModMatrix();
 
       Add* note_from_center_;
       SmoothValue* pitch_bend_amount_;

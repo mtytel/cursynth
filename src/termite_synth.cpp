@@ -241,6 +241,10 @@ namespace laf {
     mod_sources_["filter env"] = filter_envelope_->output();
   }
 
+  void TermiteVoiceHandler::createModMatrix() {
+
+  }
+
   void TermiteVoiceHandler::createArticulation(
       Output* note, Output* velocity, Output* trigger) {
     // Legato.
