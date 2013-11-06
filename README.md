@@ -37,6 +37,6 @@ Then run 'make' and it will compile a 'termite' executable which you can run.
 * On startup select MIDI input device.
 * Lot's more..
 
-Questions? Bugs? email littleioaudio@gmail.com
+Questions? Feature requests? Bugs? email littleioaudio@gmail.com
 
 Copyright 2013 Little IO <littleioaudio@gmail.com>
