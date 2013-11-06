@@ -28,6 +28,8 @@
 #include "trigger_operators.h"
 #include "value.h"
 
+#include <sstream>
+
 namespace laf {
 
   void TermiteVoiceHandler::createOscillators(Output* midi, Output* reset) {
@@ -242,7 +244,19 @@ namespace laf {
   }
 
   void TermiteVoiceHandler::createModMatrix() {
+    for (int i = 0; i < MOD_MATRIX_SIZE; ++i) {
+      mod_matrix_scales_[i] = new SmoothValue(0.5);
+      mod_matrix_[i] = new Multiply();
+      mod_matrix_[i]->plug(mod_matrix_scales_[i], 1);
 
+      addGlobalProcessor(mod_matrix_scales_[i]);
+      addProcessor(mod_matrix_[i]);
+
+      std::stringstream scale_name;
+      scale_name << "mod scale " << mod_matrix_scales_[i];
+      controls_[scale_name.str()] =
+          new Control(mod_matrix_scales_[i], -1, 1, MIDI_SIZE);
+    }
   }
 
   void TermiteVoiceHandler::createArticulation(

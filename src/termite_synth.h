@@ -67,6 +67,9 @@ namespace laf {
       control_map controls_;
       output_map mod_sources_;
       input_map mod_destinations_;
+
+      SmoothValue* mod_matrix_scales_[MOD_MATRIX_SIZE];
+      Multiply* mod_matrix_[MOD_MATRIX_SIZE];
   };
 
   class TermiteSynth : public ProcessorRouter {
