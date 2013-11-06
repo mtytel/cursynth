@@ -31,11 +31,8 @@ Then run 'make' and it will compile a 'termite' executable which you can run.
 * If you want key up events, you have to use a MIDI keyboard.
 
 ### TODO:
-* Info/controls page.
 * Modulation matrix.
-* Routable LFOs.
 * Routable Envelopes.
-* Velocity mapping.
 * On startup select audio output device.
 * On startup select MIDI input device.
 * Lot's more..
