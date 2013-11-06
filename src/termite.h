@@ -47,6 +47,8 @@ namespace laf {
 
     private:
       std::string writeStateToString();
+      void loadConfiguration();
+      void saveConfiguration();
       void readStateFromString(const std::string& state);
       void saveToFile(const std::string& file_name);
       void loadFromFile(const std::string& file_name);
@@ -70,7 +72,7 @@ namespace laf {
       // IO.
       RtAudio dac_;
       std::vector<RtMidiIn*> midi_ins_;
-      std::map<int, Control*> midi_learn_;
+      std::map<int, std::string> midi_learn_;
 
       // State.
       InputState state_;

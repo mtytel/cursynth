@@ -23,6 +23,7 @@
 #include <fstream>
 #include <iostream>
 #include <ncurses.h>
+#include <sstream>
 #include <string>
 #include <stdio.h>
 
@@ -30,6 +31,7 @@
 #define SLIDER "`1234567890"
 #define EXTENSION ".mite"
 #define PATCH_DIRECTORY "patches"
+#define CONFIG_FILE ".termite_conf"
 #define NUM_CHANNELS 2
 #define PITCH_BEND_PORT 224
 #define SUSTAIN_PORT 176
@@ -56,6 +58,12 @@ namespace {
     termite->processAudio((laf::laf_float*)out_buffer, n_frames);
     return 0;
   }
+
+  std::string getConfigPath() {
+    std::stringstream config_path;
+    config_path << getenv("HOME") << "/" << CONFIG_FILE;
+    return config_path.str();
+  }
 } // namespace
 
 namespace laf {
@@ -67,12 +75,58 @@ namespace laf {
     setupAudio();
     setupMidi();
     setupGui();
+    loadConfiguration();
 
     // Wait for input.
     while(textInput(getch()))
       ;
 
     stop();
+  }
+
+  void Termite::loadConfiguration() {
+    std::ifstream config_file;
+    config_file.open(getConfigPath().c_str());
+    if (!config_file.is_open())
+      return;
+
+    config_file.seekg(0, std::ios::end);
+    int length = config_file.tellg();
+    config_file.seekg(0, std::ios::beg);
+    char file_contents[length];
+    config_file.read(file_contents, length);
+
+    cJSON* root = cJSON_Parse(file_contents);
+    std::string current = gui_.getCurrentControl();
+    std::string name = current;
+    do {
+      cJSON* value = cJSON_GetObjectItem(root, name.c_str());
+      if (value)
+        midi_learn_[value->valueint] = name;
+
+      name = gui_.getNextControl();
+    } while(name != current);
+
+    cJSON_Delete(root);
+  }
+
+  void Termite::saveConfiguration() {
+    cJSON* root = cJSON_CreateObject();
+    std::map<int, std::string>::iterator iter = midi_learn_.begin();
+    for(; iter != midi_learn_.end(); ++iter) {
+      cJSON* midi = cJSON_CreateNumber(iter->first);
+      cJSON_AddItemToObject(root, iter->second.c_str(), midi);
+    }
+
+    char* json = cJSON_Print(root);
+    std::ofstream save_file;
+    save_file.open(getConfigPath().c_str());
+    LAF_ASSERT(save_file.is_open());
+    save_file << json;
+    save_file.close();
+
+    free(json);
+    cJSON_Delete(root);
   }
 
   bool Termite::textInput(int key) {
@@ -248,7 +302,8 @@ namespace laf {
     int midi_port = message->at(0);
     int midi_id = message->at(1);
     int midi_val = message->at(2);
-    Control* selected_control = controls_.at(gui_.getCurrentControl());
+    std::string selected_control_name = gui_.getCurrentControl();
+    Control* selected_control = controls_.at(selected_control_name);
     if (midi_port >= 144 && midi_port < 160) {
       int midi_note = midi_id;
       int midi_velocity = midi_val;
@@ -275,14 +330,15 @@ namespace laf {
     else if (state_ == MIDI_LEARN && midi_port < 254) {
       eraseMidiLearn(selected_control);
 
-      midi_learn_[midi_id] = selected_control;
+      midi_learn_[midi_id] = selected_control_name;
       selected_control->midi_learn(midi_id);
       state_ = STANDARD;
       gui_.drawControlStatus(selected_control, false);
+      saveConfiguration();
     }
 
     if (midi_learn_.find(midi_id) != midi_learn_.end()) {
-      Control* midi_control = midi_learn_[midi_id];
+      Control* midi_control = controls_.at(midi_learn_[midi_id]);
       midi_control->setMidi(midi_val);
       gui_.drawControl(midi_control, selected_control == midi_control);
       gui_.drawControlStatus(midi_control, false);
@@ -417,6 +473,7 @@ namespace laf {
     char* json = cJSON_Print(root);
     std::string output = json;
     free(json);
+    cJSON_Delete(root);
     return output;
   }
 
