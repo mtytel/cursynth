@@ -130,7 +130,6 @@ namespace laf {
   }
 
   bool Termite::textInput(int key) {
-    lock();
     if (state_ == PATCH_LOADING) {
       int num_patches = patches_.size();
       switch(key) {
@@ -212,6 +211,7 @@ namespace laf {
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
           if (KEYBOARD[i] == key) {
             synth_.noteOn(48 + i);
+            unlock();
             return true;
           }
         }
