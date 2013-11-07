@@ -41,6 +41,9 @@ namespace laf {
 
       control_map getControls() { return controls_; }
 
+      void setModulationSource(int index, std::string source);
+      void setModulationDestination(int index, std::string destination);
+
     private:
       void createArticulation(Output* note, Output* velocity, Output* trigger);
       void createOscillators(Output* frequency, Output* reset);
@@ -68,8 +71,65 @@ namespace laf {
       output_map mod_sources_;
       input_map mod_destinations_;
 
-      SmoothValue* mod_matrix_scales_[MOD_MATRIX_SIZE];
+      std::vector<std::string> mod_source_names_;
+      std::vector<std::string> mod_destination_names_;
+      Value* mod_matrix_scales_[MOD_MATRIX_SIZE];
       Multiply* mod_matrix_[MOD_MATRIX_SIZE];
+      std::string current_mod_destinations_[MOD_MATRIX_SIZE];
+  };
+
+  class MatrixSourceValue : public Value {
+    public:
+      MatrixSourceValue(TermiteVoiceHandler* handler) :
+          Value(0), handler_(handler), mod_index_(0) { }
+
+      virtual Processor* clone() const { return new MatrixSourceValue(*this); }
+
+      void setSources(const std::vector<std::string> &sources) {
+        sources_ = sources;
+      }
+
+      void setModulationIndex(int mod_index) {
+        mod_index_ = mod_index;
+      }
+
+      void set(laf_float value) {
+        Value::set(static_cast<int>(value));
+        handler_->setModulationSource(mod_index_, sources_[value_]);
+      }
+
+    private:
+      TermiteVoiceHandler* handler_;
+      std::vector<std::string> sources_;
+      int mod_index_;
+  };
+
+  class MatrixDestinationValue : public Value {
+    public:
+      MatrixDestinationValue(TermiteVoiceHandler* handler) :
+          Value(0), handler_(handler), mod_index_(0) { }
+
+      virtual Processor* clone() const {
+        return new MatrixDestinationValue(*this);
+      }
+
+      void setDestinations(const std::vector<std::string> &destinations) {
+        destinations_ = destinations;
+      }
+
+      void setModulationIndex(int mod_index) {
+        mod_index_ = mod_index;
+      }
+
+      void set(laf_float value) {
+        Value::set(static_cast<int>(value));
+        handler_->setModulationDestination(mod_index_, destinations_[value_]);
+      }
+
+    private:
+      TermiteVoiceHandler* handler_;
+      std::vector<std::string> destinations_;
+      int mod_index_;
   };
 
   class TermiteSynth : public ProcessorRouter {

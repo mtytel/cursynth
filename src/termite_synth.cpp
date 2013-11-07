@@ -30,6 +30,8 @@
 
 #include <sstream>
 
+#define PITCH_MOD_RANGE 12
+
 namespace laf {
 
   void TermiteVoiceHandler::createOscillators(Output* midi, Output* reset) {
@@ -42,10 +44,10 @@ namespace laf {
     bent_midi->plug(midi, 0);
     bent_midi->plug(pitch_bend, 1);
 
-    Value* midi_size = new Value(MIDI_SIZE);
+    Value* pitch_mod_range = new Value(PITCH_MOD_RANGE);
     VariableAdd* midi_mod_sources = new VariableAdd(MOD_MATRIX_SIZE);
     Multiply* midi_mod = new Multiply();
-    midi_mod->plug(midi_size, 0);
+    midi_mod->plug(pitch_mod_range, 0);
     midi_mod->plug(midi_mod_sources, 1);
     Add* final_midi = new Add();
     final_midi->plug(bent_midi, 0);
@@ -114,14 +116,18 @@ namespace laf {
     Add* mix_total = new Add();
     mix_total->plug(oscillator_mix_amount, 0);
     mix_total->plug(mix_mod_sources, 1);
+
+    Clamp* clamp_mix = new Clamp(0, 1);
+    clamp_mix->plug(mix_total);
     oscillator_mix_ = new Interpolate();
     oscillator_mix_->plug(oscillator1_, Interpolate::kFrom);
     oscillator_mix_->plug(oscillator2_, Interpolate::kTo);
-    oscillator_mix_->plug(mix_total, Interpolate::kFractional);
+    oscillator_mix_->plug(clamp_mix, Interpolate::kFractional);
 
     addProcessor(oscillator_mix_);
     addProcessor(mix_mod_sources);
     addProcessor(mix_total);
+    addProcessor(clamp_mix);
     controls_["osc mix"] =
         new Control(oscillator_mix_amount, 0, 1, MIDI_SIZE);
 
@@ -150,8 +156,8 @@ namespace laf {
     lfo2_->plug(lfo2_waveform, Oscillator::kWaveform);
     lfo2_->plug(lfo2_frequency, Oscillator::kFrequency);
 
-    addProcessor(lfo2_frequency);
-    addGlobalProcessor(lfo2_);
+    addGlobalProcessor(lfo2_frequency);
+    addProcessor(lfo2_);
 
     controls_["lfo 2 waveform"] = new Control(lfo2_waveform,
                                               TermiteStrings::wave_strings_,
@@ -244,18 +250,51 @@ namespace laf {
   }
 
   void TermiteVoiceHandler::createModMatrix() {
+    std::vector<std::string> source_names;
+    source_names.push_back("");
+    output_map::iterator s_iter = mod_sources_.begin();
+    for (; s_iter != mod_sources_.end(); ++s_iter)
+      source_names.push_back(s_iter->first);
+
+    std::vector<std::string> destination_names;
+    destination_names.push_back("");
+    input_map::iterator d_iter = mod_destinations_.begin();
+    for (; d_iter != mod_destinations_.end(); ++d_iter)
+      destination_names.push_back(d_iter->first);
+
     for (int i = 0; i < MOD_MATRIX_SIZE; ++i) {
-      mod_matrix_scales_[i] = new SmoothValue(0.5);
+      mod_matrix_scales_[i] = new Value(0.01);
       mod_matrix_[i] = new Multiply();
       mod_matrix_[i]->plug(mod_matrix_scales_[i], 1);
 
       addGlobalProcessor(mod_matrix_scales_[i]);
       addProcessor(mod_matrix_[i]);
 
+      MatrixSourceValue* source_value = new MatrixSourceValue(this);
+      source_value->setSources(source_names);
+      source_value->setModulationIndex(i);
+
+      MatrixDestinationValue* destination_value =
+          new MatrixDestinationValue(this);
+      destination_value->setDestinations(destination_names);
+      destination_value->setModulationIndex(i);
+
       std::stringstream scale_name;
-      scale_name << "mod scale " << mod_matrix_scales_[i];
+      scale_name << "mod scale " << i + 1;
       controls_[scale_name.str()] =
           new Control(mod_matrix_scales_[i], -1, 1, MIDI_SIZE);
+
+      std::stringstream source_name;
+      source_name << "mod source " << i + 1;
+      int source_size = source_names.size() - 1;
+      controls_[source_name.str()] =
+          new Control(source_value, 0, source_size, source_size);
+
+      std::stringstream destination_name;
+      destination_name << "mod destination " << i + 1;
+      int dest_size = destination_names.size() - 1;
+      controls_[destination_name.str()] =
+          new Control(destination_value, 0, dest_size, dest_size);
     }
   }
 
@@ -274,7 +313,7 @@ namespace laf {
     // Amplitude envelope.
     Value* amplitude_attack = new Value(0.01);
     Value* amplitude_decay = new Value(0.7);
-    Value* amplitude_sustain = new SmoothValue(0.0);
+    Value* amplitude_sustain = new SmoothValue(0.7);
     Value* amplitude_release = new Value(0.3);
 
     amplitude_envelope_ = new Envelope();
@@ -387,6 +426,7 @@ namespace laf {
                       amplitude_envelope_->output(Envelope::kFinished));
     createFilter(oscillator_mix_->output(), note_from_center_->output(),
                  amplitude_envelope_->output(Envelope::kFinished));
+    createModMatrix();
 
     output_ = new Multiply();
     output_->plug(filter_->output(), 0);
@@ -401,7 +441,7 @@ namespace laf {
 
   TermiteSynth::TermiteSynth() {
     // Voice Handler.
-    Value* polyphony = new Value(12);
+    Value* polyphony = new Value(1);
     voice_handler_ = new TermiteVoiceHandler();
     voice_handler_->setPolyphony(64);
     voice_handler_->plug(polyphony, VoiceHandler::kPolyphony);
@@ -457,5 +497,22 @@ namespace laf {
 
   void TermiteSynth::noteOff(laf_float note) {
     voice_handler_->noteOff(note);
+  }
+
+  void TermiteVoiceHandler::setModulationSource(int matrix_index,
+                                                std::string source) {
+    if (source.length())
+      mod_matrix_[matrix_index]->plug(mod_sources_[source], 0);
+  }
+
+  void TermiteVoiceHandler::setModulationDestination(int matrix_index,
+                                                     std::string destination) {
+    std::string current = current_mod_destinations_[matrix_index];
+    if (current.length())
+      mod_destinations_[current]->unplug(mod_matrix_[matrix_index]);
+
+    current_mod_destinations_[matrix_index] = destination;
+    if (destination.length())
+      mod_destinations_[destination]->plugNext(mod_matrix_[matrix_index]);
   }
 } // namespace laf

@@ -373,6 +373,43 @@ namespace laf {
         82, 28, 38);
     placeControl("velocity track", controls.at("velocity track"),
         82, 31, 38);
+
+    placeControl("mod source 1", controls.at("mod source 1"),
+        2, 34, 18);
+    placeControl("mod scale 1", controls.at("mod scale 1"),
+        22, 34, 18);
+    placeControl("mod destination 1", controls.at("mod destination 1"),
+        42, 34, 18);
+    placeControl("mod source 2", controls.at("mod source 2"),
+        2, 35, 18);
+    placeControl("mod scale 2", controls.at("mod scale 2"),
+        22, 35, 18);
+    placeControl("mod destination 2", controls.at("mod destination 2"),
+        42, 35, 18);
+    placeControl("mod source 3", controls.at("mod source 3"),
+        2, 36, 18);
+    placeControl("mod scale 3", controls.at("mod scale 3"),
+        22, 36, 18);
+    placeControl("mod destination 3", controls.at("mod destination 3"),
+        42, 36, 18);
+    placeControl("mod source 4", controls.at("mod source 4"),
+        2, 37, 18);
+    placeControl("mod scale 4", controls.at("mod scale 4"),
+        22, 37, 18);
+    placeControl("mod destination 4", controls.at("mod destination 4"),
+        42, 37, 18);
+    placeControl("mod source 5", controls.at("mod source 5"),
+        2, 38, 18);
+    placeControl("mod scale 5", controls.at("mod scale 5"),
+        22, 38, 18);
+    placeControl("mod destination 5", controls.at("mod destination 5"),
+        42, 38, 18);
+    placeControl("mod source 6", controls.at("mod source 6"),
+        2, 39, 18);
+    placeControl("mod scale 6", controls.at("mod scale 6"),
+        22, 39, 18);
+    placeControl("mod destination 6", controls.at("mod destination 6"),
+        42, 39, 18);
   }
 
   std::string TermiteGui::getCurrentControl() {

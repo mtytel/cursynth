@@ -113,7 +113,7 @@ namespace laf {
   void Termite::saveConfiguration() {
     cJSON* root = cJSON_CreateObject();
     std::map<int, std::string>::iterator iter = midi_learn_.begin();
-    for(; iter != midi_learn_.end(); ++iter) {
+    for (; iter != midi_learn_.end(); ++iter) {
       cJSON* midi = cJSON_CreateNumber(iter->first);
       cJSON_AddItemToObject(root, iter->second.c_str(), midi);
     }
@@ -465,7 +465,7 @@ namespace laf {
     cJSON* root = cJSON_CreateObject();
 
     control_map::iterator iter = controls_.begin();
-    for(; iter != controls_.end(); ++iter) {
+    for (; iter != controls_.end(); ++iter) {
       cJSON* value = cJSON_CreateNumber(iter->second->value()->value());
       cJSON_AddItemToObject(root, iter->first.c_str(), value);
     }
@@ -482,7 +482,7 @@ namespace laf {
 
     lock();
     control_map::iterator iter = controls_.begin();
-    for(; iter != controls_.end(); ++iter) {
+    for (; iter != controls_.end(); ++iter) {
       cJSON* value = cJSON_GetObjectItem(root, iter->first.c_str());
       Control* control = iter->second;
       control->set(value->valuedouble);
