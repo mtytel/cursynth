@@ -240,7 +240,7 @@ namespace laf {
 
     controls_["filter type"] = new Control(filter_type,
                                            TermiteStrings::filter_strings_,
-                                           Filter::kNumTypes - 1);
+                                           Filter::kHP12);
     controls_["cutoff"] =
         new Control(base_cutoff, 28, MIDI_SIZE - 1, MIDI_SIZE);
     controls_["keytrack"] = new Control(keytrack_amount, -1, 1, MIDI_SIZE);
