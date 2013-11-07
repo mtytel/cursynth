@@ -130,6 +130,7 @@ namespace laf {
   }
 
   bool Termite::textInput(int key) {
+    lock();
     if (state_ == PATCH_LOADING) {
       int num_patches = patches_.size();
       switch(key) {
@@ -200,6 +201,7 @@ namespace laf {
         unlock();
         break;
       default:
+        lock();
         size_t slider_size = strlen(SLIDER) - 1;
         for (size_t i = 0; i <= slider_size; ++i) {
           if (SLIDER[i] == key) {
@@ -213,6 +215,7 @@ namespace laf {
             return true;
           }
         }
+        unlock();
     }
 
     lock();
