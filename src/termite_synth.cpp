@@ -220,8 +220,18 @@ namespace laf {
     Add* midi_cutoff = new Add();
     midi_cutoff->plug(keytracked_cutoff, 0);
     midi_cutoff->plug(scaled_envelope, 1);
+
+    VariableAdd* cutoff_mod_sources = new VariableAdd(MOD_MATRIX_SIZE);
+    Value* cutoff_mod_scale = new Value(MIDI_SIZE / 2);
+    Multiply* cutoff_modulation_scaled = new Multiply();
+    cutoff_modulation_scaled->plug(cutoff_mod_sources, 0);
+    cutoff_modulation_scaled->plug(cutoff_mod_scale, 1);
+    Add* midi_cutoff_modulated = new Add();
+    midi_cutoff_modulated->plug(midi_cutoff, 0);
+    midi_cutoff_modulated->plug(cutoff_modulation_scaled, 1);
+
     MidiScale* frequency_cutoff = new MidiScale();
-    frequency_cutoff->plug(midi_cutoff);
+    frequency_cutoff->plug(midi_cutoff_modulated);
 
     Value* resonance = new Value(3);
     filter_ = new Filter();
@@ -235,6 +245,9 @@ namespace laf {
     addProcessor(current_keytrack);
     addProcessor(keytracked_cutoff);
     addProcessor(midi_cutoff);
+    addProcessor(cutoff_mod_sources);
+    addProcessor(cutoff_modulation_scaled);
+    addProcessor(midi_cutoff_modulated);
     addProcessor(frequency_cutoff);
     addProcessor(filter_);
 
@@ -247,6 +260,7 @@ namespace laf {
     controls_["resonance"] = new Control(resonance, 0.5, 15, MIDI_SIZE);
 
     mod_sources_["filter env"] = filter_envelope_->output();
+    mod_destinations_["cutoff"] = cutoff_mod_sources;
   }
 
   void TermiteVoiceHandler::createModMatrix() {
@@ -501,6 +515,7 @@ namespace laf {
 
   void TermiteVoiceHandler::setModulationSource(int matrix_index,
                                                 std::string source) {
+    mod_matrix_[matrix_index]->unplugIndex(0);
     if (source.length())
       mod_matrix_[matrix_index]->plug(mod_sources_[source], 0);
   }
