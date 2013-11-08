@@ -234,12 +234,24 @@ namespace laf {
     frequency_cutoff->plug(midi_cutoff_modulated);
 
     Value* resonance = new Value(3);
+
+    VariableAdd* resonance_mod_sources = new VariableAdd(MOD_MATRIX_SIZE);
+    Value* resonance_mod_scale = new Value(8);
+    Multiply* resonance_modulation_scaled = new Multiply();
+    resonance_modulation_scaled->plug(resonance_mod_sources, 0);
+    resonance_modulation_scaled->plug(resonance_mod_scale, 1);
+    Add* resonance_modulated = new Add();
+    resonance_modulated->plug(resonance, 0);
+    resonance_modulated->plug(resonance_modulation_scaled, 1);
+    Clamp* clamp_resonance = new Clamp(0.5, 30);
+    clamp_resonance->plug(resonance_modulation_scaled);
+
     filter_ = new Filter();
     filter_->plug(audio, Filter::kAudio);
     filter_->plug(filter_type, Filter::kType);
     filter_->plug(reset, Filter::kReset);
     filter_->plug(frequency_cutoff, Filter::kCutoff);
-    filter_->plug(resonance, Filter::kResonance);
+    filter_->plug(clamp_resonance, Filter::kResonance);
 
     addGlobalProcessor(base_cutoff);
     addProcessor(current_keytrack);
@@ -248,6 +260,10 @@ namespace laf {
     addProcessor(cutoff_mod_sources);
     addProcessor(cutoff_modulation_scaled);
     addProcessor(midi_cutoff_modulated);
+    addProcessor(resonance_mod_sources);
+    addProcessor(resonance_modulation_scaled);
+    addProcessor(resonance_modulated);
+    addProcessor(clamp_resonance);
     addProcessor(frequency_cutoff);
     addProcessor(filter_);
 
@@ -261,6 +277,7 @@ namespace laf {
 
     mod_sources_["filter env"] = filter_envelope_->output();
     mod_destinations_["cutoff"] = cutoff_mod_sources;
+    mod_destinations_["resonance"] = resonance_mod_sources;
   }
 
   void TermiteVoiceHandler::createModMatrix() {
