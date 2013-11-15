@@ -200,6 +200,7 @@ namespace laf {
         unlock();
         break;
       default:
+        lock();
         size_t slider_size = strlen(SLIDER) - 1;
         for (size_t i = 0; i <= slider_size; ++i) {
           if (SLIDER[i] == key) {
@@ -210,9 +211,11 @@ namespace laf {
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
           if (KEYBOARD[i] == key) {
             synth_.noteOn(48 + i);
+            unlock();
             return true;
           }
         }
+        unlock();
     }
 
     lock();

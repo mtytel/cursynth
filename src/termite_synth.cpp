@@ -133,15 +133,13 @@ namespace laf {
 
     // LFO 1.
     Value* lfo1_waveform = new Value(Wave::kSin);
-    SmoothValue* lfo1_frequency = new SmoothValue(2);
+    Value* lfo1_frequency = new Value(2);
     lfo1_ = new Oscillator();
     lfo1_->plug(reset, Oscillator::kReset);
     lfo1_->plug(lfo1_waveform, Oscillator::kWaveform);
     lfo1_->plug(lfo1_frequency, Oscillator::kFrequency);
 
-    addGlobalProcessor(lfo1_frequency);
     addProcessor(lfo1_);
-
     controls_["lfo 1 waveform"] = new Control(lfo1_waveform,
                                               TermiteStrings::wave_strings_,
                                               wave_resolution);
@@ -150,15 +148,13 @@ namespace laf {
 
     // LFO 2.
     Value* lfo2_waveform = new Value(Wave::kSin);
-    SmoothValue* lfo2_frequency = new SmoothValue(2);
+    Value* lfo2_frequency = new Value(2);
     lfo2_ = new Oscillator();
     lfo2_->plug(reset, Oscillator::kReset);
     lfo2_->plug(lfo2_waveform, Oscillator::kWaveform);
     lfo2_->plug(lfo2_frequency, Oscillator::kFrequency);
 
-    addGlobalProcessor(lfo2_frequency);
     addProcessor(lfo2_);
-
     controls_["lfo 2 waveform"] = new Control(lfo2_waveform,
                                               TermiteStrings::wave_strings_,
                                               wave_resolution);
