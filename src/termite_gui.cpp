@@ -171,12 +171,25 @@ namespace laf {
     int y = slider->y;
     if (slider->label.size())
       y += 1;
+
     // Clear slider.
+    move(y, slider->x - 1);
+    attron(COLOR_PAIR(BG_COLOR));
+    hline(' ', slider->width + 2);
+
     char slider_char = active ? '=' : ' ';
     move(y, slider->x);
     attron(COLOR_PAIR(SLIDER_BG_COLOR));
     hline(slider_char, slider->width);
-    attroff(COLOR_PAIR(SLIDER_BG_COLOR));
+
+    // If active draw a bit different.
+    if (active) {
+      move(y, slider->x - 1);
+      attron(COLOR_PAIR(LOGO_COLOR));
+      hline('|', 1);
+      move(y, slider->x + slider->width);
+      hline('|', 1);
+    }
 
     // Find slider position.
     int position = round(slider->width * percentage);
@@ -194,6 +207,7 @@ namespace laf {
       }
     }
     else {
+      move(y, slider->x);
       hline(' ', position);
     }
 
@@ -208,14 +222,26 @@ namespace laf {
       y += 1;
 
     // Clear area.
+    move(y, details->x - 1);
+    attron(COLOR_PAIR(BG_COLOR));
+    hline(' ', details->width + 2);
     move(y, details->x);
     attron(COLOR_PAIR(CONTROL_TEXT_COLOR));
     hline(' ', details->width);
 
-    // Draw text.
-    move(y, details->x);
-    if (active)
+    // If active draw a bit different.
+    if (active) {
+      move(y, details->x - 1);
+      attron(COLOR_PAIR(LOGO_COLOR));
+      hline('|', 1);
+      move(y, details->x + details->width);
+      hline('|', 1);
       attron(A_BOLD);
+    }
+
+    // Draw text.
+    attron(COLOR_PAIR(CONTROL_TEXT_COLOR));
+    move(y, details->x);
     printw(text.c_str());
     attroff(A_BOLD);
     attroff(COLOR_PAIR(CONTROL_TEXT_COLOR));
@@ -277,6 +303,7 @@ namespace laf {
     }
 
     start_color();
+    init_pair(SLIDER_FG_COLOR, COLOR_BLACK, COLOR_BLACK);
     init_pair(SLIDER_FG_COLOR, COLOR_WHITE, COLOR_YELLOW);
     init_pair(SLIDER_BG_COLOR, COLOR_YELLOW, COLOR_WHITE);
     init_pair(LOGO_COLOR, COLOR_RED, COLOR_BLACK);
@@ -399,42 +426,42 @@ namespace laf {
         82, 31, 38);
 
     // Modulation Matrix.
-    placeMinimalControl("mod source 1", controls.at("mod source 1"),
-        2, 34, 18);
-    placeMinimalControl("mod scale 1", controls.at("mod scale 1"),
-        22, 34, 18);
-    placeMinimalControl("mod destination 1", controls.at("mod destination 1"),
-        42, 34, 18);
+    placeControl("mod source 1", controls.at("mod source 1"),
+        32, 34, 18);
+    placeControl("mod scale 1", controls.at("mod scale 1"),
+        52, 34, 18);
+    placeControl("mod destination 1", controls.at("mod destination 1"),
+        72, 34, 18);
     placeMinimalControl("mod source 2", controls.at("mod source 2"),
-        2, 35, 18);
+        32, 36, 18);
     placeMinimalControl("mod scale 2", controls.at("mod scale 2"),
-        22, 35, 18);
+        52, 36, 18);
     placeMinimalControl("mod destination 2", controls.at("mod destination 2"),
-        42, 35, 18);
+        72, 36, 18);
     placeMinimalControl("mod source 3", controls.at("mod source 3"),
-        2, 36, 18);
+        32, 37, 18);
     placeMinimalControl("mod scale 3", controls.at("mod scale 3"),
-        22, 36, 18);
+        52, 37, 18);
     placeMinimalControl("mod destination 3", controls.at("mod destination 3"),
-        42, 36, 18);
+        72, 37, 18);
     placeMinimalControl("mod source 4", controls.at("mod source 4"),
-        2, 37, 18);
+        32, 38, 18);
     placeMinimalControl("mod scale 4", controls.at("mod scale 4"),
-        22, 37, 18);
+        52, 38, 18);
     placeMinimalControl("mod destination 4", controls.at("mod destination 4"),
-        42, 37, 18);
+        72, 38, 18);
     placeMinimalControl("mod source 5", controls.at("mod source 5"),
-        2, 38, 18);
+        32, 39, 18);
     placeMinimalControl("mod scale 5", controls.at("mod scale 5"),
-        22, 38, 18);
+        52, 39, 18);
     placeMinimalControl("mod destination 5", controls.at("mod destination 5"),
-        42, 38, 18);
+        72, 39, 18);
     placeMinimalControl("mod source 6", controls.at("mod source 6"),
-        2, 39, 18);
+        32, 40, 18);
     placeMinimalControl("mod scale 6", controls.at("mod scale 6"),
-        22, 39, 18);
+        52, 40, 18);
     placeMinimalControl("mod destination 6", controls.at("mod destination 6"),
-        42, 39, 18);
+        72, 40, 18);
   }
 
   std::string TermiteGui::getCurrentControl() {

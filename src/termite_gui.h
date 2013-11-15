@@ -38,9 +38,11 @@ namespace laf {
   class TermiteGui {
     public:
       enum ColorIds {
-        SLIDER_FG_COLOR = 1,
+        BG_COLOR = 1,
+        SLIDER_FG_COLOR,
         SLIDER_BG_COLOR,
         LOGO_COLOR,
+        SELECTED_COLOR,
         PATCH_LOAD_COLOR,
         CONTROL_TEXT_COLOR
       };
