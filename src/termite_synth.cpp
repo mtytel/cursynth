@@ -73,9 +73,12 @@ namespace laf {
     addProcessor(oscillator1_frequency);
     addProcessor(oscillator1_);
 
+    std::vector<std::string> wave_strings = std::vector<std::string>(
+        TermiteStrings::wave_strings_,
+        TermiteStrings::wave_strings_ + Wave::kNumWaveforms);
     int wave_resolution = Wave::kNumWaveforms - 1;
     controls_["osc 1 waveform"] = new Control(oscillator1_waveform,
-                                              TermiteStrings::wave_strings_,
+                                              wave_strings,
                                               wave_resolution);
 
     // Oscillator 2.
@@ -102,7 +105,7 @@ namespace laf {
     addProcessor(oscillator2_);
 
     controls_["osc 2 waveform"] = new Control(oscillator2_waveform,
-                                              TermiteStrings::wave_strings_,
+                                              wave_strings,
                                               wave_resolution);
     controls_["osc 2 transpose"] =
         new Control(oscillator2_transpose, -48, 48, 96);
@@ -141,7 +144,7 @@ namespace laf {
 
     addProcessor(lfo1_);
     controls_["lfo 1 waveform"] = new Control(lfo1_waveform,
-                                              TermiteStrings::wave_strings_,
+                                              wave_strings,
                                               wave_resolution);
     controls_["lfo 1 frequency"] =
         new Control(lfo1_frequency, 0, 10, MIDI_SIZE);
@@ -156,7 +159,7 @@ namespace laf {
 
     addProcessor(lfo2_);
     controls_["lfo 2 waveform"] = new Control(lfo2_waveform,
-                                              TermiteStrings::wave_strings_,
+                                              wave_strings,
                                               wave_resolution);
     controls_["lfo 2 frequency"] =
         new Control(lfo2_frequency, 0, 10, MIDI_SIZE);
@@ -240,7 +243,7 @@ namespace laf {
     resonance_modulated->plug(resonance, 0);
     resonance_modulated->plug(resonance_modulation_scaled, 1);
     Clamp* clamp_resonance = new Clamp(0.5, 30);
-    clamp_resonance->plug(resonance_modulation_scaled);
+    clamp_resonance->plug(resonance_modulated);
 
     filter_ = new Filter();
     filter_->plug(audio, Filter::kAudio);
@@ -263,8 +266,10 @@ namespace laf {
     addProcessor(frequency_cutoff);
     addProcessor(filter_);
 
-    controls_["filter type"] = new Control(filter_type,
-                                           TermiteStrings::filter_strings_,
+    std::vector<std::string> filter_strings = std::vector<std::string>(
+        TermiteStrings::filter_strings_,
+        TermiteStrings::filter_strings_ + Filter::kHP12 + 1);
+    controls_["filter type"] = new Control(filter_type, filter_strings,
                                            Filter::kHP12);
     controls_["cutoff"] =
         new Control(base_cutoff, 28, MIDI_SIZE - 1, MIDI_SIZE);
@@ -315,13 +320,13 @@ namespace laf {
       source_name << "mod source " << i + 1;
       int source_size = source_names.size() - 1;
       controls_[source_name.str()] =
-          new Control(source_value, 0, source_size, source_size);
+          new Control(source_value, source_names, source_size);
 
       std::stringstream destination_name;
       destination_name << "mod destination " << i + 1;
       int dest_size = destination_names.size() - 1;
       controls_[destination_name.str()] =
-          new Control(destination_value, 0, dest_size, dest_size);
+          new Control(destination_value, destination_names, dest_size);
     }
   }
 
@@ -333,8 +338,11 @@ namespace laf {
     legato_filter->plug(legato, LegatoFilter::kLegato);
     legato_filter->plug(trigger, LegatoFilter::kTrigger);
 
+    std::vector<std::string> legato_strings = std::vector<std::string>(
+        TermiteStrings::legato_strings_,
+        TermiteStrings::legato_strings_ + 2);
     controls_["legato"] =
-        new Control(legato, TermiteStrings::legato_strings_, 1);
+        new Control(legato, legato_strings, 1);
     addProcessor(legato_filter);
 
     // Amplitude envelope.
@@ -433,10 +441,13 @@ namespace laf {
 
     addProcessor(current_frequency_);
     controls_["portamento"] = new Control(portamento, 0.0, 0.2, MIDI_SIZE);
+    std::vector<std::string> portamento_strings = std::vector<std::string>(
+        TermiteStrings::portamento_strings_,
+        TermiteStrings::portamento_strings_ +
+        PortamentoFilter::kNumPortamentoStates);
     int port_type_resolution = PortamentoFilter::kNumPortamentoStates - 1;
     controls_["portamento type"] =
-        new Control(portamento_type, TermiteStrings::portamento_strings_,
-                    port_type_resolution);
+        new Control(portamento_type, portamento_strings, port_type_resolution);
 
     mod_sources_["amp env"] = amplitude_envelope_->output();
     mod_sources_["note"] = current_note->output();

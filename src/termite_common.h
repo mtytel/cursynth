@@ -29,18 +29,18 @@ namespace laf {
     public:
       Control(Value* value, laf_float min, laf_float max, int resolution) :
         value_(value), min_(min), max_(max),
-        resolution_(resolution), midi_learn_(0), display_strings_(0) {
+        resolution_(resolution), midi_learn_(0) {
           current_value_ = value->value();
       }
 
-      Control(Value* value, const char** strings, int resolution) :
+      Control(Value* value, std::vector<std::string> strings, int resolution) :
         value_(value), min_(0), max_(resolution),
         resolution_(resolution), midi_learn_(0), display_strings_(strings) {
           current_value_ = value->value();
       }
 
       Control() : value_(0), min_(0), max_(0), current_value_(0),
-                  resolution_(0), midi_learn_(0), display_strings_(0) { }
+                  resolution_(0), midi_learn_(0) { }
 
       void set(laf_float val) {
         current_value_ = CLAMP(val, min_, max_);
@@ -72,7 +72,9 @@ namespace laf {
 
       void midi_learn(float midi) { midi_learn_ = midi; }
 
-      const char** display_strings() const { return display_strings_; }
+      std::vector<std::string> display_strings() const {
+        return display_strings_;
+      }
 
       laf_float current_value() const { return current_value_; }
 
@@ -84,7 +86,7 @@ namespace laf {
       Value* value_;
       laf_float min_, max_, current_value_;
       int resolution_, midi_learn_;
-      const char** display_strings_;
+      std::vector<std::string> display_strings_;
   };
 
   typedef std::map<std::string, Control*> control_map;

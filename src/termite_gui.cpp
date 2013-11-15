@@ -168,9 +168,12 @@ namespace laf {
 
   void TermiteGui::drawSlider(const DisplayDetails* slider,
                               float percentage, bool active) {
+    int y = slider->y;
+    if (slider->label.size())
+      y += 1;
     // Clear slider.
     char slider_char = active ? '=' : ' ';
-    move(slider->y + 1, slider->x);
+    move(y, slider->x);
     attron(COLOR_PAIR(SLIDER_BG_COLOR));
     hline(slider_char, slider->width);
     attroff(COLOR_PAIR(SLIDER_BG_COLOR));
@@ -182,11 +185,11 @@ namespace laf {
     attron(COLOR_PAIR(SLIDER_FG_COLOR));
     if (slider->bipolar) {
       if (position < slider_midpoint) {
-        move(slider->y + 1, slider->x + position);
+        move(y, slider->x + position);
         hline(' ', slider_midpoint - position);
       }
       else {
-        move(slider->y + 1, slider->x + slider_midpoint);
+        move(y, slider->x + slider_midpoint);
         hline(' ', position - slider_midpoint);
       }
     }
@@ -200,13 +203,17 @@ namespace laf {
 
   void TermiteGui::drawText(const DisplayDetails* details,
                             std::string text, bool active) {
+    int y = details->y;
+    if (details->label.size())
+      y += 1;
+
     // Clear area.
-    move(details->y + 1, details->x);
+    move(y, details->x);
     attron(COLOR_PAIR(CONTROL_TEXT_COLOR));
     hline(' ', details->width);
 
     // Draw text.
-    move(details->y + 1, details->x);
+    move(y, details->x);
     if (active)
       attron(A_BOLD);
     printw(text.c_str());
@@ -220,14 +227,16 @@ namespace laf {
       return;
 
     // Draw label.
-    if (active)
-      attron(A_BOLD);
-    move(details->y, details->x);
-    printw(details->label.c_str());
-    attroff(A_BOLD);
+    if (details->label.size()) {
+      if (active)
+        attron(A_BOLD);
+      move(details->y, details->x);
+      printw(details->label.c_str());
+      attroff(A_BOLD);
+    }
 
     // Draw status.
-    if (control->display_strings()) {
+    if (control->display_strings().size()) {
       int display_index = static_cast<int>(control->current_value());
       drawText(details, control->display_strings()[display_index], active);
     }
@@ -246,7 +255,7 @@ namespace laf {
     drawMidi(midi_learn.str());
 
     std::ostringstream status;
-    if (control->display_strings()) {
+    if (control->display_strings().size()) {
       int display_index = static_cast<int>(control->current_value());
       status << control->display_strings()[display_index];
     }
@@ -281,6 +290,21 @@ namespace laf {
 
   void TermiteGui::stop() {
     endwin();
+  }
+
+  void TermiteGui::placeMinimalControl(std::string name,
+                                       const Control* control,
+                                       int x, int y, int width) {
+    DisplayDetails* details = new DisplayDetails();
+    details->x = x;
+    details->y = y;
+    details->width = width;
+    details->label = "";
+    details->bipolar = control->isBipolar();
+
+    details_lookup_[control] = details;
+    drawControl(control, false);
+    control_order_.push_back(name);
   }
 
   void TermiteGui::placeControl(std::string name, const Control* control,
@@ -374,41 +398,42 @@ namespace laf {
     placeControl("velocity track", controls.at("velocity track"),
         82, 31, 38);
 
-    placeControl("mod source 1", controls.at("mod source 1"),
+    // Modulation Matrix.
+    placeMinimalControl("mod source 1", controls.at("mod source 1"),
         2, 34, 18);
-    placeControl("mod scale 1", controls.at("mod scale 1"),
+    placeMinimalControl("mod scale 1", controls.at("mod scale 1"),
         22, 34, 18);
-    placeControl("mod destination 1", controls.at("mod destination 1"),
+    placeMinimalControl("mod destination 1", controls.at("mod destination 1"),
         42, 34, 18);
-    placeControl("mod source 2", controls.at("mod source 2"),
+    placeMinimalControl("mod source 2", controls.at("mod source 2"),
         2, 35, 18);
-    placeControl("mod scale 2", controls.at("mod scale 2"),
+    placeMinimalControl("mod scale 2", controls.at("mod scale 2"),
         22, 35, 18);
-    placeControl("mod destination 2", controls.at("mod destination 2"),
+    placeMinimalControl("mod destination 2", controls.at("mod destination 2"),
         42, 35, 18);
-    placeControl("mod source 3", controls.at("mod source 3"),
+    placeMinimalControl("mod source 3", controls.at("mod source 3"),
         2, 36, 18);
-    placeControl("mod scale 3", controls.at("mod scale 3"),
+    placeMinimalControl("mod scale 3", controls.at("mod scale 3"),
         22, 36, 18);
-    placeControl("mod destination 3", controls.at("mod destination 3"),
+    placeMinimalControl("mod destination 3", controls.at("mod destination 3"),
         42, 36, 18);
-    placeControl("mod source 4", controls.at("mod source 4"),
+    placeMinimalControl("mod source 4", controls.at("mod source 4"),
         2, 37, 18);
-    placeControl("mod scale 4", controls.at("mod scale 4"),
+    placeMinimalControl("mod scale 4", controls.at("mod scale 4"),
         22, 37, 18);
-    placeControl("mod destination 4", controls.at("mod destination 4"),
+    placeMinimalControl("mod destination 4", controls.at("mod destination 4"),
         42, 37, 18);
-    placeControl("mod source 5", controls.at("mod source 5"),
+    placeMinimalControl("mod source 5", controls.at("mod source 5"),
         2, 38, 18);
-    placeControl("mod scale 5", controls.at("mod scale 5"),
+    placeMinimalControl("mod scale 5", controls.at("mod scale 5"),
         22, 38, 18);
-    placeControl("mod destination 5", controls.at("mod destination 5"),
+    placeMinimalControl("mod destination 5", controls.at("mod destination 5"),
         42, 38, 18);
-    placeControl("mod source 6", controls.at("mod source 6"),
+    placeMinimalControl("mod source 6", controls.at("mod source 6"),
         2, 39, 18);
-    placeControl("mod scale 6", controls.at("mod scale 6"),
+    placeMinimalControl("mod scale 6", controls.at("mod scale 6"),
         22, 39, 18);
-    placeControl("mod destination 6", controls.at("mod destination 6"),
+    placeMinimalControl("mod destination 6", controls.at("mod destination 6"),
         42, 39, 18);
   }
 

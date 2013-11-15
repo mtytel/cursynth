@@ -72,7 +72,9 @@ namespace laf {
       void drawMidi(std::string status);
       void drawStatus(std::string status);
       void placeControl(std::string name, const Control* control,
-                       int x, int y, int width);
+                        int x, int y, int width);
+      void placeMinimalControl(std::string name, const Control* control,
+                               int x, int y, int width);
 
       std::map<const Control*, DisplayDetails*> details_lookup_;
       std::vector<std::string> control_order_;
