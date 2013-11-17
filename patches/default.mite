@@ -2,7 +2,7 @@
  "amp attack": 0.010000,
  "amp decay": 0.700000,
  "amp release": 0.300000,
- "amp sustain": 0.700000,
+ "amp sustain": 0,
  "cutoff": 92,
  "delay dry/wet": 0.300000,
  "delay feedback": -0.300000,

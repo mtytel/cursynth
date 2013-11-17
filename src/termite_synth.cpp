@@ -348,7 +348,7 @@ namespace laf {
     // Amplitude envelope.
     Value* amplitude_attack = new Value(0.01);
     Value* amplitude_decay = new Value(0.7);
-    Value* amplitude_sustain = new SmoothValue(0.7);
+    Value* amplitude_sustain = new SmoothValue(0.0);
     Value* amplitude_release = new Value(0.3);
 
     amplitude_envelope_ = new Envelope();
