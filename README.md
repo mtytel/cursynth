@@ -1,4 +1,4 @@
-termite v0.2
+termite v0.3
 ------------
 termite is a polyphonic, MIDI enabled, subtractive synth that runs in your terminal with an ascii interface.
 termite will connect to all MIDI devices and send output to the default audio device on your system.
