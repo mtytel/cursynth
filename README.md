@@ -25,15 +25,15 @@ Then run 'make' and it will compile a 'termite' executable which you can run.
 * c - erase midi learn
 
 ### Requirements:
-* OS: Mac OSX or Linux.
+* OS: Mac OSX or Linux
 * Terminal: a color enabled terminal with minimum 120x44 ascii characters
-* If you want key up events, you have to use a MIDI keyboard.
+* If you want key up events, you have to use a MIDI keyboard
 
 ### TODO:
 * More modulation sources and destinations
-* Routable Envelopes.
-* On startup select audio output device.
-* On startup select MIDI input device.
+* Routable Envelopes
+* On startup select audio output device
+* On startup select MIDI input device
 * Lot's more...
 
 Questions? Feature requests? Bugs? email littleioaudio@gmail.com
