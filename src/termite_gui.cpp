@@ -73,7 +73,7 @@ namespace laf {
   void TermiteGui::drawMain() {
     erase();
     drawLogo();
-    drawModulationMatrixLabel();
+    drawModulationMatrix();
   }
 
   void TermiteGui::drawLogo() {
@@ -99,9 +99,18 @@ namespace laf {
     printw("                          Little IO");
   }
 
-  void TermiteGui::drawModulationMatrixLabel() {
-    move(34, 7);
-    printw("Modulation Matrix: modulation source       modulation scale        modulation destination");
+  void TermiteGui::drawModulationMatrix() {
+    move(34, 26);
+    attron(A_BOLD);
+    printw("---------------------------Modulation Matrix--------------------------");
+    attroff(A_BOLD);
+
+    move(35, 26);
+    printw("        source       ");
+    move(35, 50);
+    printw("        scale        ");
+    move(35, 74);
+    printw("     destination     ");
   }
 
   void TermiteGui::drawMidi(std::string status) {
@@ -318,7 +327,7 @@ namespace laf {
 
     refresh();
     drawLogo();
-    drawModulationMatrixLabel();
+    drawModulationMatrix();
     curs_set(0);
   }
 
@@ -434,41 +443,41 @@ namespace laf {
 
     // Modulation Matrix.
     placeMinimalControl("mod source 1", controls.at("mod source 1"),
-        26, 35, 22);
-    placeMinimalControl("mod scale 1", controls.at("mod scale 1"),
-        50, 35, 22);
-    placeMinimalControl("mod destination 1", controls.at("mod destination 1"),
-        74, 35, 22);
-    placeMinimalControl("mod source 2", controls.at("mod source 2"),
         26, 36, 22);
-    placeMinimalControl("mod scale 2", controls.at("mod scale 2"),
+    placeMinimalControl("mod scale 1", controls.at("mod scale 1"),
         50, 36, 22);
-    placeMinimalControl("mod destination 2", controls.at("mod destination 2"),
+    placeMinimalControl("mod destination 1", controls.at("mod destination 1"),
         74, 36, 22);
-    placeMinimalControl("mod source 3", controls.at("mod source 3"),
+    placeMinimalControl("mod source 2", controls.at("mod source 2"),
         26, 37, 22);
-    placeMinimalControl("mod scale 3", controls.at("mod scale 3"),
+    placeMinimalControl("mod scale 2", controls.at("mod scale 2"),
         50, 37, 22);
-    placeMinimalControl("mod destination 3", controls.at("mod destination 3"),
+    placeMinimalControl("mod destination 2", controls.at("mod destination 2"),
         74, 37, 22);
-    placeMinimalControl("mod source 4", controls.at("mod source 4"),
+    placeMinimalControl("mod source 3", controls.at("mod source 3"),
         26, 38, 22);
-    placeMinimalControl("mod scale 4", controls.at("mod scale 4"),
+    placeMinimalControl("mod scale 3", controls.at("mod scale 3"),
         50, 38, 22);
-    placeMinimalControl("mod destination 4", controls.at("mod destination 4"),
+    placeMinimalControl("mod destination 3", controls.at("mod destination 3"),
         74, 38, 22);
-    placeMinimalControl("mod source 5", controls.at("mod source 5"),
+    placeMinimalControl("mod source 4", controls.at("mod source 4"),
         26, 39, 22);
-    placeMinimalControl("mod scale 5", controls.at("mod scale 5"),
+    placeMinimalControl("mod scale 4", controls.at("mod scale 4"),
         50, 39, 22);
-    placeMinimalControl("mod destination 5", controls.at("mod destination 5"),
+    placeMinimalControl("mod destination 4", controls.at("mod destination 4"),
         74, 39, 22);
-    placeMinimalControl("mod source 6", controls.at("mod source 6"),
+    placeMinimalControl("mod source 5", controls.at("mod source 5"),
         26, 40, 22);
-    placeMinimalControl("mod scale 6", controls.at("mod scale 6"),
+    placeMinimalControl("mod scale 5", controls.at("mod scale 5"),
         50, 40, 22);
-    placeMinimalControl("mod destination 6", controls.at("mod destination 6"),
+    placeMinimalControl("mod destination 5", controls.at("mod destination 5"),
         74, 40, 22);
+    placeMinimalControl("mod source 6", controls.at("mod source 6"),
+        26, 41, 22);
+    placeMinimalControl("mod scale 6", controls.at("mod scale 6"),
+        50, 41, 22);
+    placeMinimalControl("mod destination 6", controls.at("mod destination 6"),
+        74, 41, 22);
   }
 
   std::string TermiteGui::getCurrentControl() {

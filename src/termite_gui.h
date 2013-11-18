@@ -71,7 +71,7 @@ namespace laf {
 
     private:
       void drawLogo();
-      void drawModulationMatrixLabel();
+      void drawModulationMatrix();
       void drawMidi(std::string status);
       void drawStatus(std::string status);
       void placeControl(std::string name, const Control* control,
