@@ -1,8 +1,7 @@
-termite v0.1
+termite v0.3
 ------------
 termite is a polyphonic, MIDI enabled, subtractive synth that runs in your terminal with an ascii interface.
-This is a first iteration so the features are minimal. termite will connect to all MIDI devices and send output to the default audio
-device on your system.
+termite will connect to all MIDI devices and send output to the default audio device on your system.
 
 ![alt tag](http://littleio.co/static/img/termite_screen_shot.png)
 
@@ -31,7 +30,7 @@ Then run 'make' and it will compile a 'termite' executable which you can run.
 * If you want key up events, you have to use a MIDI keyboard.
 
 ### TODO:
-* Modulation matrix.
+* More modulation sources and destinations
 * Routable Envelopes.
 * On startup select audio output device.
 * On startup select MIDI input device.
