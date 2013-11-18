@@ -34,7 +34,7 @@ Then run 'make' and it will compile a 'termite' executable which you can run.
 * Routable Envelopes.
 * On startup select audio output device.
 * On startup select MIDI input device.
-* Lot's more..
+* Lot's more...
 
 Questions? Feature requests? Bugs? email littleioaudio@gmail.com
 
