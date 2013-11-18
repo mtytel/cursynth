@@ -379,6 +379,11 @@ namespace laf {
     note_wait->plug(frequency_trigger, TriggerWait::kTrigger);
     current_note->plug(note_wait);
 
+    Value* max_midi_invert = new Value(1.0 / (MIDI_SIZE - 1));
+    Multiply* note_percentage = new Multiply();
+    note_percentage->plug(max_midi_invert, 0);
+    note_percentage->plug(current_note, 1);
+
     addProcessor(frequency_trigger);
     addProcessor(note_wait);
     addProcessor(current_note);
@@ -390,6 +395,7 @@ namespace laf {
     note_from_center_->plug(current_note, 1);
 
     addProcessor(note_from_center_);
+    addProcessor(note_percentage);
     addGlobalProcessor(center_adjust);
 
     // Velocity tracking.
@@ -403,18 +409,13 @@ namespace laf {
     addProcessor(current_velocity);
 
     Value* velocity_track_amount = new Value(0.3);
-    Value* max_midi_invert = new Value(1.0 / (MIDI_SIZE - 1));
     Value* one = new Value(1.0);
-    Multiply* velocity_percentage = new Multiply();
-    velocity_percentage->plug(max_midi_invert, 0);
-    velocity_percentage->plug(current_velocity, 1);
 
     Interpolate* velocity_track_mult = new Interpolate();
     velocity_track_mult->plug(one, Interpolate::kFrom);
-    velocity_track_mult->plug(velocity_percentage, Interpolate::kTo);
+    velocity_track_mult->plug(current_velocity, Interpolate::kTo);
     velocity_track_mult->plug(velocity_track_amount, Interpolate::kFractional);
 
-    addProcessor(velocity_percentage);
     addProcessor(velocity_track_mult);
     controls_["velocity track"] =
         new Control(velocity_track_amount, 0.0, 1.0, MIDI_SIZE);
@@ -450,7 +451,7 @@ namespace laf {
         new Control(portamento_type, portamento_strings, port_type_resolution);
 
     mod_sources_["amp env"] = amplitude_envelope_->output();
-    mod_sources_["note"] = current_note->output();
+    mod_sources_["note"] = note_percentage->output();
     mod_sources_["velocity"] = current_velocity->output();
   }
 
