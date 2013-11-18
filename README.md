@@ -3,7 +3,7 @@ termite v0.3
 termite is a polyphonic, MIDI enabled, subtractive synth that runs in your terminal with an ascii interface.
 termite will connect to all MIDI devices and send output to the default audio device on your system.
 
-![alt tag](http://littleio.co/static/img/termite_screen_shot.png)
+![alt tag](http://littleio.co/static/img/termite.png)
 
 ### Building
 First check if you have the laf submodule
@@ -25,15 +25,15 @@ Then run 'make' and it will compile a 'termite' executable which you can run.
 * c - erase midi learn
 
 ### Requirements:
-* OS: Mac OSX or Linux.
+* OS: Mac OSX or Linux
 * Terminal: a color enabled terminal with minimum 120x44 ascii characters
-* If you want key up events, you have to use a MIDI keyboard.
+* If you want key up events, you have to use a MIDI keyboard
 
 ### TODO:
 * More modulation sources and destinations
-* Routable Envelopes.
-* On startup select audio output device.
-* On startup select MIDI input device.
+* Routable Envelopes
+* On startup select audio output device
+* On startup select MIDI input device
 * Lot's more...
 
 Questions? Feature requests? Bugs? email littleioaudio@gmail.com
