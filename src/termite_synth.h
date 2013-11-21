@@ -41,6 +41,7 @@ namespace laf {
 
       control_map getControls() { return controls_; }
 
+      void setPitchBend(laf_float value);
       void setModulationSource(int index, std::string source);
       void setModulationDestination(int index, std::string destination);
 
@@ -138,6 +139,9 @@ namespace laf {
 
       control_map getControls();
 
+      void setPitchBend(laf_float value) {
+        voice_handler_->setPitchBend(value);
+      }
       void noteOn(laf_float note, laf_float velocity = 1.0);
       void noteOff(laf_float note);
       void sustainOn() { voice_handler_->sustainOn(); }

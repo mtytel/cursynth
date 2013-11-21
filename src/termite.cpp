@@ -35,6 +35,7 @@
 #define NUM_CHANNELS 2
 #define PITCH_BEND_PORT 224
 #define SUSTAIN_PORT 176
+#define NORMAL_PORT 176
 #define SUSTAIN_ID 64
 
 namespace {
@@ -67,7 +68,7 @@ namespace {
 } // namespace
 
 namespace laf {
-  Termite::Termite() : state_(STANDARD), pitch_bend_(0), patch_load_index_(0) {
+  Termite::Termite() : state_(STANDARD), patch_load_index_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
 
@@ -320,10 +321,8 @@ namespace laf {
       int midi_note = midi_id;
       synth_.noteOff(midi_note);
     }
-    else if (midi_port == PITCH_BEND_PORT) {
-      pitch_bend_->set((2.0 * midi_val) / (MIDI_SIZE - 1) - 1);
-      gui_.drawControl(pitch_bend_, selected_control == pitch_bend_);
-    }
+    else if (midi_port == PITCH_BEND_PORT)
+      synth_.setPitchBend((2.0 * midi_val) / (MIDI_SIZE - 1) - 1);
     else if (midi_port == SUSTAIN_PORT && midi_id == SUSTAIN_ID) {
       if (midi_val)
         synth_.sustainOn();
@@ -340,7 +339,9 @@ namespace laf {
       saveConfiguration();
     }
 
-    if (midi_learn_.find(midi_id) != midi_learn_.end()) {
+    // TODO(mtytel): This NORMAL_PORT is a hack. Won't work on all devices.
+    if (midi_port == NORMAL_PORT &&
+        midi_learn_.find(midi_id) != midi_learn_.end()) {
       Control* midi_control = controls_.at(midi_learn_[midi_id]);
       midi_control->setMidi(midi_val);
       gui_.drawControl(midi_control, selected_control == midi_control);

@@ -78,7 +78,6 @@ namespace laf {
       InputState state_;
       control_map controls_;
       pthread_mutex_t mutex_;
-      Control* pitch_bend_;
 
       // Loading and Saving.
       std::vector<std::string> patches_;
