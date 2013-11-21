@@ -472,6 +472,7 @@ namespace laf {
     output_->plug(amplitude_, 1);
 
     addProcessor(output_);
+    addGlobalProcessor(pitch_bend_amount_);
     setVoiceOutput(output_);
     setVoiceKiller(amplitude_envelope_->output(Envelope::kValue));
 
@@ -536,6 +537,10 @@ namespace laf {
 
   void TermiteSynth::noteOff(laf_float note) {
     voice_handler_->noteOff(note);
+  }
+
+  void TermiteVoiceHandler::setPitchBend(laf_float value) {
+    pitch_bend_amount_->set(value);
   }
 
   void TermiteVoiceHandler::setModulationSource(int matrix_index,
