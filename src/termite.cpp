@@ -35,7 +35,6 @@
 #define NUM_CHANNELS 2
 #define PITCH_BEND_PORT 224
 #define SUSTAIN_PORT 176
-#define NORMAL_PORT 176
 #define SUSTAIN_ID 64
 
 namespace {
@@ -317,7 +316,7 @@ namespace laf {
       else
         synth_.noteOff(midi_note);
     }
-    if (midi_port >= 128 && midi_port < 144) {
+    else if (midi_port >= 128 && midi_port < 144) {
       int midi_note = midi_id;
       synth_.noteOff(midi_note);
     }
@@ -338,10 +337,7 @@ namespace laf {
       gui_.drawControlStatus(selected_control, false);
       saveConfiguration();
     }
-
-    // TODO(mtytel): This NORMAL_PORT is a hack. Won't work on all devices.
-    if (midi_port == NORMAL_PORT &&
-        midi_learn_.find(midi_id) != midi_learn_.end()) {
+    else if (midi_learn_.find(midi_id) != midi_learn_.end()) {
       Control* midi_control = controls_.at(midi_learn_[midi_id]);
       midi_control->setMidi(midi_val);
       gui_.drawControl(midi_control, selected_control == midi_control);
