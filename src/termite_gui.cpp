@@ -318,7 +318,7 @@ namespace laf {
     }
 
     start_color();
-    init_pair(SLIDER_FG_COLOR, COLOR_BLACK, COLOR_BLACK);
+    init_pair(BG_COLOR, COLOR_BLACK, COLOR_BLACK);
     init_pair(SLIDER_FG_COLOR, COLOR_WHITE, COLOR_YELLOW);
     init_pair(SLIDER_BG_COLOR, COLOR_YELLOW, COLOR_WHITE);
     init_pair(LOGO_COLOR, COLOR_RED, COLOR_BLACK);
