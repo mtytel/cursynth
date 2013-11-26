@@ -33,6 +33,7 @@
 #define PATCH_DIRECTORY "patches"
 #define CONFIG_FILE ".termite_conf"
 #define NUM_CHANNELS 2
+#define MOD_WHEEL_ID 1
 #define PITCH_BEND_PORT 224
 #define SUSTAIN_PORT 176
 #define SUSTAIN_ID 64
@@ -321,27 +322,26 @@ namespace laf {
       synth_.noteOff(midi_note);
     }
     else if (midi_port == PITCH_BEND_PORT)
-      synth_.setPitchBend((2.0 * midi_val) / (MIDI_SIZE - 1) - 1);
-    else if (midi_port == SUSTAIN_PORT && midi_id == SUSTAIN_ID) {
-      if (midi_val)
-        synth_.sustainOn();
-      else
-        synth_.sustainOff();
-    }
-    else if (state_ == MIDI_LEARN && midi_port < 254) {
-      eraseMidiLearn(selected_control);
+      synth_.setPitchWheel((2.0 * midi_val) / (MIDI_SIZE - 1) - 1);
+    else if (midi_port < 254) {
+      if (state_ == MIDI_LEARN && midi_port < 254) {
+        eraseMidiLearn(selected_control);
 
-      midi_learn_[midi_id] = selected_control_name;
-      selected_control->midi_learn(midi_id);
-      state_ = STANDARD;
-      gui_.drawControlStatus(selected_control, false);
-      saveConfiguration();
-    }
-    else if (midi_learn_.find(midi_id) != midi_learn_.end()) {
-      Control* midi_control = controls_.at(midi_learn_[midi_id]);
-      midi_control->setMidi(midi_val);
-      gui_.drawControl(midi_control, selected_control == midi_control);
-      gui_.drawControlStatus(midi_control, false);
+        midi_learn_[midi_id] = selected_control_name;
+        selected_control->midi_learn(midi_id);
+        state_ = STANDARD;
+        gui_.drawControlStatus(selected_control, false);
+        saveConfiguration();
+      }
+      else if (midi_learn_.find(midi_id) != midi_learn_.end()) {
+        Control* midi_control = controls_.at(midi_learn_[midi_id]);
+        midi_control->setMidi(midi_val);
+        gui_.drawControl(midi_control, selected_control == midi_control);
+        gui_.drawControlStatus(midi_control, false);
+      }
+
+      if (midi_id == MOD_WHEEL_ID)
+        synth_.setModWheel(midi_val);
     }
     unlock();
   }
