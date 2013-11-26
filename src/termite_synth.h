@@ -41,7 +41,8 @@ namespace laf {
 
       control_map getControls() { return controls_; }
 
-      void setPitchBend(laf_float value);
+      void setModWheel(laf_float value);
+      void setPitchWheel(laf_float value);
       void setModulationSource(int index, std::string source);
       void setModulationDestination(int index, std::string destination);
 
@@ -52,7 +53,8 @@ namespace laf {
       void createModMatrix();
 
       Add* note_from_center_;
-      SmoothValue* pitch_bend_amount_;
+      SmoothValue* mod_wheel_amount_;
+      SmoothValue* pitch_wheel_amount_;
       LinearSlope* current_frequency_;
       Envelope* amplitude_envelope_;
       Multiply* amplitude_;
@@ -139,8 +141,11 @@ namespace laf {
 
       control_map getControls();
 
-      void setPitchBend(laf_float value) {
-        voice_handler_->setPitchBend(value);
+      void setModWheel(laf_float value) {
+        voice_handler_->setModWheel(value);
+      }
+      void setPitchWheel(laf_float value) {
+        voice_handler_->setPitchWheel(value);
       }
       void noteOn(laf_float note, laf_float velocity = 1.0);
       void noteOff(laf_float note);

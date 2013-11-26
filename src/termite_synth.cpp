@@ -38,7 +38,7 @@ namespace laf {
     // Pitch bend.
     Value* pitch_bend_range = new Value(2);
     Multiply* pitch_bend = new Multiply();
-    pitch_bend->plug(pitch_bend_amount_, 0);
+    pitch_bend->plug(pitch_wheel_amount_, 0);
     pitch_bend->plug(pitch_bend_range, 1);
     Add* bent_midi = new Add();
     bent_midi->plug(midi, 0);
@@ -456,9 +456,11 @@ namespace laf {
   }
 
   TermiteVoiceHandler::TermiteVoiceHandler() {
-    pitch_bend_amount_ = new SmoothValue(0);
-    controls_["pitch bend amount"] =
-        new Control(pitch_bend_amount_, -1, 1, MIDI_SIZE);
+    mod_wheel_amount_ = new SmoothValue(0);
+    pitch_wheel_amount_ = new SmoothValue(0);
+
+    mod_sources_["pitch wheel"] = pitch_wheel_amount_->output();
+    mod_sources_["mod wheel"] = mod_wheel_amount_->output();
 
     createArticulation(note(), velocity(), voice_event());
     createOscillators(current_frequency_->output(),
@@ -472,11 +474,10 @@ namespace laf {
     output_->plug(amplitude_, 1);
 
     addProcessor(output_);
-    addGlobalProcessor(pitch_bend_amount_);
+    addGlobalProcessor(pitch_wheel_amount_);
+    addGlobalProcessor(mod_wheel_amount_);
     setVoiceOutput(output_);
     setVoiceKiller(amplitude_envelope_->output(Envelope::kValue));
-
-    mod_sources_["pitch wheel"] = pitch_bend_amount_->output();
   }
 
   TermiteSynth::TermiteSynth() {
@@ -539,8 +540,12 @@ namespace laf {
     voice_handler_->noteOff(note);
   }
 
-  void TermiteVoiceHandler::setPitchBend(laf_float value) {
-    pitch_bend_amount_->set(value);
+  void TermiteVoiceHandler::setModWheel(laf_float value) {
+    mod_wheel_amount_->set(value);
+  }
+
+  void TermiteVoiceHandler::setPitchWheel(laf_float value) {
+    pitch_wheel_amount_->set(value);
   }
 
   void TermiteVoiceHandler::setModulationSource(int matrix_index,
