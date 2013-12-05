@@ -142,10 +142,11 @@ namespace laf {
     lfo1_->plug(lfo1_waveform, Oscillator::kWaveform);
     lfo1_->plug(lfo1_frequency, Oscillator::kFrequency);
 
+    int lfo_wave_resolution = wave_resolution - 1;
     addProcessor(lfo1_);
     controls_["lfo 1 waveform"] = new Control(lfo1_waveform,
                                               wave_strings,
-                                              wave_resolution);
+                                              lfo_wave_resolution);
     controls_["lfo 1 frequency"] =
         new Control(lfo1_frequency, 0, 10, MIDI_SIZE);
 
@@ -160,13 +161,11 @@ namespace laf {
     addProcessor(lfo2_);
     controls_["lfo 2 waveform"] = new Control(lfo2_waveform,
                                               wave_strings,
-                                              wave_resolution);
+                                              lfo_wave_resolution);
     controls_["lfo 2 frequency"] =
         new Control(lfo2_frequency, 0, 10, MIDI_SIZE);
 
     // Modulation sources/destinations.
-    mod_sources_["osc 1"] = oscillator1_->output();
-    mod_sources_["osc 2"] = oscillator2_->output();
     mod_sources_["lfo 1"] = lfo1_->output();
     mod_sources_["lfo 2"] = lfo2_->output();
 
