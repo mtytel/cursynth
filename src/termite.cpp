@@ -323,6 +323,12 @@ namespace laf {
     }
     else if (midi_port == PITCH_BEND_PORT)
       synth_.setPitchWheel((2.0 * midi_val) / (MIDI_SIZE - 1) - 1);
+    else if (midi_port == SUSTAIN_PORT && midi_id == SUSTAIN_ID) {
+      if (midi_val)
+        synth_.sustainOn();
+      else
+        synth_.sustainOff();
+    }
     else if (midi_port < 254) {
       if (state_ == MIDI_LEARN && midi_port < 254) {
         eraseMidiLearn(selected_control);
