@@ -18,7 +18,7 @@
 #ifndef TERMITE_STRINGS_H
 #define TERMITE_STRINGS_H
 
-namespace laf {
+namespace mopo {
 
   class TermiteStrings {
     public:
@@ -27,6 +27,6 @@ namespace laf {
       static const char* portamento_strings_[];
       static const char* wave_strings_[];
   };
-} // namespace laf
+} // namespace mopo
 
 #endif // TERMITE_STRINGS_H

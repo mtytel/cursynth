@@ -23,11 +23,11 @@
 #include <map>
 #include <string>
 
-namespace laf {
+namespace mopo {
 
   class Control {
     public:
-      Control(Value* value, laf_float min, laf_float max, int resolution) :
+      Control(Value* value, mopo_float min, mopo_float max, int resolution) :
         value_(value), min_(min), max_(max),
         resolution_(resolution), midi_learn_(0) {
           current_value_ = value->value();
@@ -42,16 +42,16 @@ namespace laf {
       Control() : value_(0), min_(0), max_(0), current_value_(0),
                   resolution_(0), midi_learn_(0) { }
 
-      void set(laf_float val) {
+      void set(mopo_float val) {
         current_value_ = CLAMP(val, min_, max_);
         value_->set(current_value_);
       }
 
-      laf_float getPercentage() const {
+      mopo_float getPercentage() const {
         return (current_value_ - min_) / (max_ - min_);
       }
 
-      void setPercentage(laf_float percentage) {
+      void setPercentage(mopo_float percentage) {
         int index = resolution_ * percentage;
         set(min_ + index * (max_ - min_) / resolution_);
       }
@@ -76,7 +76,7 @@ namespace laf {
         return display_strings_;
       }
 
-      laf_float current_value() const { return current_value_; }
+      mopo_float current_value() const { return current_value_; }
 
       const Value* value() const { return value_; }
 
@@ -84,7 +84,7 @@ namespace laf {
 
     private:
       Value* value_;
-      laf_float min_, max_, current_value_;
+      mopo_float min_, max_, current_value_;
       int resolution_, midi_learn_;
       std::vector<std::string> display_strings_;
   };
@@ -93,6 +93,6 @@ namespace laf {
   typedef std::map<std::string, Processor*> input_map;
   typedef std::map<std::string, Processor::Output*> output_map;
 
-} // namespace laf
+} // namespace mopo
 
 #endif // TERMITE_COMMON_H

@@ -43,7 +43,7 @@ namespace {
   void midiCallback(double delta_time, std::vector<unsigned char>* message,
                     void* user_data) {
     UNUSED(delta_time);
-    laf::Termite* termite = static_cast<laf::Termite*>(user_data);
+    mopo::Termite* termite = static_cast<mopo::Termite*>(user_data);
     termite->processMidi(message);
   }
 
@@ -55,8 +55,8 @@ namespace {
     if (status)
       std::cout << "Stream underflow detected!" << std::endl;
 
-    laf::Termite* termite = static_cast<laf::Termite*>(user_data);
-    termite->processAudio((laf::laf_float*)out_buffer, n_frames);
+    mopo::Termite* termite = static_cast<mopo::Termite*>(user_data);
+    termite->processAudio((mopo::mopo_float*)out_buffer, n_frames);
     return 0;
   }
 
@@ -67,7 +67,7 @@ namespace {
   }
 } // namespace
 
-namespace laf {
+namespace mopo {
   Termite::Termite() : state_(STANDARD), patch_load_index_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
@@ -265,11 +265,11 @@ namespace laf {
     gui_.drawControlStatus(control, false);
   }
 
-  void Termite::processAudio(laf_float *out_buffer, unsigned int n_frames) {
+  void Termite::processAudio(mopo_float *out_buffer, unsigned int n_frames) {
     lock();
     synth_.process();
     unlock();
-    const laf_float* buffer = synth_.output()->buffer;
+    const mopo_float* buffer = synth_.output()->buffer;
     for (size_t i = 0; i < n_frames; ++i) {
       for (int c = 0; c < NUM_CHANNELS; ++c)
         out_buffer[NUM_CHANNELS * i + c] = buffer[i];
@@ -502,4 +502,4 @@ namespace laf {
 
     cJSON_Delete(root);
   }
-} // namespace laf
+} // namespace mopo

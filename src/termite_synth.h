@@ -25,7 +25,7 @@
 
 #define MOD_MATRIX_SIZE 6
 
-namespace laf {
+namespace mopo {
   class Add;
   class Envelope;
   class Filter;
@@ -41,8 +41,8 @@ namespace laf {
 
       control_map getControls() { return controls_; }
 
-      void setModWheel(laf_float value);
-      void setPitchWheel(laf_float value);
+      void setModWheel(mopo_float value);
+      void setPitchWheel(mopo_float value);
       void setModulationSource(int index, std::string source);
       void setModulationDestination(int index, std::string destination);
 
@@ -96,7 +96,7 @@ namespace laf {
         mod_index_ = mod_index;
       }
 
-      void set(laf_float value) {
+      void set(mopo_float value) {
         Value::set(static_cast<int>(value));
         handler_->setModulationSource(mod_index_, sources_[value_]);
       }
@@ -124,7 +124,7 @@ namespace laf {
         mod_index_ = mod_index;
       }
 
-      void set(laf_float value) {
+      void set(mopo_float value) {
         Value::set(static_cast<int>(value));
         handler_->setModulationDestination(mod_index_, destinations_[value_]);
       }
@@ -141,14 +141,14 @@ namespace laf {
 
       control_map getControls();
 
-      void setModWheel(laf_float value) {
+      void setModWheel(mopo_float value) {
         voice_handler_->setModWheel(value);
       }
-      void setPitchWheel(laf_float value) {
+      void setPitchWheel(mopo_float value) {
         voice_handler_->setPitchWheel(value);
       }
-      void noteOn(laf_float note, laf_float velocity = 1.0);
-      void noteOff(laf_float note);
+      void noteOn(mopo_float note, mopo_float velocity = 1.0);
+      void noteOff(mopo_float note);
       void sustainOn() { voice_handler_->sustainOn(); }
       void sustainOff() { voice_handler_->sustainOff(); }
 
@@ -157,6 +157,6 @@ namespace laf {
 
       control_map controls_;
   };
-} // namespace laf
+} // namespace mopo
 
 #endif // TERMITE_SYNTH_H

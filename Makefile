@@ -19,7 +19,7 @@ SHELL = /bin/sh
 
 TERMITE = termite
 
-LAF_DIR = laf
+MOPO_DIR = mopo
 OUTPUT_DIR = debug
 SOURCE_DIR = src
 RTAUDIO_DIR = rtaudio
@@ -27,9 +27,9 @@ RTMIDI_DIR = rtmidi
 CJSON_DIR = cJSON
 
 CXXFLAGS += -g -Wall -Wextra -O3
-CXX_INCLUDES = -I $(LAF_DIR)/src/ -I $(RTAUDIO_DIR) \
+CXX_INCLUDES = -I $(MOPO_DIR)/src/ -I $(RTAUDIO_DIR) \
                -I $(RTMIDI_DIR) -I $(CJSON_DIR) -I $(SOURCE_DIR)
-CXX_LIBS = $(LAF_DIR)/laf.a -lpthread -lncurses
+CXX_LIBS = $(MOPO_DIR)/mopo.a -lpthread -lncurses
 
 UNAME = $(shell uname)
 
@@ -45,10 +45,10 @@ endif
 OBJS := $(patsubst $(SOURCE_DIR)/%.cpp,$(OUTPUT_DIR)/$(SOURCE_DIR)/%.o, \
         $(wildcard $(SOURCE_DIR)/*.cpp))
 
-all: laf_lib directory $(TERMITE)
+all: mopo_lib directory $(TERMITE)
 
 clean:
-	@$(MAKE) clean -C $(LAF_DIR)
+	@$(MAKE) clean -C $(MOPO_DIR)
 	@echo 'Cleaning $(TERMITE) build files'
 	@rm -rf $(OUTPUT_DIR) $(TERMITE)
 
@@ -57,9 +57,9 @@ directory:
 	@mkdir -p $(OUTPUT_DIR)/$(SOURCE_DIR)
 
 # Building
-laf_lib:
-	@echo 'Building $(LAF_DIR)'
-	@$(MAKE) -C $(LAF_DIR)
+mopo_lib:
+	@echo 'Building $(MOPO_DIR)'
+	@$(MAKE) -C $(MOPO_DIR)
 
 $(TERMITE): $(OBJS) $(OUTPUT_DIR)/cJSON.o \
             $(OUTPUT_DIR)/rtaudio.o $(OUTPUT_DIR)/rtmidi.o

@@ -16,7 +16,7 @@
 
 #include "termite_strings.h"
 
-namespace laf {
+namespace mopo {
 
   const char* TermiteStrings::filter_strings_[] = {
     "low pass",
@@ -50,4 +50,4 @@ namespace laf {
     "nine pyramid",
     "white noise",
   };
-} // namespace laf
+} // namespace mopo

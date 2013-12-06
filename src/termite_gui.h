@@ -18,14 +18,14 @@
 #ifndef TERMITE_GUI_H
 #define TERMITE_GUI_H
 
-#include "laf.h"
+#include "mopo.h"
 #include "termite_common.h"
 
 #include <map>
 #include <ncurses.h>
 #include <string>
 
-namespace laf {
+namespace mopo {
   class Value;
   class TermiteSynth;
 
@@ -83,6 +83,6 @@ namespace laf {
       std::vector<std::string> control_order_;
       int control_index_;
   };
-} // namespace laf
+} // namespace mopo
 
 #endif // TERMITE_GUI_H

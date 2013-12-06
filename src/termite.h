@@ -25,7 +25,7 @@
 
 #include <pthread.h>
 
-namespace laf {
+namespace mopo {
 
   class Termite {
     public:
@@ -39,7 +39,7 @@ namespace laf {
       Termite();
 
       void start();
-      void processAudio(laf_float *out_buffer, unsigned int n_frames);
+      void processAudio(mopo_float *out_buffer, unsigned int n_frames);
       void processMidi(std::vector<unsigned char>* message);
 
       void lock() { pthread_mutex_lock(&mutex_); }
@@ -83,6 +83,6 @@ namespace laf {
       std::vector<std::string> patches_;
       int patch_load_index_;
   };
-} // namespace laf
+} // namespace mopo
 
 #endif // TERMITE_H

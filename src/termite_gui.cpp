@@ -39,7 +39,7 @@
 #define PATCH_BROWSER_ROWS 5
 #define PATCH_BROWSER_WIDTH 26
 
-namespace laf {
+namespace mopo {
 
   void TermiteGui::drawHelp() {
     erase();
@@ -504,4 +504,4 @@ namespace laf {
       control_order_.size();
     return getCurrentControl();
   }
-} // namespace laf
+} // namespace mopo

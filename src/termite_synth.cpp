@@ -32,7 +32,7 @@
 
 #define PITCH_MOD_RANGE 12
 
-namespace laf {
+namespace mopo {
 
   void TermiteVoiceHandler::createOscillators(Output* midi, Output* reset) {
     // Pitch bend.
@@ -531,19 +531,19 @@ namespace laf {
     return voice_controls;
   }
 
-  void TermiteSynth::noteOn(laf_float note, laf_float velocity) {
+  void TermiteSynth::noteOn(mopo_float note, mopo_float velocity) {
     voice_handler_->noteOn(note, velocity);
   }
 
-  void TermiteSynth::noteOff(laf_float note) {
+  void TermiteSynth::noteOff(mopo_float note) {
     voice_handler_->noteOff(note);
   }
 
-  void TermiteVoiceHandler::setModWheel(laf_float value) {
+  void TermiteVoiceHandler::setModWheel(mopo_float value) {
     mod_wheel_amount_->set(value);
   }
 
-  void TermiteVoiceHandler::setPitchWheel(laf_float value) {
+  void TermiteVoiceHandler::setPitchWheel(mopo_float value) {
     pitch_wheel_amount_->set(value);
   }
 
@@ -564,4 +564,4 @@ namespace laf {
     if (destination.length())
       mod_destinations_[destination]->plugNext(mod_matrix_[matrix_index]);
   }
-} // namespace laf
+} // namespace mopo

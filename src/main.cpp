@@ -17,7 +17,7 @@
 #include "termite.h"
 
 int main() {
-  laf::Termite termite;
+  mopo::Termite termite;
   termite.start();
   return 0;
 }
