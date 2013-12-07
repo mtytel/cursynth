@@ -153,6 +153,8 @@ namespace mopo {
 
     std::string current_control = gui_.getCurrentControl();
     Control* control = controls_.at(current_control);
+    bool should_redraw_control = false;
+    lock();
     switch(key) {
       case 'H':
       case KEY_F(1):
@@ -170,61 +172,58 @@ namespace mopo {
           state_ = MIDI_LEARN;
         else
           state_ = STANDARD;
+        should_redraw_control = true;
         break;
       case 'C':
       case 'c':
         eraseMidiLearn(control);
         state_ = STANDARD;
+        should_redraw_control = true;
         break;
       case KEY_UP:
         current_control = gui_.getPrevControl();
         state_ = STANDARD;
-        lock();
         gui_.drawControl(control, false);
-        unlock();
+        should_redraw_control = true;
         break;
       case KEY_DOWN:
         current_control = gui_.getNextControl();
         state_ = STANDARD;
-        lock();
         gui_.drawControl(control, false);
-        unlock();
+        should_redraw_control = true;
         break;
       case KEY_RIGHT:
-        lock();
         control->increment();
-        unlock();
+        should_redraw_control = true;
         break;
       case KEY_LEFT:
-        lock();
         control->decrement();
-        unlock();
+        should_redraw_control = true;
         break;
       default:
-        lock();
         size_t slider_size = strlen(SLIDER) - 1;
         for (size_t i = 0; i <= slider_size; ++i) {
           if (SLIDER[i] == key) {
             control->setPercentage((1.0 * i) / slider_size);
+            should_redraw_control = true;
             break;
           }
         }
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
           if (KEYBOARD[i] == key) {
             synth_.noteOn(48 + i);
-            unlock();
-            return true;
+            break;
           }
         }
-        unlock();
     }
 
-    lock();
-    control = controls_.at(current_control);
-    gui_.drawControl(control, true);
-    gui_.drawControlStatus(control, state_ == MIDI_LEARN);
-    unlock();
+    if (should_redraw_control) {
+      control = controls_.at(current_control);
+      gui_.drawControl(control, true);
+      gui_.drawControlStatus(control, state_ == MIDI_LEARN);
+    }
 
+    unlock();
     return true;
   }
 
