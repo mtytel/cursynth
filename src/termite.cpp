@@ -122,7 +122,7 @@ namespace mopo {
     char* json = cJSON_Print(root);
     std::ofstream save_file;
     save_file.open(getConfigPath().c_str());
-    LAF_ASSERT(save_file.is_open());
+    MOPO_ASSERT(save_file.is_open());
     save_file << json;
     save_file.close();
 
@@ -485,7 +485,6 @@ namespace mopo {
   void Termite::readStateFromString(const std::string& state) {
     cJSON* root = cJSON_Parse(state.c_str());
 
-    lock();
     control_map::iterator iter = controls_.begin();
     for (; iter != controls_.end(); ++iter) {
       cJSON* value = cJSON_GetObjectItem(root, iter->first.c_str());
@@ -497,7 +496,6 @@ namespace mopo {
     Control* current_control = controls_.at(gui_.getCurrentControl());
     gui_.drawControl(current_control, true);
     gui_.drawControlStatus(current_control, false);
-    unlock();
 
     cJSON_Delete(root);
   }

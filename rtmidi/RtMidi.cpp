@@ -365,7 +365,6 @@ struct CoreMidiData {
 
 void midiInputCallback( const MIDIPacketList *list, void *procRef, void *srcRef )
 {
-  (void)(srcRef);
   MidiInApi::RtMidiInData *data = static_cast<MidiInApi::RtMidiInData *> (procRef);
   CoreMidiData *apiData = static_cast<CoreMidiData *> (data->apiData);
 
@@ -652,7 +651,7 @@ CFStringRef EndpointName( MIDIEndpointRef endpoint, bool isExternal )
     CFRelease( str );
   }
 
-  MIDIEntityRef entity = 0;
+  MIDIEntityRef entity = NULL;
   MIDIEndpointGetEntity( endpoint, &entity );
   if ( entity == 0 )
     // probably virtual
@@ -937,10 +936,9 @@ char *sysexBuffer = 0;
 
 void sysexCompletionProc( MIDISysexSendRequest * sreq )
 {
-  (void)sreq;
   //std::cout << "Completed SysEx send\n";
-  delete sysexBuffer;
-  sysexBuffer = 0;
+ delete sysexBuffer;
+ sysexBuffer = 0;
 }
 
 void MidiOutCore :: sendMessage( std::vector<unsigned char> *message )
