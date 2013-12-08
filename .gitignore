@@ -20,7 +20,9 @@ termite
 a.out
 
 # Autotools
-Makefile.in
+/Makefile.in
+/src/Makefile.in
+/cJSON/Makefile.in
 config.h.in
 *.la
 *.lo
