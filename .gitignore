@@ -20,7 +20,8 @@ termite
 a.out
 
 # Autotools
-*.in
+Makefile.in
+config.h.in
 *.la
 *.lo
 *~
