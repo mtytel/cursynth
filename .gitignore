@@ -21,6 +21,9 @@ a.out
 
 # Autotools
 /Makefile.in
+/config.guess
+/config.sub
+/Makefile.in
 /src/Makefile.in
 /cJSON/Makefile.in
 config.h.in

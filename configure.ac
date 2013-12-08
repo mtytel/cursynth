@@ -16,10 +16,85 @@ AM_PROG_CC_C_O
 
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
-AC_CHECK_LIB([ncurses], [move])
+AC_CHECK_LIB([ncurses], [curs_set])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h float.h limits.h stddef.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h])
+
+AC_CANONICAL_HOST
+AC_MSG_CHECKING(for audio API)
+case $host in
+  *-*-netbsd*)
+    AC_MSG_RESULT(using OSS)
+    api="$api -D__LINUX_OSS__"
+    LIBS="$LIBS -lossaudio"
+    AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(termite requires the pthread library!))
+  ;;
+
+  *-*-linux*)
+  AC_ARG_WITH(jack, [  --with-jack = choose JACK server support (mac and linux only)], [
+    api="$api -D__UNIX_JACK__"
+    AC_MSG_RESULT(using JACK)
+    AC_CHECK_LIB(jack, jack_client_open, , AC_MSG_ERROR(JACK support requires the jack library!))
+    AC_CHECK_LIB(asound, snd_pcm_open, , AC_MSG_ERROR(Jack support also requires the asound library!))], )
+
+  # Look for ALSA flag
+  AC_ARG_WITH(alsa, [  --with-alsa = choose native ALSA API support (linux only)], [
+    api="$api -D__LINUX_ALSA__"
+    req="$req alsa"
+    AC_MSG_RESULT(using ALSA)
+    AC_CHECK_LIB(asound, snd_pcm_open, , AC_MSG_ERROR(ALSA support requires the asound library!))], )
+
+  # Look for PULSE flag
+  AC_ARG_WITH(pulse, [  --with-pulse = choose PulseAudio API support (linux only)], [
+    api="$api -D__LINUX_PULSE__"
+    req="$req libpulse-simple"
+    AC_MSG_RESULT(using PulseAudio)
+    PKG_CHECK_MODULES([PULSE], [libpulse-simple], , AC_MSG_ERROR(PulseAudio support requires the pulse-simple library!))
+        LIBS="$LIBS `pkg-config --libs libpulse-simple`" ], )
+
+  # Look for OSS flag
+  AC_ARG_WITH(oss, [  --with-oss = choose OSS API support (linux only)], [
+    api="$api -D__LINUX_OSS__"
+    AC_MSG_RESULT(using OSS)], )
+
+  # If no audio api flags specified, use ALSA
+  if [test "$api" == "";] then
+    AC_MSG_RESULT(using ALSA)
+    AC_SUBST( api, [-D__LINUX_ALSA__] )
+    req="$req alsa"
+    AC_CHECK_LIB(asound, snd_pcm_open, , AC_MSG_ERROR(ALSA support requires the asound library!))
+  fi
+
+  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(termite requires the pthread library!))
+  ;;
+
+  *-apple*)
+  AC_ARG_WITH(jack, [  --with-jack = choose JACK server support (unix only)], [
+    api="$api -D__UNIX_JACK__"
+    AC_MSG_RESULT(using JACK)
+    AC_CHECK_LIB(jack, jack_client_open, , AC_MSG_ERROR(JACK support requires the jack library!))], )
+
+  # Look for Core flag
+  AC_ARG_WITH(core, [  --with-core = choose CoreAudio API support (mac only)], [
+    api="$api -D__MACOSX_CORE__"
+    AC_MSG_RESULT(using CoreAudio)
+    AC_CHECK_HEADER(CoreAudio/CoreAudio.h, [], [AC_MSG_ERROR(CoreAudio header files not found!)] )
+    LIBS="$LIBS -framework CoreAudio -framework CoreMIDI -framework CoreFoundation" ], )
+
+  # If no audio api flags specified, use CoreAudio
+  if [test "$api" == ""; ] then
+    AC_SUBST( api, [-D__MACOSX_CORE__] )
+    AC_MSG_RESULT(using CoreAudio)
+    AC_CHECK_HEADER(CoreAudio/CoreAudio.h,
+      [],
+      [AC_MSG_ERROR(CoreAudio header files not found!)] )
+    LIBS="$LIBS -framework CoreAudio -framework CoreMIDI -framework CoreFoundation"
+  fi
+
+  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(termite requires the pthread library!))
+  ;;
+esac
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
