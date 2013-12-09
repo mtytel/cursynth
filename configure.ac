@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.68])
 AC_INIT([termite], [0.2], [littleioaudio@gmail.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/termite.cpp])
@@ -97,7 +97,6 @@ case $host in
 esac
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_PID_T
 AC_C_RESTRICT
