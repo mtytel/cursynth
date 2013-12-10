@@ -20,12 +20,10 @@ termite
 a.out
 
 # Autotools
-/Makefile.in
-/config.guess
-/config.sub
-/Makefile.in
-/src/Makefile.in
-/cJSON/Makefile.in
+Makefile.in
+ar-lib
+config.guess
+config.sub
 config.h.in
 *.la
 *.lo

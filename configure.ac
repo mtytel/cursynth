@@ -142,12 +142,11 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([dup2 floor gettimeofday memset modf pow rmdir strcasecmp strchr strdup strerror])
 
-AC_CONFIG_SUBDIRS([rtaudio
+AC_CONFIG_SUBDIRS([mopo
+                   rtaudio
                    rtmidi])
 
 AC_CONFIG_FILES([Makefile
-                 mopo/Makefile
-                 mopo/src/Makefile
                  src/Makefile
                  cJSON/Makefile])
 AC_OUTPUT
