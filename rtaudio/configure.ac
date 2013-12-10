@@ -3,6 +3,7 @@ AC_INIT(RtAudio, 4.0, gary@music.mcgill.ca, rtaudio)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(RtAudio.cpp)
 AC_CONFIG_FILES([rtaudio-config librtaudio.pc Makefile tests/Makefile])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Fill GXX with something before test.
 AC_SUBST( GXX, ["no"] )
@@ -13,6 +14,7 @@ m4_define_default([PKG_PROG_PKG_CONFIG],
 AC_MSG_RESULT([no])])
 
 PKG_PROG_PKG_CONFIG
+AM_PROG_AR
 
 dnl If the pkg-config autoconf support isn't installed, define its
 dnl autoconf macro to disable any packages depending on it.

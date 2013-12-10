@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([termite], [0.2], [littleioaudio@gmail.com])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_SRCDIR([src/termite.cpp])
 AC_CONFIG_HEADERS([config.h])
 
@@ -13,6 +13,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
+AM_PROG_AR
 
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
@@ -94,6 +95,33 @@ case $host in
 
   AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(termite requires the pthread library!))
   ;;
+
+  *-mingw32*)
+  AC_ARG_WITH(asio, [  --with-asio = choose ASIO API support (windoze only)], [
+    api="$api -D__WINDOWS_ASIO__"
+    AC_MSG_RESULT(using ASIO)
+    AC_SUBST( objects, ["asio.o asiodrivers.o asiolist.o iasiothiscallresolver.o"] ) ], )
+
+  # Look for DirectSound flag
+  AC_ARG_WITH(ds, [  --with-ds = choose DirectSound API support (windoze only)], [
+    api="$api -D__WINDOWS_DS__"
+    AC_MSG_RESULT(using DirectSound)
+    LIBS="-ldsound -lwinmm $LIBS" ], )
+
+  # If no audio api flags specified, use DirectSound
+  if [test "$api" == "";] then
+    AC_SUBST( api, [-D__WINDOWS_DS__] )
+    AC_MSG_RESULT(using DirectSound)
+    LIBS="-ldsound -lwinmm $LIBS"
+  fi
+
+  LIBS="-lole32 $LIBS"
+  ;;
+
+  *)
+  # Default case for unknown realtime systems.
+  AC_MSG_ERROR(Unknown system type for realtime support!)
+  ;;
 esac
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -114,8 +142,8 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([dup2 floor gettimeofday memset modf pow rmdir strcasecmp strchr strdup strerror])
 
-AC_CONFIG_SUBDIRS(rtaudio
-                  rtmidi)
+AC_CONFIG_SUBDIRS([rtaudio
+                   rtmidi])
 
 AC_CONFIG_FILES([Makefile
                  mopo/Makefile
