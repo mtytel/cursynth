@@ -49,11 +49,13 @@ namespace mopo {
     printw("INFO:");
     attroff(A_BOLD);
     move(8, 43);
-    printw("version - 0.2");
+    printw("version - ");
+    printw(VERSION);
     move(9, 43);
     printw("website - littleio.co/termite");
     move(10, 43);
-    printw("contact - littleioaudio@gmail.com");
+    printw("contact - ");
+    printw(PACKAGE_BUGREPORT);
     move(12, 41);
     attron(A_BOLD);
     printw("CONTROLS:");

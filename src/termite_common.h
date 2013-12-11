@@ -18,6 +18,7 @@
 #ifndef TERMITE_COMMON_H
 #define TERMITE_COMMON_H
 
+#include "config.h"
 #include "value.h"
 
 #include <map>
