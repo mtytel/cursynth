@@ -520,7 +520,7 @@ namespace mopo {
     addProcessor(clamp);
     addProcessor(volume);
     addProcessor(scaled_audio);
-    registerOutput(scaled_audio->output());
+    registerOutput(clamp->output());
 
     controls_["volume"] = new Control(volume, 0, 1, MIDI_SIZE);
   }
