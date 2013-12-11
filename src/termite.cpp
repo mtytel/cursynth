@@ -30,7 +30,6 @@
 #define KEYBOARD "awsedftgyhujkolp;'"
 #define SLIDER "`1234567890"
 #define EXTENSION ".mite"
-#define PATCH_DIRECTORY "patches"
 #define CONFIG_FILE ".termite_conf"
 #define NUM_CHANNELS 2
 #define MOD_WHEEL_ID 1
@@ -420,7 +419,7 @@ namespace mopo {
     DIR *dir;
     struct dirent *ent;
     patches_.clear();
-    if ((dir = opendir(PATCH_DIRECTORY)) != NULL) {
+    if ((dir = opendir(PATCHES_DIRECTORY)) != NULL) {
       while ((ent = readdir(dir)) != NULL) {
         std::string name = ent->d_name;
         if (name.find(EXTENSION) != std::string::npos)
@@ -439,7 +438,7 @@ namespace mopo {
 
   void Termite::saveToFile(const std::string& file_name) {
     std::ofstream save_file;
-    std::string path = PATCH_DIRECTORY;
+    std::string path = PATCHES_DIRECTORY;
     path = path + "/" + file_name;
     save_file.open(path.c_str());
     save_file << writeStateToString();
@@ -447,7 +446,7 @@ namespace mopo {
   }
 
   void Termite::loadFromFile(const std::string& file_name) {
-    std::string path = PATCH_DIRECTORY;
+    std::string path = PATCHES_DIRECTORY;
     path += "/";
     path += file_name;
     std::ifstream load_file;

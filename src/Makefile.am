@@ -1,4 +1,5 @@
 bin_PROGRAMS = termite
+patchesdir = $(pkgdatadir)/patches
 
 termite_SOURCES = main.cpp \
                   termite.cpp \
@@ -16,7 +17,8 @@ termite_CPPFLAGS = -I. \
                    -I$(top_srcdir)/cJSON \
                    -I$(top_srcdir)/rtaudio \
                    -I$(top_srcdir)/rtmidi \
-                   -I$(top_srcdir)/mopo/src
+                   -I$(top_srcdir)/mopo/src \
+									 -DPATCHES_DIRECTORY=\"$(patchesdir)\"
 
 termite_LDADD = ../cJSON/libcJSON.a \
                 ../rtaudio/librtaudio.a \

@@ -23,6 +23,7 @@ AC_CHECK_LIB([ncurses], [curs_set])
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h float.h limits.h stddef.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h])
 
+# Get flags for rtaudio and rtmidi.
 AC_CANONICAL_HOST
 AC_MSG_CHECKING(for audio API)
 case $host in
