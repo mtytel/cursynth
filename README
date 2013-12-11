@@ -1,17 +1,21 @@
 termite v0.3
 ------------
-termite is a polyphonic, MIDI enabled, subtractive synth that runs in your terminal with an ascii interface.
-termite will connect to all MIDI devices and send output to the default audio device on your system.
+termite is a polyphonic, MIDI enabled, subtractive synth that runs in your
+terminal with an ascii interface.
 
-![alt tag](http://littleio.co/static/img/termite.png)
+termite will connect to all MIDI devices and send output to the default audio
+device on your system.
 
 ### Building
-First check if you have the laf submodule
-```
-git submodule init
-git submodule update
-```
-Then run 'make' and it will compile a 'termite' executable which you can run.
+Run these commands to build the project from source:
+
+$ autoreconf -i
+$ ./configure
+$ make
+
+And then if you want to install, next run:
+
+$ sudo make install
 
 ### Controls
 * awsedftgyhujkolp;' - a playable keyboard (no key up events)
