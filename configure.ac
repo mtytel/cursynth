@@ -4,6 +4,7 @@
 AC_PREREQ([2.68])
 AC_INIT([termite], [0.2], [littleioaudio@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_SILENT_RULES([yes])
 AC_CONFIG_SRCDIR([src/termite.cpp])
 AC_CONFIG_HEADERS([config.h])
 

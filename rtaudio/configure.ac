@@ -4,6 +4,7 @@ AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(RtAudio.cpp)
 AC_CONFIG_FILES([rtaudio-config librtaudio.pc Makefile tests/Makefile])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_SILENT_RULES([yes])
 
 # Fill GXX with something before test.
 AC_SUBST( GXX, ["no"] )
@@ -24,7 +25,7 @@ AC_MSG_RESULT([no])
 $4])
 
 # Checks for programs.
-AC_PROG_CXX(g++ CC c++ cxx)
+AC_PROG_CXX(c++ g++ CC cxx)
 AC_PROG_RANLIB
 AC_PATH_PROG(AR, ar, no)
 if [[ $AR = "no" ]] ; then
