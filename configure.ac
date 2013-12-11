@@ -9,7 +9,7 @@ AC_CONFIG_SRCDIR([src/termite.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
-AC_PROG_CXX([c++ g++])
+AC_PROG_CXX([c++ g++ cxx])
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
