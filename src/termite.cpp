@@ -26,10 +26,13 @@
 #include <sstream>
 #include <string>
 #include <stdio.h>
+#include <sys/stat.h>
 
 #define KEYBOARD "awsedftgyhujkolp;'"
 #define SLIDER "`1234567890"
 #define EXTENSION ".mite"
+#define CONFIG_DIR ".termite/"
+#define USER_PATCHES_DIR "patches/"
 #define CONFIG_FILE ".termite_conf"
 #define NUM_CHANNELS 2
 #define MOD_WHEEL_ID 1
@@ -61,8 +64,42 @@ namespace {
 
   std::string getConfigPath() {
     std::stringstream config_path;
-    config_path << getenv("HOME") << "/" << CONFIG_FILE;
+    config_path << getenv("HOME") << "/" << CONFIG_DIR;
     return config_path.str();
+  }
+
+  std::string getConfigFile() {
+    std::stringstream config_path;
+    config_path << getConfigPath() << CONFIG_FILE;
+    return config_path.str();
+  }
+
+  std::string getUserPatchesPath() {
+    std::stringstream patches_path;
+    patches_path << getConfigPath() << USER_PATCHES_DIR;
+    return patches_path.str();
+  }
+
+  void confirmPathExists(std::string path) {
+    if (opendir(path.c_str()) == NULL)
+      mkdir(path.c_str(), 0755);
+  }
+
+  std::vector<std::string> getAllFiles(std::string dir, std::string ext) {
+    std::vector<std::string> file_names;
+    DIR *directory = NULL;
+    struct dirent *ent = NULL;
+
+    if ((directory = opendir(dir.c_str())) != NULL) {
+      while ((ent = readdir(directory)) != NULL) {
+        std::string name = ent->d_name;
+        if (name.find(ext) != std::string::npos)
+          file_names.push_back(name);
+      }
+      closedir(directory);
+    }
+
+    return file_names;
   }
 } // namespace
 
@@ -86,7 +123,7 @@ namespace mopo {
 
   void Termite::loadConfiguration() {
     std::ifstream config_file;
-    config_file.open(getConfigPath().c_str());
+    config_file.open(getConfigFile().c_str());
     if (!config_file.is_open())
       return;
 
@@ -111,6 +148,7 @@ namespace mopo {
   }
 
   void Termite::saveConfiguration() {
+    confirmPathExists(getConfigPath());
     cJSON* root = cJSON_CreateObject();
     std::map<int, std::string>::iterator iter = midi_learn_.begin();
     for (; iter != midi_learn_.end(); ++iter) {
@@ -120,7 +158,7 @@ namespace mopo {
 
     char* json = cJSON_Print(root);
     std::ofstream save_file;
-    save_file.open(getConfigPath().c_str());
+    save_file.open(getConfigFile().c_str());
     MOPO_ASSERT(save_file.is_open());
     save_file << json;
     save_file.close();
@@ -416,17 +454,10 @@ namespace mopo {
   }
 
   void Termite::startLoad() {
-    DIR *dir;
-    struct dirent *ent;
-    patches_.clear();
-    if ((dir = opendir(PATCHES_DIRECTORY)) != NULL) {
-      while ((ent = readdir(dir)) != NULL) {
-        std::string name = ent->d_name;
-        if (name.find(EXTENSION) != std::string::npos)
-          patches_.push_back(name);
-      }
-      closedir (dir);
-    }
+    patches_ = getAllFiles(PATCHES_DIRECTORY, EXTENSION);
+    std::vector<std::string> user_patches =
+        getAllFiles(getUserPatchesPath(), EXTENSION);
+    patches_.insert(patches_.end(), user_patches.begin(), user_patches.end());
 
     if (patches_.size() == 0)
       return;
@@ -437,8 +468,10 @@ namespace mopo {
   }
 
   void Termite::saveToFile(const std::string& file_name) {
+    confirmPathExists(getConfigPath());
+    confirmPathExists(getUserPatchesPath());
     std::ofstream save_file;
-    std::string path = PATCHES_DIRECTORY;
+    std::string path = getUserPatchesPath();
     path = path + "/" + file_name;
     save_file.open(path.c_str());
     save_file << writeStateToString();
@@ -446,11 +479,22 @@ namespace mopo {
   }
 
   void Termite::loadFromFile(const std::string& file_name) {
-    std::string path = PATCHES_DIRECTORY;
+    std::ifstream load_file;
+
+    // First try to load the patch from user patches.
+    std::string path = getUserPatchesPath();
     path += "/";
     path += file_name;
-    std::ifstream load_file;
     load_file.open(path.c_str());
+
+    // If we can't find the patch try default system patches.
+    if (!load_file.is_open()) {
+      path = PATCHES_DIRECTORY;
+      path += "/";
+      path += file_name;
+      load_file.open(path.c_str());
+    }
+
     if (!load_file.is_open())
       return;
 
