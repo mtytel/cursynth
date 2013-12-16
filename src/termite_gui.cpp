@@ -77,9 +77,9 @@ namespace mopo {
     move(27, 43);
     printw("[shift] + S - save patch");
     move(29, 43);
-    printw("m - arm midi learn");
+    printw("m - arm MIDI learn");
     move(31, 43);
-    printw("c - erase midi learn");
+    printw("c - erase MIDI learn");
   }
 
   void TermiteGui::drawMain() {
