@@ -1,0 +1,126 @@
+\input texinfo   @c -*-texinfo-*-
+@comment $Id@w{$}
+@comment %**start of header
+@setfilename termite.info
+@include version.texi
+@settitle GNU Sample @value{VERSION}
+@syncodeindex pg cp
+@comment %**end of header
+@copying
+This manual is for GNU Sample (version @value{VERSION}, @value{UPDATED}),
+which is an example in the Texinfo documentation.
+
+Copyright @copyright{} 2013 Free Software Foundation, Inc.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+@end quotation
+@end copying
+
+@dircategory Texinfo documentation system
+@direntry
+* termite: (termite)Invoking termite.
+@end direntry
+
+@titlepage
+@title GNU Sample
+@subtitle for version @value{VERSION}, @value{UPDATED}
+@author Little IO (@email{littleioaudio@@gmail.com})
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top GNU Sample
+
+This manual is for termite (version @value{VERSION}, @value{UPDATED}).
+Termite is a music synthesizer. It's polyphonic and MIDI enabled and it runs
+graphically within a terminal session.
+@end ifnottex
+
+@menu
+* Invoking termite::
+* Controls::
+* Patches::
+* GNU Free Documentation License::
+* Index::
+@end menu
+
+
+@node Invoking termite
+@chapter Invoking termite
+
+@pindex termite
+@cindex invoking @command{termite}
+
+To start termite, run:
+
+$ termite
+
+termite will take over the current terminal session and show you all the
+synthesis settings as sliders and text selections on the screen.
+
+Start typing on your keyboard's home row to hear termite for the first time.
+Typing F1 or 'H' will show help and information.
+
+@node Controls
+@chapter Controls
+
+@pindex termite
+@cindex controls
+
+termite is MIDI enabled so if you have a working MIDI keyboard or controller,
+termite will respond to note/velocity/etc events and can learn what parameters
+to change when a knob or slider is moved through MIDI learn.
+
+* awsedftgyhujkolp;' - a playable keyboard (no key up events)
+* \`1234567890 - a slider for the current selected control
+* up/down - previous/next control
+* left/right - decrement/increment control
+* F1 (or [shift] + H) - help/controls
+* [shift] + L - browse/load patches
+* [shift] + S - save patch
+* m - arm MIDI learn
+* c - erase MIDI learn
+
+
+@node Patches
+@chapter Patches
+
+@pindex termite
+@cindex patches
+
+termite is a synthesizer that can make a variety of different sounds through
+different settings. You can save and load these settings from termite patches.
+All termite patches have a .mite exteions and there are two locations where
+termite looks for them:
+
+ - a system data share directory, (usually /usr/local/share/termite/patches/)
+
+ - $HOME/.termite/patches/
+
+Whenever you save a patch from termite, it is put into $HOME/.termite/patches/.
+These patches are human readable so you can edit them with a text editor if you
+like.
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@comment @include fdl.texi
+
+
+@node Index
+@unnumbered Index
+
+@printindex cp
+
+@bye
