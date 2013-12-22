@@ -15,14 +15,28 @@
  */
 
 #pragma once
-#ifndef PROCESSOR_ROUTER_H
-#define PROCESSOR_ROUTER_H
+#ifndef FEEDBACK_H
+#define FEEDBACK_H
 
-#include "router.h"
+#include "processor.h"
 
 namespace mopo {
 
-  typedef Router<Processor> ProcessorRouter;
+  class Feedback : public Processor {
+    public:
+      Feedback() : Processor(1, 1) { }
+
+      virtual Processor* clone() const { return new Feedback(*this); }
+      virtual void process();
+      virtual void refreshOutput();
+
+      inline void tick(int i);
+      inline void tickBeginRefreshOutput();
+      inline void tickRefreshOutput(int i);
+
+    protected:
+      mopo_float buffer_[BUFFER_SIZE];
+  };
 } // namespace mopo
 
-#endif // PROCESSOR_ROUTER_H
+#endif // FEEDBACK_H
