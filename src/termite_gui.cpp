@@ -388,16 +388,18 @@ namespace mopo {
         2, 13, 18);
     placeControl("osc 2 tune", controls.at("osc 2 tune"),
         22, 13, 18);
+    placeControl("cross modulation", controls.at("cross modulation"),
+        2, 16, 38);
 
     // LFOs.
     placeControl("lfo 1 waveform", controls.at("lfo 1 waveform"),
-        2, 16, 18);
-    placeControl("lfo 1 frequency", controls.at("lfo 1 frequency"),
-        22, 16, 18);
-    placeControl("lfo 2 waveform", controls.at("lfo 2 waveform"),
         2, 19, 18);
-    placeControl("lfo 2 frequency", controls.at("lfo 2 frequency"),
+    placeControl("lfo 1 frequency", controls.at("lfo 1 frequency"),
         22, 19, 18);
+    placeControl("lfo 2 waveform", controls.at("lfo 2 waveform"),
+        2, 22, 18);
+    placeControl("lfo 2 frequency", controls.at("lfo 2 frequency"),
+        22, 22, 18);
 
     // Volume / Delay.
     placeControl("volume", controls.at("volume"),

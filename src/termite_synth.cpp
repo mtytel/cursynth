@@ -34,6 +34,58 @@
 
 namespace mopo {
 
+  TermiteOscillators::TermiteOscillators() : TickRouter(0, 0) {
+    oscillator1_ = new Oscillator();
+    oscillator2_ = new Oscillator();
+    frequency1_ = new Multiply();
+    frequency2_ = new Multiply();
+    freq_mod1_ = new Multiply();
+    freq_mod2_ = new Multiply();
+    normalized_fm1_ = new Add();
+    normalized_fm2_ = new Add();
+    Value* one = new Value(1);
+
+    addProcessor(normalized_fm1_);
+    addProcessor(normalized_fm2_);
+    addProcessor(frequency1_);
+    addProcessor(frequency2_);
+    addProcessor(freq_mod1_);
+    addProcessor(freq_mod2_);
+    addProcessor(oscillator1_);
+    addProcessor(oscillator2_);
+
+    registerInput(oscillator1_->input(Oscillator::kWaveform));
+    registerInput(oscillator2_->input(Oscillator::kWaveform));
+    registerInput(oscillator1_->input(Oscillator::kReset));
+    registerInput(oscillator2_->input(Oscillator::kReset));
+    registerInput(frequency1_->input(0));
+    registerInput(frequency2_->input(0));
+    registerInput(freq_mod1_->input(0));
+    registerInput(freq_mod2_->input(0));
+
+    normalized_fm1_->plug(freq_mod1_, 0);
+    normalized_fm2_->plug(freq_mod2_, 0);
+    normalized_fm1_->plug(one, 1);
+    normalized_fm2_->plug(one, 1);
+    frequency1_->plug(normalized_fm1_, 1);
+    frequency2_->plug(normalized_fm2_, 1);
+    oscillator1_->plug(frequency1_, Oscillator::kFrequency);
+    oscillator2_->plug(frequency2_, Oscillator::kFrequency);
+    freq_mod1_->plug(oscillator2_, 1);
+    freq_mod2_->plug(oscillator1_, 1);
+
+    registerOutput(oscillator1_->output());
+    registerOutput(oscillator2_->output());
+  }
+
+  void TermiteOscillators::process() {
+    oscillator1_->preprocess();
+    oscillator2_->preprocess();
+
+    for (int i = 0; i < BUFFER_SIZE; ++i)
+      tick(i);
+  }
+
   void TermiteVoiceHandler::createOscillators(Output* midi, Output* reset) {
     // Pitch bend.
     Value* pitch_bend_range = new Value(2);
@@ -62,16 +114,23 @@ namespace mopo {
     controls_["pitch bend range"] = new Control(pitch_bend_range, 0, 48, 48);
 
     // Oscillator 1.
+    oscillators_ = new TermiteOscillators();
     Value* oscillator1_waveform = new Value(Wave::kDownSaw);
     MidiScale* oscillator1_frequency = new MidiScale();
     oscillator1_frequency->plug(final_midi);
-    oscillator1_ = new Oscillator();
-    oscillator1_->plug(reset, Oscillator::kReset);
-    oscillator1_->plug(oscillator1_waveform, Oscillator::kWaveform);
-    oscillator1_->plug(oscillator1_frequency, Oscillator::kFrequency);
+    oscillators_->plug(oscillator1_waveform, 0);
+    oscillators_->plug(reset, 2);
+    oscillators_->plug(reset, 3);
+    oscillators_->plug(oscillator1_frequency, 4);
+
+    Value* cross_mod = new Value(0.5);
+    oscillators_->plug(cross_mod, 6);
+    oscillators_->plug(cross_mod, 7);
 
     addProcessor(oscillator1_frequency);
-    addProcessor(oscillator1_);
+    addProcessor(oscillators_);
+
+    controls_["cross modulation"] = new Control(cross_mod, 0, 10, MIDI_SIZE);
 
     std::vector<std::string> wave_strings = std::vector<std::string>(
         TermiteStrings::wave_strings_,
@@ -94,15 +153,12 @@ namespace mopo {
 
     MidiScale* oscillator2_frequency = new MidiScale();
     oscillator2_frequency->plug(oscillator2_midi);
-    oscillator2_ = new Oscillator();
-    oscillator2_->plug(reset, Oscillator::kReset);
-    oscillator2_->plug(oscillator2_waveform, Oscillator::kWaveform);
-    oscillator2_->plug(oscillator2_frequency, Oscillator::kFrequency);
+    oscillators_->plug(oscillator2_waveform, 1);
+    oscillators_->plug(oscillator2_frequency, 5);
 
     addProcessor(oscillator2_transposed);
     addProcessor(oscillator2_midi);
     addProcessor(oscillator2_frequency);
-    addProcessor(oscillator2_);
 
     controls_["osc 2 waveform"] = new Control(oscillator2_waveform,
                                               wave_strings,
@@ -123,8 +179,8 @@ namespace mopo {
     Clamp* clamp_mix = new Clamp(0, 1);
     clamp_mix->plug(mix_total);
     oscillator_mix_ = new Interpolate();
-    oscillator_mix_->plug(oscillator1_, Interpolate::kFrom);
-    oscillator_mix_->plug(oscillator2_, Interpolate::kTo);
+    oscillator_mix_->plug(oscillators_->output(0), Interpolate::kFrom);
+    oscillator_mix_->plug(oscillators_->output(1), Interpolate::kTo);
     oscillator_mix_->plug(clamp_mix, Interpolate::kFractional);
 
     addProcessor(oscillator_mix_);
