@@ -135,14 +135,21 @@ namespace mopo {
     oscillators_->plug(reset, 3);
     oscillators_->plug(oscillator1_frequency, 4);
 
-    Value* cross_mod = new Value(0.5);
-    oscillators_->plug(cross_mod, 6);
-    oscillators_->plug(cross_mod, 7);
+    Value* cross_mod = new Value(0.15);
+    VariableAdd* cross_mod_mod_sources = new VariableAdd(MOD_MATRIX_SIZE);
+    Add* cross_mod_total = new Add();
+    cross_mod_total->plug(cross_mod, 0);
+    cross_mod_total->plug(cross_mod_mod_sources, 1);
 
+    oscillators_->plug(cross_mod_total, 6);
+    oscillators_->plug(cross_mod_total, 7);
+
+    addProcessor(cross_mod_mod_sources);
+    addProcessor(cross_mod_total);
     addProcessor(oscillator1_frequency);
     addProcessor(oscillators_);
 
-    controls_["cross modulation"] = new Control(cross_mod, 0, 10, MIDI_SIZE);
+    controls_["cross modulation"] = new Control(cross_mod, 0, 1, MIDI_SIZE);
 
     std::vector<std::string> wave_strings = std::vector<std::string>(
         TermiteStrings::wave_strings_,
@@ -181,7 +188,6 @@ namespace mopo {
         new Control(oscillator2_tune, -1, 1, MIDI_SIZE);
 
     // Oscillator mix.
-    // TODO(mtytel): possibly clamp mix after modulation.
     Value* oscillator_mix_amount = new Value(0.5);
     VariableAdd* mix_mod_sources = new VariableAdd(MOD_MATRIX_SIZE);
     Add* mix_total = new Add();
@@ -237,6 +243,7 @@ namespace mopo {
     mod_sources_["lfo 1"] = lfo1_->output();
     mod_sources_["lfo 2"] = lfo2_->output();
 
+    mod_destinations_["cross modulation"] = cross_mod_mod_sources;
     mod_destinations_["pitch"] = midi_mod_sources;
     mod_destinations_["osc mix"] = mix_mod_sources;
   }
