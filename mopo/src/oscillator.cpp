@@ -28,6 +28,8 @@ namespace mopo {
   }
 
   void Oscillator::process() {
+    preprocess();
+
     int i = 0;
     if (inputs_[kReset]->source->triggered &&
         inputs_[kReset]->source->trigger_value == kVoiceReset) {
