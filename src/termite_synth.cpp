@@ -71,19 +71,31 @@ namespace mopo {
     frequency2_->plug(normalized_fm2_, 1);
     oscillator1_->plug(frequency1_, Oscillator::kFrequency);
     oscillator2_->plug(frequency2_, Oscillator::kFrequency);
-    freq_mod1_->plug(oscillator2_, 1);
     freq_mod2_->plug(oscillator1_, 1);
+    freq_mod1_->plug(oscillator2_, 1);
 
     registerOutput(oscillator1_->output());
     registerOutput(oscillator2_->output());
   }
 
   void TermiteOscillators::process() {
+    int num_feedbacks = feedback_order_->size();
+    for (int i = 0; i < num_feedbacks; ++i)
+      feedback_processors_[feedback_order_->at(i)]->tickBeginRefreshOutput();
+
     oscillator1_->preprocess();
     oscillator2_->preprocess();
+    tick(0);
 
-    for (int i = 0; i < BUFFER_SIZE; ++i)
+    for (int i = 1; i < BUFFER_SIZE; ++i) {
+      for (int f = 0; f < num_feedbacks; ++f)
+        feedback_processors_[feedback_order_->at(f)]->tickRefreshOutput(i);
+
       tick(i);
+
+      for (int f = 0; f < num_feedbacks; ++f)
+        feedback_processors_[feedback_order_->at(f)]->tick(i);
+    }
   }
 
   void TermiteVoiceHandler::createOscillators(Output* midi, Output* reset) {

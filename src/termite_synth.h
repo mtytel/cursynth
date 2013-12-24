@@ -18,6 +18,7 @@
 #ifndef TERMITE_SYNTH_H
 #define TERMITE_SYNTH_H
 
+#include "feedback.h"
 #include "operators.h"
 #include "oscillator.h"
 #include "termite_common.h"
@@ -41,7 +42,8 @@ namespace mopo {
   class TermiteOscillators : public TickRouter {
     public:
       TermiteOscillators();
-      TermiteOscillators(const TermiteOscillators& original) {
+      TermiteOscillators(const TermiteOscillators& original) :
+          TickRouter(original) {
         oscillator1_ = new Oscillator(*original.oscillator1_);
         oscillator2_ = new Oscillator(*original.oscillator2_);
         frequency1_ = new Multiply(*original.frequency1_);
@@ -66,14 +68,14 @@ namespace mopo {
       }
 
       void tick(int i) {
-        normalized_fm1_->tick(i);
-        normalized_fm2_->tick(i);
-        frequency1_->tick(i);
-        frequency2_->tick(i);
-        oscillator1_->tick(i);
-        oscillator2_->tick(i);
         freq_mod1_->tick(i);
+        normalized_fm1_->tick(i);
+        frequency1_->tick(i);
+        oscillator1_->tick(i);
         freq_mod2_->tick(i);
+        normalized_fm2_->tick(i);
+        frequency2_->tick(i);
+        oscillator2_->tick(i);
       }
 
     protected:
