@@ -101,7 +101,7 @@ to change when a knob or slider is moved through MIDI learn.
 
 termite is a synthesizer that can make a variety of different sounds through
 different settings. You can save and load these settings from termite patches.
-All termite patches have a .mite exteions and there are two locations where
+All termite patches have a .mite extensions and there are two locations where
 termite looks for them:
 
  - a system data share directory, (usually /usr/local/share/termite/patches/)
@@ -110,7 +110,84 @@ termite looks for them:
 
 Whenever you save a patch from termite, it is put into $HOME/.termite/patches/.
 These patches are human readable so you can edit them with a text editor if you
-like.
+wish.
+
+
+@node Synthesis
+@chapter Synthesis
+
+@pindex termite
+@cindex synthesis
+
+termite uses a very common form of synthesis called *Subtractive Synthesis*.
+There are 4 major components in termite's synthesis:
+
+ - Oscillators
+ - Filter
+ - Amplifier
+
+Synthesis starts with the two oscillators that create the initial sound. The
+output of the two oscillators are mixed together and fed into the envelope
+controlled filter. The output of the filter is fed into the envelope controlled
+amplifier and that output is fed into a delay effect. Since termite is a
+polyphonic synthesizer, there is a copy of each component (oscillator, filter,
+amplifier) for each voice.
+
+
+@node Oscillators
+@chapter Oscillators
+
+@pindex termite
+@cindex oscillators
+
+The initial sound creation in termite happens in the oscillators. There are two
+oscillators and you can choose the type from 13 waveforms:
+
+ - sin
+ - triangle
+ - square
+ - down saw
+ - up saw
+ - three step
+ - four step
+ - eight step
+ - three pyramid
+ - five pyramid
+ - nine pyramid
+ - white noise
+
+The two oscillators are hooked into a cross frequency modulation cycle. That
+is, oscillator 1 modifies the frequency of oscillator 2 and oscillator 2 in
+turn modifies the frequency of oscillator 1. Cross modulation greatly expands
+the types of sounds you can get from the oscillators.
+
+
+@node Filter
+@chapter Filter
+
+@pindex termite
+@cindex filter
+
+termite has a resonant filter for each voice. This filter can either be a
+low-pass or high-pass filter.
+
+
+You can positively or negatively keytrack the
+filter so that higher notes
+
+
+@node Modulation Matrix
+@chapter Modulation Matrix
+
+@pindex termite
+@cindex matrix
+
+termite has a resonant filter for each voice. This filter can either be a
+low-pass or high-pass filter.
+
+
+You can positively or negatively keytrack the
+filter so that higher notes
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
