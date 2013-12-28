@@ -14,24 +14,22 @@
  * along with mopo.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "operators.h"
+#pragma once
+#ifndef TICK_ROUTER_H
+#define TICK_ROUTER_H
+
+#include "processor_router.h"
 
 namespace mopo {
 
-  void Operator::process() {
-    for (int i = 0; i < BUFFER_SIZE; ++i)
-      tick(i);
-  }
+  class TickRouter : public ProcessorRouter {
+    public:
+      TickRouter(int num_inputs = 0, int num_outputs = 0) :
+          ProcessorRouter(num_inputs, num_outputs) { }
 
-  void VariableAdd::process() {
-    memset(outputs_[0]->buffer, 0, BUFFER_SIZE * sizeof(mopo_float));
-
-    int num_inputs = inputs_.size();
-    for (int i = 0; i < num_inputs; ++i) {
-      if (inputs_[i]->source != &Processor::null_source_) {
-        for (int s = 0; s < BUFFER_SIZE; ++s)
-          outputs_[0]->buffer[s] += inputs_[i]->at(s);
-      }
-    }
-  }
+      virtual void process() = 0;
+      virtual void tick(int i) = 0;
+  };
 } // namespace mopo
+
+#endif // PROCESSOR_ROUTER_H

@@ -15,45 +15,37 @@
  */
 
 #pragma once
-#ifndef OSCILLATOR_H
-#define OSCILLATOR_H
+#ifndef FEEDBACK_H
+#define FEEDBACK_H
 
 #include "processor.h"
-#include "wave.h"
 
 namespace mopo {
 
-  class Oscillator : public Processor {
+  class Feedback : public Processor {
     public:
-      enum Inputs {
-        kFrequency,
-        kPhase,
-        kWaveform,
-        kReset,
-        kNumInputs
-      };
+      Feedback() : Processor(1, 1) { }
 
-      Oscillator();
-
-      virtual Processor* clone() const { return new Oscillator(*this); }
-      void preprocess();
-      void process();
+      virtual Processor* clone() const { return new Feedback(*this); }
+      virtual void process();
+      virtual void refreshOutput();
 
       inline void tick(int i) {
-        mopo_float frequency = inputs_[kFrequency]->at(i);
-        mopo_float phase = inputs_[kPhase]->at(i);
+        buffer_[i] = inputs_[0]->source->buffer[i];
+      }
 
-        offset_ += frequency / sample_rate_;
-        double integral;
-        offset_ = modf(offset_, &integral);
-        outputs_[0]->buffer[i] =
-            Wave::blwave(waveform_, offset_ + phase, frequency);
+      inline void tickBeginRefreshOutput() {
+        outputs_[0]->buffer[0] = buffer_[BUFFER_SIZE - 1];
+      }
+
+      inline void tickRefreshOutput(int i) {
+        MOPO_ASSERT(i > 0 && i < i < BUFFER_SIZE);
+        outputs_[0]->buffer[i] = buffer_[i - 1];
       }
 
     protected:
-      mopo_float offset_;
-      Wave::Type waveform_;
+      mopo_float buffer_[BUFFER_SIZE];
   };
 } // namespace mopo
 
-#endif // OSCILLATOR_H
+#endif // FEEDBACK_H

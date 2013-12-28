@@ -18,7 +18,11 @@
 #ifndef TERMITE_SYNTH_H
 #define TERMITE_SYNTH_H
 
+#include "feedback.h"
+#include "operators.h"
+#include "oscillator.h"
 #include "termite_common.h"
+#include "tick_router.h"
 #include "voice_handler.h"
 
 #include <vector>
@@ -34,6 +38,56 @@ namespace mopo {
   class Multiply;
   class Oscillator;
   class SmoothValue;
+
+  class TermiteOscillators : public TickRouter {
+    public:
+      TermiteOscillators();
+      TermiteOscillators(const TermiteOscillators& original) :
+          TickRouter(original) {
+        oscillator1_ = new Oscillator(*original.oscillator1_);
+        oscillator2_ = new Oscillator(*original.oscillator2_);
+        frequency1_ = new Multiply(*original.frequency1_);
+        frequency2_ = new Multiply(*original.frequency2_);
+        freq_mod1_ = new Multiply(*original.freq_mod1_);
+        freq_mod2_ = new Multiply(*original.freq_mod2_);
+        normalized_fm1_ = new Add(*original.normalized_fm1_);
+        normalized_fm2_ = new Add(*original.normalized_fm2_);
+      }
+
+      virtual void process();
+      virtual Processor* clone() const { return new TermiteOscillators(*this); }
+      virtual void setSampleRate(int sample_rate) {
+        normalized_fm1_->setSampleRate(sample_rate);
+        normalized_fm2_->setSampleRate(sample_rate);
+        frequency1_->setSampleRate(sample_rate);
+        frequency2_->setSampleRate(sample_rate);
+        oscillator1_->setSampleRate(sample_rate);
+        oscillator2_->setSampleRate(sample_rate);
+        freq_mod1_->setSampleRate(sample_rate);
+        freq_mod2_->setSampleRate(sample_rate);
+      }
+
+      void tick(int i) {
+        freq_mod1_->tick(i);
+        normalized_fm1_->tick(i);
+        frequency1_->tick(i);
+        oscillator1_->tick(i);
+        freq_mod2_->tick(i);
+        normalized_fm2_->tick(i);
+        frequency2_->tick(i);
+        oscillator2_->tick(i);
+      }
+
+    protected:
+      Oscillator* oscillator1_;
+      Oscillator* oscillator2_;
+      Multiply* frequency1_;
+      Multiply* frequency2_;
+      Multiply* freq_mod1_;
+      Multiply* freq_mod2_;
+      Add* normalized_fm1_;
+      Add* normalized_fm2_;
+  };
 
   class TermiteVoiceHandler : public VoiceHandler {
     public:
@@ -59,8 +113,7 @@ namespace mopo {
       Envelope* amplitude_envelope_;
       Multiply* amplitude_;
 
-      Oscillator* oscillator1_;
-      Oscillator* oscillator2_;
+      TermiteOscillators* oscillators_;
       Oscillator* lfo1_;
       Oscillator* lfo2_;
       Interpolate* oscillator_mix_;
