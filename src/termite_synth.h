@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#define MOD_MATRIX_SIZE 6
+#define MOD_MATRIX_SIZE 5
 
 namespace mopo {
   class Add;
