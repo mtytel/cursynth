@@ -531,9 +531,12 @@ namespace mopo {
     control_map::iterator iter = controls_.begin();
     for (; iter != controls_.end(); ++iter) {
       cJSON* value = cJSON_GetObjectItem(root, iter->first.c_str());
-      Control* control = iter->second;
-      control->set(value->valuedouble);
-      gui_.drawControl(control, false);
+
+      if (value) {
+        Control* control = iter->second;
+        control->set(value->valuedouble);
+        gui_.drawControl(control, false);
+      }
     }
 
     Control* current_control = controls_.at(gui_.getCurrentControl());
