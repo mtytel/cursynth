@@ -50,6 +50,13 @@ graphically within a terminal session.
 @menu
 * Invoking termite::
 * Controls::
+* Synthesis::
+* Oscillators::
+* Filter::
+* Amplifier::
+* Matrix::
+* Effects::
+* Articulation::
 * Patches::
 * GNU Free Documentation License::
 * Index::
@@ -93,26 +100,6 @@ to change when a knob or slider is moved through MIDI learn.
 * c - erase MIDI learn
 
 
-@node Patches
-@chapter Patches
-
-@pindex termite
-@cindex patches
-
-termite is a synthesizer that can make a variety of different sounds through
-different settings. You can save and load these settings from termite patches.
-All termite patches have a .mite extensions and there are two locations where
-termite looks for them:
-
- - a system data share directory, (usually /usr/local/share/termite/patches/)
-
- - $HOME/.termite/patches/
-
-Whenever you save a patch from termite, it is put into $HOME/.termite/patches/.
-These patches are human readable so you can edit them with a text editor if you
-wish.
-
-
 @node Synthesis
 @chapter Synthesis
 
@@ -122,9 +109,9 @@ wish.
 termite uses a very common form of synthesis called *Subtractive Synthesis*.
 There are 4 major components in termite's synthesis:
 
- - Oscillators
- - Filter
- - Amplifier
+* Oscillators
+* Filter
+* Amplifier
 
 Synthesis starts with the two oscillators that create the initial sound. The
 output of the two oscillators are mixed together and fed into the envelope
@@ -141,25 +128,33 @@ amplifier) for each voice.
 @cindex oscillators
 
 The initial sound creation in termite happens in the oscillators. There are two
-oscillators and you can choose the type from 13 waveforms:
+oscillators and you can choose the type for each from 13 waveforms:
 
- - sin
- - triangle
- - square
- - down saw
- - up saw
- - three step
- - four step
- - eight step
- - three pyramid
- - five pyramid
- - nine pyramid
- - white noise
+* sin
+* triangle
+* square
+* down saw
+* up saw
+* three step
+* four step
+* eight step
+* three pyramid
+* five pyramid
+* nine pyramid
+* white noise
+
+You can control the second oscillator's transpose relative to the given note
+and fine tune the frequency using the tune parameter. 
 
 The two oscillators are hooked into a cross frequency modulation cycle. That
 is, oscillator 1 modifies the frequency of oscillator 2 and oscillator 2 in
 turn modifies the frequency of oscillator 1. Cross modulation greatly expands
 the types of sounds you can get from the oscillators.
+
+The output of the two oscillators are mixed together using a ratio definted
+by the 'oscillator mix' parameter. A value of 0.5 mixes the oscillators
+equally. A value of 0.0 is only the first oscillator, A value of 1.0 is only
+oscillator 2.
 
 
 @node Filter
@@ -171,10 +166,22 @@ the types of sounds you can get from the oscillators.
 termite has a resonant filter for each voice. This filter can either be a
 low-pass or high-pass filter.
 
-
 You can positively or negatively keytrack the filter so that higher notes
 will have a higher cutoff and lower notes will have a lower cutoff.
 
+The filter also has an ADSR envelope that controls the filter cutoff. It can
+also be routed to other things using the modulation matrix.
+
+
+@node Amplifier
+@chapter Amplifier
+
+@pindex termite
+@cindex amplifier
+
+termite has an amplifier that is controlled by an ADSR amplifier. You can also
+velocity track the notes so the faster you hit a note on a MIDI keyboard, the
+bigger the amplitude of the voice will be.
 
 @node Modulation Matrix
 @chapter Modulation Matrix
@@ -187,6 +194,61 @@ routing. For example, you can set an lfo as the source and the pitch as a
 destination with a small modulation scale to create a vibrato.
 
 There are five fields for five separate modulation settings.
+
+
+@node Effects
+@chapter Effects
+
+@pindex termite
+@cindex effects
+
+termite currently has a single delay effect. The audio of all the synth voices
+are combined into one signal that is passed into the delay effect.
+
+You can control the feedback amount and delay time.
+
+
+@node Articulation
+@chapter Articulation
+
+@pindex termite
+@cindex articulation
+
+termite has a number of controls that change how it acts as a synthesizer.
+
+* polyphony
+* legato
+* portamento
+* portamento type
+* pitch bend range
+
+polyphony controls the maximum number of active voices at anytime.
+
+
+@node Patches
+@chapter Patches
+
+@pindex termite
+@cindex patches
+
+termite is a synthesizer that can make a variety of different sounds through
+different settings. You can save to, and load these settings from termite
+patches.
+
+To load press 'L' (shift + 'l'), then select from the patch list and hit enter
+when you're done.
+
+To save press 'S' (shift + 's'), then name your patch and hit enter. The patch
+will save to $HOME/.termite/patches/
+
+All termite patches have a .mite extensions and there are two locations where
+termite looks for them:
+
+* a system data share directory, (usually /usr/local/share/termite/patches/)
+* $HOME/.termite/patches/
+
+Patches are also human readable so you can edit them with your text editor if
+you wish.
 
 
 @node GNU Free Documentation License
