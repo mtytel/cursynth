@@ -172,8 +172,8 @@ termite has a resonant filter for each voice. This filter can either be a
 low-pass or high-pass filter.
 
 
-You can positively or negatively keytrack the
-filter so that higher notes
+You can positively or negatively keytrack the filter so that higher notes
+will have a higher cutoff and lower notes will have a lower cutoff.
 
 
 @node Modulation Matrix
@@ -182,12 +182,12 @@ filter so that higher notes
 @pindex termite
 @cindex matrix
 
-termite has a resonant filter for each voice. This filter can either be a
-low-pass or high-pass filter.
+termite has a modulation matrix so you can add custom modulation to termite's
+routing. For example, you can set an lfo as the source and the pitch as a
+destination with a small modulation scale to create a vibrato.
 
+There are five fields for five separate modulation settings.
 
-You can positively or negatively keytrack the
-filter so that higher notes
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
