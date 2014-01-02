@@ -486,12 +486,6 @@ namespace mopo {
         50, 40, 22);
     placeMinimalControl("mod destination 5", controls.at("mod destination 5"),
         74, 40, 22);
-    placeMinimalControl("mod source 6", controls.at("mod source 6"),
-        26, 41, 22);
-    placeMinimalControl("mod scale 6", controls.at("mod scale 6"),
-        50, 41, 22);
-    placeMinimalControl("mod destination 6", controls.at("mod destination 6"),
-        74, 41, 22);
   }
 
   std::string TermiteGui::getCurrentControl() {
