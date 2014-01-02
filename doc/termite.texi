@@ -190,7 +190,7 @@ bigger the amplitude of the voice will be.
 @cindex matrix
 
 termite has a modulation matrix so you can add custom modulation to termite's
-routing. For example, you can set an lfo as the source and the pitch as a
+routing. For example, you can set an LFO as the source and the pitch as a
 destination with a small modulation scale to create a vibrato.
 
 There are five fields for five separate modulation settings.
@@ -222,7 +222,25 @@ termite has a number of controls that change how it acts as a synthesizer.
 * portamento type
 * pitch bend range
 
-polyphony controls the maximum number of active voices at anytime.
+polyphony controls the maximum number of active voices at any time.
+
+legato controls what happens when a note overrides a currently active note
+because we had too many active voices. 'off' will cause the note to retrigger,
+restarting all oscillators, envelopes and LFOs. 'on' will not retrigger any
+oscillators, envelopes or LFOs but will set the frequency to the new note.
+
+portamento controls how long it takes to slide the frequency from one note to
+another note. termite has a linear (in semitones) slide measured in
+seconds-per-octave.
+
+portamento type controls when the notes slide. When 'off' notes never slide
+their frequency. When 'on' notes always slide their frequency. When 'auto'
+notes slide only when the note that is being overriden is still held down on
+the keyboard, that is will jump to the new frequency immediately if the
+overriden note was already released.
+
+pitch bend range controls how much the pitch wheel affects the pitch of all the
+voices, measured in semitones.
 
 
 @node Patches
