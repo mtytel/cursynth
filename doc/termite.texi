@@ -54,7 +54,7 @@ graphically within a terminal session.
 * Oscillators::
 * Filter::
 * Amplifier::
-* Matrix::
+* Modulation Matrix::
 * Effects::
 * Articulation::
 * Patches::
@@ -89,15 +89,17 @@ termite is MIDI enabled so if you have a working MIDI keyboard or controller,
 termite will respond to note/velocity/etc events and can learn what parameters
 to change when a knob or slider is moved through MIDI learn.
 
-* awsedftgyhujkolp;' - a playable keyboard (no key up events)
-* \`1234567890 - a slider for the current selected control
-* up/down - previous/next control
-* left/right - decrement/increment control
-* F1 (or [shift] + H) - help/controls
-* [shift] + L - browse/load patches
-* [shift] + S - save patch
-* m - arm MIDI learn
-* c - erase MIDI learn
+@itemize @bullet
+@item awsedftgyhujkolp;' - a playable keyboard (no key up events)
+@item \`1234567890 - a slider for the current selected control
+@item up/down - previous/next control
+@item left/right - decrement/increment control
+@item F1 (or [shift] + H) - help/controls
+@item [shift] + L - browse/load patches
+@item [shift] + S - save patch
+@item m - arm MIDI learn
+@item c - erase MIDI learn
+@end itemize
 
 
 @node Synthesis
@@ -109,9 +111,11 @@ to change when a knob or slider is moved through MIDI learn.
 termite uses a very common form of synthesis called *Subtractive Synthesis*.
 There are 4 major components in termite's synthesis:
 
-* Oscillators
-* Filter
-* Amplifier
+@itemize @bullet
+@item Oscillators
+@item Filter
+@item Amplifier
+@end itemize
 
 Synthesis starts with the two oscillators that create the initial sound. The
 output of the two oscillators are mixed together and fed into the envelope
@@ -130,21 +134,23 @@ amplifier) for each voice.
 The initial sound creation in termite happens in the oscillators. There are two
 oscillators and you can choose the type for each from 13 waveforms:
 
-* sin
-* triangle
-* square
-* down saw
-* up saw
-* three step
-* four step
-* eight step
-* three pyramid
-* five pyramid
-* nine pyramid
-* white noise
+@itemize @bullet
+@item sin
+@item triangle
+@item square
+@item down saw
+@item up saw
+@item three step
+@item four step
+@item eight step
+@item three pyramid
+@item five pyramid
+@item nine pyramid
+@item white noise
+@end itemize
 
 You can control the second oscillator's transpose relative to the given note
-and fine tune the frequency using the tune parameter. 
+and fine tune the frequency using the tune parameter.
 
 The two oscillators are hooked into a cross frequency modulation cycle. That
 is, oscillator 1 modifies the frequency of oscillator 2 and oscillator 2 in
@@ -216,11 +222,13 @@ You can control the feedback amount and delay time.
 
 termite has a number of controls that change how it acts as a synthesizer.
 
-* polyphony
-* legato
-* portamento
-* portamento type
-* pitch bend range
+@itemize @bullet
+@item polyphony
+@item legato
+@item portamento
+@item portamento type
+@item pitch bend range
+@end itemize
 
 polyphony controls the maximum number of active voices at any time.
 
@@ -262,8 +270,10 @@ will save to $HOME/.termite/patches/
 All termite patches have a .mite extensions and there are two locations where
 termite looks for them:
 
-* a system data share directory, (usually /usr/local/share/termite/patches/)
-* $HOME/.termite/patches/
+@itemize @bullet
+@item a system data share directory, (usually /usr/local/share/termite/patches/)
+@item $HOME/.termite/patches/
+@end itemize
 
 Patches are also human readable so you can edit them with your text editor if
 you wish.
@@ -272,7 +282,7 @@ you wish.
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
 
-@comment @include fdl.texi
+@include fdl.texi
 
 
 @node Index
