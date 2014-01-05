@@ -109,7 +109,7 @@ to change when a knob or slider is moved through MIDI learn.
 @cindex synthesis
 
 termite uses a very common form of synthesis called *Subtractive Synthesis*.
-There are 4 major components in termite's synthesis:
+There are three major components in termite's synthesis:
 
 @itemize @bullet
 @item Oscillators
@@ -120,9 +120,9 @@ There are 4 major components in termite's synthesis:
 Synthesis starts with the two oscillators that create the initial sound. The
 output of the two oscillators are mixed together and fed into the envelope
 controlled filter. The output of the filter is fed into the envelope controlled
-amplifier and that output is fed into a delay effect. Since termite is a
-polyphonic synthesizer, there is a copy of each component (oscillator, filter,
-amplifier) for each voice.
+amplifier. Since termite is a polyphonic synthesizer, there is a copy of each
+component (oscillator, filter, amplifier) for each voice. The output of all the
+voices are combined into a single output that is fed into the delay line.
 
 
 @node Oscillators
@@ -132,7 +132,7 @@ amplifier) for each voice.
 @cindex oscillators
 
 The initial sound creation in termite happens in the oscillators. There are two
-oscillators and you can choose the type for each from 13 waveforms:
+oscillators and you can choose the wave type for each from the 13 waveforms:
 
 @itemize @bullet
 @item sin
@@ -261,10 +261,11 @@ termite is a synthesizer that can make a variety of different sounds through
 different settings. You can save to, and load these settings from termite
 patches.
 
-To load press 'L' (shift + 'l'), then select from the patch list and hit enter
-when you're done.
+To load, press 'L' (shift + 'l'), then select from the patch list. You can test
+the patch by playing on your keyboard. When you decide on a patch, press enter
+to finish loading.
 
-To save press 'S' (shift + 's'), then name your patch and hit enter. The patch
+To save, press 'S' (shift + 's'), then name your patch and hit enter. The patch
 will save to $HOME/.termite/patches/
 
 All termite patches have a .mite extensions and there are two locations where
