@@ -64,7 +64,7 @@ namespace mopo {
       processVoice(voice);
 
       // Remove voice if the right processor has a full silent buffer.
-      if (voice_killer_ && voice->state()->event != kVoiceOn &&
+      if (voice_killer_ &&
           utils::isSilent(voice_killer_->buffer, BUFFER_SIZE)) {
         free_voices_.push_back(voice);
         iter = active_voices_.erase(iter);
