@@ -1,0 +1,294 @@
+\input texinfo   @c -*-texinfo-*-
+@comment $Id@w{$}
+@comment %**start of header
+@setfilename termite.info
+@include version.texi
+@settitle GNU Sample @value{VERSION}
+@syncodeindex pg cp
+@comment %**end of header
+@copying
+This manual is for GNU Sample (version @value{VERSION}, @value{UPDATED}),
+which is an example in the Texinfo documentation.
+
+Copyright @copyright{} 2013 Free Software Foundation, Inc.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+@end quotation
+@end copying
+
+@dircategory Texinfo documentation system
+@direntry
+* termite: (termite)Invoking termite.
+@end direntry
+
+@titlepage
+@title GNU Sample
+@subtitle for version @value{VERSION}, @value{UPDATED}
+@author Little IO (@email{littleioaudio@@gmail.com})
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top GNU Sample
+
+This manual is for termite (version @value{VERSION}, @value{UPDATED}).
+Termite is a music synthesizer. It's polyphonic and MIDI enabled and it runs
+graphically within a terminal session.
+@end ifnottex
+
+@menu
+* Invoking termite::
+* Controls::
+* Synthesis::
+* Oscillators::
+* Filter::
+* Amplifier::
+* Modulation Matrix::
+* Effects::
+* Articulation::
+* Patches::
+* GNU Free Documentation License::
+* Index::
+@end menu
+
+
+@node Invoking termite
+@chapter Invoking termite
+
+@pindex termite
+@cindex invoking @command{termite}
+
+To start termite, run:
+
+$ termite
+
+termite will take over the current terminal session and show you all the
+synthesis settings as sliders and text selections on the screen.
+
+Start typing on your keyboard's home row to hear termite for the first time.
+Typing F1 or 'H' will show help and information.
+
+@node Controls
+@chapter Controls
+
+@pindex termite
+@cindex controls
+
+termite is MIDI enabled so if you have a working MIDI keyboard or controller,
+termite will respond to note/velocity/etc events and can learn what parameters
+to change when a knob or slider is moved through MIDI learn.
+
+@itemize @bullet
+@item awsedftgyhujkolp;' - a playable keyboard (no key up events)
+@item \`1234567890 - a slider for the current selected control
+@item up/down - previous/next control
+@item left/right - decrement/increment control
+@item F1 (or [shift] + H) - help/controls
+@item [shift] + L - browse/load patches
+@item [shift] + S - save patch
+@item m - arm MIDI learn
+@item c - erase MIDI learn
+@end itemize
+
+
+@node Synthesis
+@chapter Synthesis
+
+@pindex termite
+@cindex synthesis
+
+termite uses a very common form of synthesis called *Subtractive Synthesis*.
+There are three major components in termite's synthesis:
+
+@itemize @bullet
+@item Oscillators
+@item Filter
+@item Amplifier
+@end itemize
+
+Synthesis starts with the two oscillators that create the initial sound. The
+output of the two oscillators are mixed together and fed into the envelope
+controlled filter. The output of the filter is fed into the envelope controlled
+amplifier. Since termite is a polyphonic synthesizer, there is a copy of each
+component (oscillator, filter, amplifier) for each voice. The output of all the
+voices are combined into a single output that is fed into the delay line.
+
+
+@node Oscillators
+@chapter Oscillators
+
+@pindex termite
+@cindex oscillators
+
+The initial sound creation in termite happens in the oscillators. There are two
+oscillators and you can choose the wave type for each from the 13 waveforms:
+
+@itemize @bullet
+@item sin
+@item triangle
+@item square
+@item down saw
+@item up saw
+@item three step
+@item four step
+@item eight step
+@item three pyramid
+@item five pyramid
+@item nine pyramid
+@item white noise
+@end itemize
+
+You can control the second oscillator's transpose relative to the given note
+and fine tune the frequency using the tune parameter.
+
+The two oscillators are hooked into a cross frequency modulation cycle. That
+is, oscillator 1 modifies the frequency of oscillator 2 and oscillator 2 in
+turn modifies the frequency of oscillator 1. Cross modulation greatly expands
+the types of sounds you can get from the oscillators.
+
+The output of the two oscillators are mixed together using a ratio definted
+by the 'oscillator mix' parameter. A value of 0.5 mixes the oscillators
+equally. A value of 0.0 is only the first oscillator, A value of 1.0 is only
+oscillator 2.
+
+
+@node Filter
+@chapter Filter
+
+@pindex termite
+@cindex filter
+
+termite has a resonant filter for each voice. This filter can either be a
+low-pass or high-pass filter.
+
+You can positively or negatively keytrack the filter so that higher notes
+will have a higher cutoff and lower notes will have a lower cutoff.
+
+The filter also has an ADSR envelope that controls the filter cutoff. It can
+also be routed to other things using the modulation matrix.
+
+
+@node Amplifier
+@chapter Amplifier
+
+@pindex termite
+@cindex amplifier
+
+termite has an amplifier that is controlled by an ADSR amplifier. You can also
+velocity track the notes so the faster you hit a note on a MIDI keyboard, the
+bigger the amplitude of the voice will be.
+
+@node Modulation Matrix
+@chapter Modulation Matrix
+
+@pindex termite
+@cindex matrix
+
+termite has a modulation matrix so you can add custom modulation to termite's
+routing. For example, you can set an LFO as the source and the pitch as a
+destination with a small modulation scale to create a vibrato.
+
+There are five fields for five separate modulation settings.
+
+
+@node Effects
+@chapter Effects
+
+@pindex termite
+@cindex effects
+
+termite currently has a single delay effect. The audio of all the synth voices
+are combined into one signal that is passed into the delay effect.
+
+You can control the feedback amount and delay time.
+
+
+@node Articulation
+@chapter Articulation
+
+@pindex termite
+@cindex articulation
+
+termite has a number of controls that change how it acts as a synthesizer.
+
+@itemize @bullet
+@item polyphony
+@item legato
+@item portamento
+@item portamento type
+@item pitch bend range
+@end itemize
+
+polyphony controls the maximum number of active voices at any time.
+
+legato controls what happens when a note overrides a currently active note
+because we had too many active voices. 'off' will cause the note to retrigger,
+restarting all oscillators, envelopes and LFOs. 'on' will not retrigger any
+oscillators, envelopes or LFOs but will set the frequency to the new note.
+
+portamento controls how long it takes to slide the frequency from one note to
+another note. termite has a linear (in semitones) slide measured in
+seconds-per-octave.
+
+portamento type controls when the notes slide. When 'off' notes never slide
+their frequency. When 'on' notes always slide their frequency. When 'auto'
+notes slide only when the note that is being overriden is still held down on
+the keyboard, that is will jump to the new frequency immediately if the
+overriden note was already released.
+
+pitch bend range controls how much the pitch wheel affects the pitch of all the
+voices, measured in semitones.
+
+
+@node Patches
+@chapter Patches
+
+@pindex termite
+@cindex patches
+
+termite is a synthesizer that can make a variety of different sounds through
+different settings. You can save to, and load these settings from termite
+patches.
+
+To load, press 'L' (shift + 'l'), then select from the patch list. You can test
+the patch by playing on your keyboard. When you decide on a patch, press enter
+to finish loading.
+
+To save, press 'S' (shift + 's'), then name your patch and hit enter. The patch
+will save to $HOME/.termite/patches/
+
+All termite patches have a .mite extensions and there are two locations where
+termite looks for them:
+
+@itemize @bullet
+@item a system data share directory, (usually /usr/local/share/termite/patches/)
+@item $HOME/.termite/patches/
+@end itemize
+
+Patches are also human readable so you can edit them with your text editor if
+you wish.
+
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include fdl.texi
+
+
+@node Index
+@unnumbered Index
+
+@printindex cp
+
+@bye
