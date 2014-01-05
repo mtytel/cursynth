@@ -47,3 +47,4 @@ m4/
 missing
 stamp*
 *.tar.gz
+stdin.info
