@@ -382,14 +382,14 @@ namespace mopo {
         2, 7, 18);
     placeControl("osc 2 waveform", controls.at("osc 2 waveform"),
         22, 7, 18);
+    placeControl("cross modulation", controls.at("cross modulation"),
+        2, 10, 18);
     placeControl("osc mix", controls.at("osc mix"),
-        2, 10, 38);
+        22, 10, 18);
     placeControl("osc 2 transpose", controls.at("osc 2 transpose"),
         2, 13, 18);
     placeControl("osc 2 tune", controls.at("osc 2 tune"),
         22, 13, 18);
-    placeControl("cross modulation", controls.at("cross modulation"),
-        2, 16, 38);
 
     // LFOs.
     placeControl("lfo 1 waveform", controls.at("lfo 1 waveform"),
