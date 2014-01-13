@@ -29,7 +29,7 @@ $ sudo make install
 * c - erase midi learn
 
 ### Requirements:
-* OS: Mac OSX or Linux
+* OS: Mac OSX or GNU/Linux
 * Terminal: a color enabled terminal with minimum 120x44 ascii characters
 * If you want key up events, you have to use a MIDI keyboard
 
