@@ -1,23 +1,23 @@
 /* Copyright 2013 Little IO
  *
- * termite is free software: you can redistribute it and/or modify
+ * cursynth is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * termite is distributed in the hope that it will be useful,
+ * cursynth is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with termite.  If not, see <http://www.gnu.org/licenses/>.
+ * along with cursynth.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "termite_gui.h"
+#include "cursynth_gui.h"
 
 #include "value.h"
-#include "termite_synth.h"
+#include "cursynth_engine.h"
 
 #include <math.h>
 #include <ncurses.h>
@@ -41,7 +41,7 @@
 
 namespace mopo {
 
-  void TermiteGui::drawHelp() {
+  void CursynthGui::drawHelp() {
     erase();
     drawLogo();
     move(7, 41);
@@ -52,7 +52,7 @@ namespace mopo {
     printw("version - ");
     printw(VERSION);
     move(9, 43);
-    printw("website - littleio.co/termite");
+    printw("website - littleio.co/cursynth");
     move(10, 43);
     printw("contact - ");
     printw(PACKAGE_BUGREPORT);
@@ -82,13 +82,13 @@ namespace mopo {
     printw("c - erase MIDI learn");
   }
 
-  void TermiteGui::drawMain() {
+  void CursynthGui::drawMain() {
     erase();
     drawLogo();
     drawModulationMatrix();
   }
 
-  void TermiteGui::drawLogo() {
+  void CursynthGui::drawLogo() {
     attron(A_BOLD);
     attron(COLOR_PAIR(LOGO_COLOR));
     int logo_x = (WIDTH - LOGO_WIDTH) / 2 + 1;
@@ -111,7 +111,7 @@ namespace mopo {
     printw("                          Little IO");
   }
 
-  void TermiteGui::drawModulationMatrix() {
+  void CursynthGui::drawModulationMatrix() {
     move(34, 26);
     attron(A_BOLD);
     printw("---------------------------Modulation Matrix--------------------------");
@@ -125,7 +125,7 @@ namespace mopo {
     printw("     destination     ");
   }
 
-  void TermiteGui::drawMidi(std::string status) {
+  void CursynthGui::drawMidi(std::string status) {
     move(2, 2);
     printw("MIDI Learn: ");
     attron(A_BOLD);
@@ -135,7 +135,7 @@ namespace mopo {
     refresh();
   }
 
-  void TermiteGui::drawStatus(std::string status) {
+  void CursynthGui::drawStatus(std::string status) {
     move(1, 2);
     printw("Current Value: ");
     attron(A_BOLD);
@@ -145,7 +145,7 @@ namespace mopo {
     refresh();
   }
 
-  void TermiteGui::clearPatches() {
+  void CursynthGui::clearPatches() {
     int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
     move(1 + selection_row, 82);
     hline(' ', PATCH_BROWSER_WIDTH);
@@ -155,7 +155,7 @@ namespace mopo {
     }
   }
 
-  void TermiteGui::drawPatchSaving(std::string patch_name) {
+  void CursynthGui::drawPatchSaving(std::string patch_name) {
     int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
     move(1 + selection_row, 82);
     printw("            ");
@@ -165,8 +165,8 @@ namespace mopo {
     printw(patch_name.c_str());
   }
 
-  void TermiteGui::drawPatchLoading(std::vector<std::string> patches,
-                                    int selected_index) {
+  void CursynthGui::drawPatchLoading(std::vector<std::string> patches,
+                                     int selected_index) {
     int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
     move(1 + selection_row, 82);
     printw("Load Patch:");
@@ -193,8 +193,8 @@ namespace mopo {
     refresh();
   }
 
-  void TermiteGui::drawSlider(const DisplayDetails* slider,
-                              float percentage, bool active) {
+  void CursynthGui::drawSlider(const DisplayDetails* slider,
+                               float percentage, bool active) {
     int y = slider->y;
     if (slider->label.size())
       y += 1;
@@ -242,8 +242,8 @@ namespace mopo {
     refresh();
   }
 
-  void TermiteGui::drawText(const DisplayDetails* details,
-                            std::string text, bool active) {
+  void CursynthGui::drawText(const DisplayDetails* details,
+                             std::string text, bool active) {
     int y = details->y;
     if (details->label.size())
       y += 1;
@@ -274,7 +274,7 @@ namespace mopo {
     attroff(COLOR_PAIR(CONTROL_TEXT_COLOR));
   }
 
-  void TermiteGui::drawControl(const Control* control, bool active) {
+  void CursynthGui::drawControl(const Control* control, bool active) {
     DisplayDetails* details = details_lookup_[control];
     if (!details)
       return;
@@ -297,7 +297,8 @@ namespace mopo {
       drawSlider(details, control->getPercentage(), active);
   }
 
-  void TermiteGui::drawControlStatus(const Control* control, bool midi_armed) {
+  void CursynthGui::drawControlStatus(const Control* control,
+                                      bool midi_armed) {
     std::ostringstream midi_learn;
     if (midi_armed)
       midi_learn << "ARMED";
@@ -317,7 +318,7 @@ namespace mopo {
     drawStatus(status.str());
   }
 
-  void TermiteGui::start() {
+  void CursynthGui::start() {
     initscr();
     cbreak();
     noecho();
@@ -343,13 +344,13 @@ namespace mopo {
     curs_set(0);
   }
 
-  void TermiteGui::stop() {
+  void CursynthGui::stop() {
     endwin();
   }
 
-  void TermiteGui::placeMinimalControl(std::string name,
-                                       const Control* control,
-                                       int x, int y, int width) {
+  void CursynthGui::placeMinimalControl(std::string name,
+                                        const Control* control,
+                                        int x, int y, int width) {
     DisplayDetails* details = new DisplayDetails();
     details->x = x;
     details->y = y;
@@ -362,8 +363,8 @@ namespace mopo {
     control_order_.push_back(name);
   }
 
-  void TermiteGui::placeControl(std::string name, const Control* control,
-      int x, int y, int width) {
+  void CursynthGui::placeControl(std::string name, const Control* control,
+                                 int x, int y, int width) {
     DisplayDetails* details = new DisplayDetails();
     details->x = x;
     details->y = y;
@@ -376,7 +377,7 @@ namespace mopo {
     control_order_.push_back(name);
   }
 
-  void TermiteGui::addControls(const control_map& controls) {
+  void CursynthGui::addControls(const control_map& controls) {
     // Oscillators.
     placeControl("osc 1 waveform", controls.at("osc 1 waveform"),
         2, 7, 18);
@@ -488,16 +489,16 @@ namespace mopo {
         74, 40, 22);
   }
 
-  std::string TermiteGui::getCurrentControl() {
+  std::string CursynthGui::getCurrentControl() {
     return control_order_[control_index_];
   }
 
-  std::string TermiteGui::getNextControl() {
+  std::string CursynthGui::getNextControl() {
     control_index_ = (control_index_ + 1) % control_order_.size();
     return getCurrentControl();
   }
 
-  std::string TermiteGui::getPrevControl() {
+  std::string CursynthGui::getPrevControl() {
     control_index_ = (control_index_ + control_order_.size() - 1) %
       control_order_.size();
     return getCurrentControl();

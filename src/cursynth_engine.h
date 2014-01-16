@@ -1,27 +1,27 @@
 /* Copyright 2013 Little IO
  *
- * termite is free software: you can redistribute it and/or modify
+ * cursynth is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * termite is distributed in the hope that it will be useful,
+ * cursynth is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with termite.  If not, see <http://www.gnu.org/licenses/>.
+ * along with cursynth.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
-#ifndef TERMITE_SYNTH_H
-#define TERMITE_SYNTH_H
+#ifndef CURSYNTH_SYNTH_H
+#define CURSYNTH_SYNTH_H
 
 #include "feedback.h"
 #include "operators.h"
 #include "oscillator.h"
-#include "termite_common.h"
+#include "cursynth_common.h"
 #include "tick_router.h"
 #include "voice_handler.h"
 
@@ -39,10 +39,10 @@ namespace mopo {
   class Oscillator;
   class SmoothValue;
 
-  class TermiteOscillators : public TickRouter {
+  class CursynthOscillators : public TickRouter {
     public:
-      TermiteOscillators();
-      TermiteOscillators(const TermiteOscillators& original) :
+      CursynthOscillators();
+      CursynthOscillators(const CursynthOscillators& original) :
           TickRouter(original) {
         oscillator1_ = new Oscillator(*original.oscillator1_);
         oscillator2_ = new Oscillator(*original.oscillator2_);
@@ -55,7 +55,7 @@ namespace mopo {
       }
 
       virtual void process();
-      virtual Processor* clone() const { return new TermiteOscillators(*this); }
+      virtual Processor* clone() const { return new CursynthOscillators(*this); }
       virtual void setSampleRate(int sample_rate) {
         normalized_fm1_->setSampleRate(sample_rate);
         normalized_fm2_->setSampleRate(sample_rate);
@@ -89,9 +89,9 @@ namespace mopo {
       Add* normalized_fm2_;
   };
 
-  class TermiteVoiceHandler : public VoiceHandler {
+  class CursynthVoiceHandler : public VoiceHandler {
     public:
-      TermiteVoiceHandler();
+      CursynthVoiceHandler();
 
       control_map getControls() { return controls_; }
 
@@ -113,7 +113,7 @@ namespace mopo {
       Envelope* amplitude_envelope_;
       Multiply* amplitude_;
 
-      TermiteOscillators* oscillators_;
+      CursynthOscillators* oscillators_;
       Oscillator* lfo1_;
       Oscillator* lfo2_;
       Interpolate* oscillator_mix_;
@@ -136,7 +136,7 @@ namespace mopo {
 
   class MatrixSourceValue : public Value {
     public:
-      MatrixSourceValue(TermiteVoiceHandler* handler) :
+      MatrixSourceValue(CursynthVoiceHandler* handler) :
           Value(0), handler_(handler), mod_index_(0) { }
 
       virtual Processor* clone() const { return new MatrixSourceValue(*this); }
@@ -155,14 +155,14 @@ namespace mopo {
       }
 
     private:
-      TermiteVoiceHandler* handler_;
+      CursynthVoiceHandler* handler_;
       std::vector<std::string> sources_;
       int mod_index_;
   };
 
   class MatrixDestinationValue : public Value {
     public:
-      MatrixDestinationValue(TermiteVoiceHandler* handler) :
+      MatrixDestinationValue(CursynthVoiceHandler* handler) :
           Value(0), handler_(handler), mod_index_(0) { }
 
       virtual Processor* clone() const {
@@ -183,14 +183,14 @@ namespace mopo {
       }
 
     private:
-      TermiteVoiceHandler* handler_;
+      CursynthVoiceHandler* handler_;
       std::vector<std::string> destinations_;
       int mod_index_;
   };
 
-  class TermiteSynth : public ProcessorRouter {
+  class CursynthEngine : public ProcessorRouter {
     public:
-      TermiteSynth();
+      CursynthEngine();
 
       control_map getControls();
 
@@ -206,10 +206,10 @@ namespace mopo {
       void sustainOff() { voice_handler_->sustainOff(); }
 
     private:
-      TermiteVoiceHandler* voice_handler_;
+      CursynthVoiceHandler* voice_handler_;
 
       control_map controls_;
   };
 } // namespace mopo
 
-#endif // TERMITE_SYNTH_H
+#endif // CURSYNTH_SYNTH_H

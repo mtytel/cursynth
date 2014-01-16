@@ -16,7 +16,7 @@ debug
 *.a
 
 # Executables
-termite
+cursynth
 a.out
 
 # Autotools

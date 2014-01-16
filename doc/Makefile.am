@@ -1,2 +1,2 @@
-info_TEXINFOS = termite.texi
-termite_TEXINFOS = termite.texi
+info_TEXINFOS = cursynth.texi
+cursynth_TEXINFOS = cursynth.texi

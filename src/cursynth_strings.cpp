@@ -1,42 +1,42 @@
 /* Copyright 2013 Little IO
  *
- * termite is free software: you can redistribute it and/or modify
+ * cursynth is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * termite is distributed in the hope that it will be useful,
+ * cursynth is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with termite.  If not, see <http://www.gnu.org/licenses/>.
+ * along with cursynth.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "termite_strings.h"
+#include "cursynth_strings.h"
 
 namespace mopo {
 
-  const char* TermiteStrings::filter_strings_[] = {
+  const char* CursynthStrings::filter_strings_[] = {
     "low pass",
     "high pass",
     "band pass",
     "all pass"
   };
 
-  const char* TermiteStrings::legato_strings_[] = {
+  const char* CursynthStrings::legato_strings_[] = {
     "off",
     "on"
   };
 
-  const char* TermiteStrings::portamento_strings_[] = {
+  const char* CursynthStrings::portamento_strings_[] = {
     "off",
     "auto",
     "on"
   };
 
-  const char* TermiteStrings::wave_strings_[] = {
+  const char* CursynthStrings::wave_strings_[] = {
     "sin",
     "triangle",
     "square",

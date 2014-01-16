@@ -1,25 +1,25 @@
 /* Copyright 2013 Little IO
  *
- * termite is free software: you can redistribute it and/or modify
+ * cursynth is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * termite is distributed in the hope that it will be useful,
+ * cursynth is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with termite.  If not, see <http://www.gnu.org/licenses/>.
+ * along with cursynth.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
-#ifndef TERMITE_GUI_H
-#define TERMITE_GUI_H
+#ifndef CURSYNTH_GUI_H
+#define CURSYNTH_GUI_H
 
 #include "mopo.h"
-#include "termite_common.h"
+#include "cursynth_common.h"
 
 #include <map>
 #include <ncurses.h>
@@ -27,7 +27,7 @@
 
 namespace mopo {
   class Value;
-  class TermiteSynth;
+  class CursynthEngine;
 
   struct DisplayDetails {
     int x, y, width;
@@ -35,7 +35,7 @@ namespace mopo {
     bool bipolar;
   };
 
-  class TermiteGui {
+  class CursynthGui {
     public:
       enum ColorIds {
         BG_COLOR = 1,
@@ -47,7 +47,7 @@ namespace mopo {
         CONTROL_TEXT_COLOR
       };
 
-      TermiteGui() : control_index_(0) { }
+      CursynthGui() : control_index_(0) { }
 
       void start();
       void stop();
@@ -85,4 +85,4 @@ namespace mopo {
   };
 } // namespace mopo
 
-#endif // TERMITE_GUI_H
+#endif // CURSYNTH_GUI_H

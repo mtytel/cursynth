@@ -1,20 +1,20 @@
 /* Copyright 2013 Little IO
  *
- * termite is free software: you can redistribute it and/or modify
+ * cursynth is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * termite is distributed in the hope that it will be useful,
+ * cursynth is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with termite.  If not, see <http://www.gnu.org/licenses/>.
+ * along with cursynth.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "termite.h"
+#include "cursynth.h"
 
 #include "cJSON.h"
 
@@ -31,9 +31,9 @@
 #define KEYBOARD "awsedftgyhujkolp;'"
 #define SLIDER "`1234567890"
 #define EXTENSION ".mite"
-#define CONFIG_DIR ".termite/"
+#define CONFIG_DIR ".cursynth/"
 #define USER_PATCHES_DIR "patches/"
-#define CONFIG_FILE ".termite_conf"
+#define CONFIG_FILE ".cursynth_conf"
 #define NUM_CHANNELS 2
 #define MOD_WHEEL_ID 1
 #define PITCH_BEND_PORT 224
@@ -45,8 +45,8 @@ namespace {
   void midiCallback(double delta_time, std::vector<unsigned char>* message,
                     void* user_data) {
     UNUSED(delta_time);
-    mopo::Termite* termite = static_cast<mopo::Termite*>(user_data);
-    termite->processMidi(message);
+    mopo::Cursynth* cursynth = static_cast<mopo::Cursynth*>(user_data);
+    cursynth->processMidi(message);
   }
 
   int audioCallback(void *out_buffer, void *in_buffer,
@@ -57,8 +57,8 @@ namespace {
     if (status)
       std::cout << "Stream underflow detected!" << std::endl;
 
-    mopo::Termite* termite = static_cast<mopo::Termite*>(user_data);
-    termite->processAudio((mopo::mopo_float*)out_buffer, n_frames);
+    mopo::Cursynth* cursynth = static_cast<mopo::Cursynth*>(user_data);
+    cursynth->processAudio((mopo::mopo_float*)out_buffer, n_frames);
     return 0;
   }
 
@@ -104,11 +104,11 @@ namespace {
 } // namespace
 
 namespace mopo {
-  Termite::Termite() : state_(STANDARD), patch_load_index_(0) {
+  Cursynth::Cursynth() : state_(STANDARD), patch_load_index_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
 
-  void Termite::start() {
+  void Cursynth::start() {
     setupAudio();
     setupMidi();
     setupGui();
@@ -121,7 +121,7 @@ namespace mopo {
     stop();
   }
 
-  void Termite::loadConfiguration() {
+  void Cursynth::loadConfiguration() {
     std::ifstream config_file;
     config_file.open(getConfigFile().c_str());
     if (!config_file.is_open())
@@ -147,7 +147,7 @@ namespace mopo {
     cJSON_Delete(root);
   }
 
-  void Termite::saveConfiguration() {
+  void Cursynth::saveConfiguration() {
     confirmPathExists(getConfigPath());
     cJSON* root = cJSON_CreateObject();
     std::map<int, std::string>::iterator iter = midi_learn_.begin();
@@ -167,7 +167,7 @@ namespace mopo {
     cJSON_Delete(root);
   }
 
-  bool Termite::textInput(int key) {
+  bool Cursynth::textInput(int key) {
     if (state_ == PATCH_LOADING) {
       int num_patches = patches_.size();
       switch(key) {
@@ -264,7 +264,7 @@ namespace mopo {
     return true;
   }
 
-  void Termite::setupAudio() {
+  void Cursynth::setupAudio() {
     if (dac_.getDeviceCount() < 1) {
       std::cout << "No audio devices found.\n";
       exit(0);
@@ -290,7 +290,7 @@ namespace mopo {
     }
   }
 
-  void Termite::setupGui() {
+  void Cursynth::setupGui() {
     gui_.start();
 
     controls_ = synth_.getControls();
@@ -301,7 +301,7 @@ namespace mopo {
     gui_.drawControlStatus(control, false);
   }
 
-  void Termite::processAudio(mopo_float *out_buffer, unsigned int n_frames) {
+  void Cursynth::processAudio(mopo_float *out_buffer, unsigned int n_frames) {
     lock();
     synth_.process();
     unlock();
@@ -312,14 +312,14 @@ namespace mopo {
     }
   }
 
-  void Termite::eraseMidiLearn(Control* control) {
+  void Cursynth::eraseMidiLearn(Control* control) {
     if (control->midi_learn()) {
       midi_learn_.erase(control->midi_learn());
       control->midi_learn(0);
     }
   }
 
-  void Termite::setupMidi() {
+  void Cursynth::setupMidi() {
     RtMidiIn* midi_in = new RtMidiIn();
     if (midi_in->getPortCount() <= 0) {
       std::cout << "No midi devices found.\n";
@@ -334,7 +334,7 @@ namespace mopo {
     delete midi_in;
   }
 
-  void Termite::processMidi(std::vector<unsigned char>* message) {
+  void Cursynth::processMidi(std::vector<unsigned char>* message) {
     if (message->size() < 3)
       return;
 
@@ -388,7 +388,7 @@ namespace mopo {
     unlock();
   }
 
-  void Termite::stop() {
+  void Cursynth::stop() {
     pthread_mutex_destroy(&mutex_);
     gui_.stop();
     try {
@@ -404,7 +404,7 @@ namespace mopo {
 
   // Help.
 
-  void Termite::startHelp() {
+  void Cursynth::startHelp() {
     gui_.drawHelp();
     getch();
 
@@ -420,7 +420,7 @@ namespace mopo {
 
   // Loading and Saving.
 
-  void Termite::startSave() {
+  void Cursynth::startSave() {
     gui_.clearPatches();
     curs_set(1);
     std::stringstream save_stream;
@@ -453,7 +453,7 @@ namespace mopo {
     }
   }
 
-  void Termite::startLoad() {
+  void Cursynth::startLoad() {
     patches_ = getAllFiles(PATCHES_DIRECTORY, EXTENSION);
     std::vector<std::string> user_patches =
         getAllFiles(getUserPatchesPath(), EXTENSION);
@@ -467,7 +467,7 @@ namespace mopo {
     loadFromFile(patches_[patch_load_index_]);
   }
 
-  void Termite::saveToFile(const std::string& file_name) {
+  void Cursynth::saveToFile(const std::string& file_name) {
     confirmPathExists(getConfigPath());
     confirmPathExists(getUserPatchesPath());
     std::ofstream save_file;
@@ -478,7 +478,7 @@ namespace mopo {
     save_file.close();
   }
 
-  void Termite::loadFromFile(const std::string& file_name) {
+  void Cursynth::loadFromFile(const std::string& file_name) {
     std::ifstream load_file;
 
     // First try to load the patch from user patches.
@@ -509,7 +509,7 @@ namespace mopo {
     gui_.drawPatchLoading(patches_, patch_load_index_);
   }
 
-  std::string Termite::writeStateToString() {
+  std::string Cursynth::writeStateToString() {
     cJSON* root = cJSON_CreateObject();
 
     control_map::iterator iter = controls_.begin();
@@ -525,7 +525,7 @@ namespace mopo {
     return output;
   }
 
-  void Termite::readStateFromString(const std::string& state) {
+  void Cursynth::readStateFromString(const std::string& state) {
     cJSON* root = cJSON_Parse(state.c_str());
 
     control_map::iterator iter = controls_.begin();

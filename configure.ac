@@ -2,10 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([termite], [1.0], [littleioaudio@gmail.com])
+AC_INIT([cursynth], [1.0], [littleioaudio@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AM_SILENT_RULES([yes])
-AC_CONFIG_SRCDIR([src/termite.cpp])
+AC_CONFIG_SRCDIR([src/cursynth.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
@@ -31,7 +31,7 @@ case $host in
     AC_MSG_RESULT(using OSS)
     api="$api -D__LINUX_OSS__"
     LIBS="$LIBS -lossaudio"
-    AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(termite requires the pthread library!))
+    AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(cursynth requires the pthread library!))
   ;;
 
   *-*-linux*)
@@ -69,7 +69,7 @@ case $host in
     AC_CHECK_LIB(asound, snd_pcm_open, , AC_MSG_ERROR(ALSA support requires the asound library!))
   fi
 
-  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(termite requires the pthread library!))
+  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(cursynth requires the pthread library!))
   ;;
 
   *-apple*)
@@ -95,7 +95,7 @@ case $host in
     LIBS="$LIBS -framework CoreAudio -framework CoreMIDI -framework CoreFoundation"
   fi
 
-  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(termite requires the pthread library!))
+  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(cursynth requires the pthread library!))
   ;;
 
   *-mingw32*)

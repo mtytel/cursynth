@@ -1,33 +1,33 @@
 /* Copyright 2013 Little IO
  *
- * termite is free software: you can redistribute it and/or modify
+ * cursynth is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * termite is distributed in the hope that it will be useful,
+ * cursynth is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with termite.  If not, see <http://www.gnu.org/licenses/>.
+ * along with cursynth.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
-#ifndef TERMITE_H
-#define TERMITE_H
+#ifndef CURSYNTH_H
+#define CURSYNTH_H
 
 #include "RtAudio.h"
 #include "RtMidi.h"
-#include "termite_gui.h"
-#include "termite_synth.h"
+#include "cursynth_gui.h"
+#include "cursynth_engine.h"
 
 #include <pthread.h>
 
 namespace mopo {
 
-  class Termite {
+  class Cursynth {
     public:
       enum InputState {
         STANDARD,
@@ -36,7 +36,7 @@ namespace mopo {
         PATCH_SAVING,
       };
 
-      Termite();
+      Cursynth();
 
       void start();
       void processAudio(mopo_float *out_buffer, unsigned int n_frames);
@@ -65,9 +65,9 @@ namespace mopo {
       void setupGui();
       void stop();
 
-      // Termite parts.
-      TermiteSynth synth_;
-      TermiteGui gui_;
+      // Cursynth parts.
+      CursynthEngine synth_;
+      CursynthGui gui_;
 
       // IO.
       RtAudio dac_;
@@ -85,4 +85,4 @@ namespace mopo {
   };
 } // namespace mopo
 
-#endif // TERMITE_H
+#endif // CURSYNTH_H
