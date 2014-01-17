@@ -29,6 +29,7 @@ namespace mopo {
 
   class Cursynth {
     public:
+      // Computer keyboard reading states.
       enum InputState {
         STANDARD,
         MIDI_LEARN,
@@ -38,32 +39,56 @@ namespace mopo {
 
       Cursynth();
 
+      // Start/stop everything - UI, synth engine, input/output.
       void start();
+      void stop();
+
+      // Runs the synth engine for _n_frames_ samples and copies the output
+      // to _out_buffer_.
       void processAudio(mopo_float *out_buffer, unsigned int n_frames);
+
+      // Processes MIDI data like note and velocity, and knob data.
       void processMidi(std::vector<unsigned char>* message);
 
+      // If we're working with the synth or UI, lock so we don't break
+      // something. Then unlock when we're done.
       void lock() { pthread_mutex_lock(&mutex_); }
       void unlock() { pthread_mutex_unlock(&mutex_); }
 
     private:
-      std::string writeStateToString();
+      // Load and save global configuration settings (like MIDI learn).
       void loadConfiguration();
       void saveConfiguration();
+
+      // Writes the synth state to a string so we can save it to a patch.
+      std::string writeStateToString();
+      // Read the synth state from a string.
       void readStateFromString(const std::string& state);
+
+      // Saves the state to a given filename.
       void saveToFile(const std::string& file_name);
       void loadFromFile(const std::string& file_name);
+
+      // When the user enters help state. Show controls and contact.
       void startHelp();
+
+      // When user starts to load, launch patch browser.
       void startLoad();
+
+      // When user starts to save, start save text field.
       void startSave();
 
+      // Computer keyboard text input callback.
       bool textInput(int key);
-      void setupAudio();
-      void eraseMidiLearn(Control* control);
 
+      // Setup functions initialize objects and callbacks.
+      void setupAudio();
       void setupMidi();
       void setupControls();
       void setupGui();
-      void stop();
+
+      // Helper function to erase all evidence of MIDI learn for a control.
+      void eraseMidiLearn(Control* control);
 
       // Cursynth parts.
       CursynthEngine synth_;

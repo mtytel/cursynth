@@ -80,11 +80,13 @@ namespace {
     return patches_path.str();
   }
 
+  // If the directory _path_ doesn't exist, create it.
   void confirmPathExists(std::string path) {
     if (opendir(path.c_str()) == NULL)
       mkdir(path.c_str(), 0755);
   }
 
+  // Returns all files in directory _dir_ with extenstion _ext_.
   std::vector<std::string> getAllFiles(std::string dir, std::string ext) {
     std::vector<std::string> file_names;
     DIR *directory = NULL;
@@ -109,12 +111,13 @@ namespace mopo {
   }
 
   void Cursynth::start() {
+    // Setup all callbacks.
     setupAudio();
     setupMidi();
     setupGui();
     loadConfiguration();
 
-    // Wait for input.
+    // Wait for computer keyboard input.
     while(textInput(getch()))
       ;
 
@@ -122,18 +125,23 @@ namespace mopo {
   }
 
   void Cursynth::loadConfiguration() {
+    // Try to open the configuration file.
     std::ifstream config_file;
     config_file.open(getConfigFile().c_str());
     if (!config_file.is_open())
       return;
 
+    // Read file contents into buffer.
     config_file.seekg(0, std::ios::end);
     int length = config_file.tellg();
     config_file.seekg(0, std::ios::beg);
     char file_contents[length];
     config_file.read(file_contents, length);
 
+    // Parse the JSON configuration file.
     cJSON* root = cJSON_Parse(file_contents);
+
+    // For all controls, try to load the MIDI learn assignment.
     std::string current = gui_.getCurrentControl();
     std::string name = current;
     do {
@@ -144,11 +152,14 @@ namespace mopo {
       name = gui_.getNextControl();
     } while(name != current);
 
+    // Delete the parsing data.
     cJSON_Delete(root);
   }
 
   void Cursynth::saveConfiguration() {
     confirmPathExists(getConfigPath());
+
+    // Store all the MIDI learn data into JSON.
     cJSON* root = cJSON_CreateObject();
     std::map<int, std::string>::iterator iter = midi_learn_.begin();
     for (; iter != midi_learn_.end(); ++iter) {
@@ -156,6 +167,7 @@ namespace mopo {
       cJSON_AddItemToObject(root, iter->second.c_str(), midi);
     }
 
+    // Write the configuration JSON to the configuration file.
     char* json = cJSON_Print(root);
     std::ofstream save_file;
     save_file.open(getConfigFile().c_str());
@@ -172,15 +184,18 @@ namespace mopo {
       int num_patches = patches_.size();
       switch(key) {
         case '\n':
+          // Finish loading patches.
           state_ = STANDARD;
           gui_.clearPatches();
           return true;
         case KEY_UP:
+          // Go to previous patch.
           patch_load_index_ = CLAMP(patch_load_index_ - 1, 0, num_patches - 1);
           gui_.drawPatchLoading(patches_, patch_load_index_);
           loadFromFile(patches_[patch_load_index_]);
           return true;
         case KEY_DOWN:
+          // Go to next patch.
           patch_load_index_ = CLAMP(patch_load_index_ + 1, 0, num_patches - 1);
           gui_.drawPatchLoading(patches_, patch_load_index_);
           loadFromFile(patches_[patch_load_index_]);
@@ -238,6 +253,7 @@ namespace mopo {
         should_redraw_control = true;
         break;
       default:
+        // Check if they pressed the slider keys and change the current value.
         size_t slider_size = strlen(SLIDER) - 1;
         for (size_t i = 0; i <= slider_size; ++i) {
           if (SLIDER[i] == key) {
@@ -246,6 +262,8 @@ namespace mopo {
             break;
           }
         }
+
+        // Check if they pressed note keys and play the corresponding note.
         for (size_t i = 0; i < strlen(KEYBOARD); ++i) {
           if (KEYBOARD[i] == key) {
             synth_.noteOn(48 + i);
@@ -265,11 +283,13 @@ namespace mopo {
   }
 
   void Cursynth::setupAudio() {
+    // Make sure we have a device to make sound with.
     if (dac_.getDeviceCount() < 1) {
       std::cout << "No audio devices found.\n";
       exit(0);
     }
 
+    // Setup audio preferences.
     RtAudio::StreamParameters parameters;
     parameters.deviceId = dac_.getDefaultOutputDevice();
     parameters.nChannels = NUM_CHANNELS;
@@ -279,6 +299,7 @@ namespace mopo {
 
     synth_.setSampleRate(sample_rate);
 
+    // Start the audio callbacks.
     try {
       dac_.openStream(&parameters, NULL, RTAUDIO_FLOAT64, sample_rate,
                       &buffer_frames, &audioCallback, (void*)this);
@@ -302,9 +323,12 @@ namespace mopo {
   }
 
   void Cursynth::processAudio(mopo_float *out_buffer, unsigned int n_frames) {
+    // Run the synth.
     lock();
     synth_.process();
     unlock();
+
+    // Copy the synth output to the output buffer.
     const mopo_float* buffer = synth_.output()->buffer;
     for (size_t i = 0; i < n_frames; ++i) {
       for (int c = 0; c < NUM_CHANNELS; ++c)
@@ -324,6 +348,9 @@ namespace mopo {
     if (midi_in->getPortCount() <= 0) {
       std::cout << "No midi devices found.\n";
     }
+
+    // Setup MIDI callbacks for every MIDI device.
+    // TODO: Have a menu for only enabling some MIDI devices.
     for (unsigned int i = 0; i < midi_in->getPortCount(); ++i) {
       RtMidiIn* device = new RtMidiIn();
       device->openPort(i);
@@ -345,6 +372,7 @@ namespace mopo {
     std::string selected_control_name = gui_.getCurrentControl();
     Control* selected_control = controls_.at(selected_control_name);
     if (midi_port >= 144 && midi_port < 160) {
+      // A MIDI keyboard key was pressed. Play a note.
       int midi_note = midi_id;
       int midi_velocity = midi_val;
 
@@ -354,6 +382,7 @@ namespace mopo {
         synth_.noteOff(midi_note);
     }
     else if (midi_port >= 128 && midi_port < 144) {
+      // A MIDI keyboard key was released. Release that note.
       int midi_note = midi_id;
       synth_.noteOff(midi_note);
     }
@@ -366,7 +395,9 @@ namespace mopo {
         synth_.sustainOff();
     }
     else if (midi_port < 254) {
+      // Must have gotten MIDI from some knob or other control.
       if (state_ == MIDI_LEARN && midi_port < 254) {
+        // MIDI learn is armed so map this MIDI signal to the current control.
         eraseMidiLearn(selected_control);
 
         midi_learn_[midi_id] = selected_control_name;
@@ -376,6 +407,7 @@ namespace mopo {
         saveConfiguration();
       }
       else if (midi_learn_.find(midi_id) != midi_learn_.end()) {
+        // MIDI learn is enabled for this control. Change the paired control.
         Control* midi_control = controls_.at(midi_learn_[midi_id]);
         midi_control->setMidi(midi_val);
         gui_.drawControl(midi_control, selected_control == midi_control);
@@ -402,8 +434,6 @@ namespace mopo {
       dac_.closeStream();
   }
 
-  // Help.
-
   void Cursynth::startHelp() {
     gui_.drawHelp();
     getch();
@@ -418,8 +448,6 @@ namespace mopo {
     gui_.drawControl(controls_.at(current), true);
   }
 
-  // Loading and Saving.
-
   void Cursynth::startSave() {
     gui_.clearPatches();
     curs_set(1);
@@ -433,11 +461,14 @@ namespace mopo {
         case KEY_DC:
         case KEY_BACKSPACE:
         case 127:
+          // Pressed delete, so remove the last character from the file name.
           save_stream.str(current.substr(0, current.length() - 1));
           save_stream.seekp(save_stream.str().length());
           gui_.drawPatchSaving(save_stream.str());
           break;
         case '\n':
+          // Pressed enter, so save to the current file name.
+          // Then go back to the normal input state.
           if (save_stream.str().length() > 0)
             saveToFile(save_stream.str() + EXTENSION);
           state_ = STANDARD;
@@ -445,6 +476,7 @@ namespace mopo {
           curs_set(0);
           return;
         default:
+          // If it's a printable character, append it to the file name.
           if (isprint(key))
             save_stream << static_cast<char>(key);
           gui_.drawPatchSaving(save_stream.str());
@@ -454,6 +486,7 @@ namespace mopo {
   }
 
   void Cursynth::startLoad() {
+    // Store all patche names from system and user patch directories.
     patches_ = getAllFiles(PATCHES_DIRECTORY, EXTENSION);
     std::vector<std::string> user_patches =
         getAllFiles(getUserPatchesPath(), EXTENSION);
@@ -462,6 +495,7 @@ namespace mopo {
     if (patches_.size() == 0)
       return;
 
+    // Start patch loading by loading last patch browsed.
     state_ = PATCH_LOADING;
     patch_load_index_ = 0;
     loadFromFile(patches_[patch_load_index_]);
@@ -498,6 +532,7 @@ namespace mopo {
     if (!load_file.is_open())
       return;
 
+    // Read file into buffer and load it.
     load_file.seekg(0, std::ios::end);
     int length = load_file.tellg();
     load_file.seekg(0, std::ios::beg);
@@ -506,28 +541,31 @@ namespace mopo {
     readStateFromString(file_contents);
     load_file.close();
 
+    // Draw the patch loading happen.
     gui_.drawPatchLoading(patches_, patch_load_index_);
   }
 
   std::string Cursynth::writeStateToString() {
+    // Write all controls to JSON.
     cJSON* root = cJSON_CreateObject();
-
     control_map::iterator iter = controls_.begin();
     for (; iter != controls_.end(); ++iter) {
       cJSON* value = cJSON_CreateNumber(iter->second->value()->value());
       cJSON_AddItemToObject(root, iter->first.c_str(), value);
     }
 
+    // Write the JSON to a string and free the JSON.
     char* json = cJSON_Print(root);
     std::string output = json;
     free(json);
     cJSON_Delete(root);
+
     return output;
   }
 
   void Cursynth::readStateFromString(const std::string& state) {
+    // Parse state into JSON and read all controls.
     cJSON* root = cJSON_Parse(state.c_str());
-
     control_map::iterator iter = controls_.begin();
     for (; iter != controls_.end(); ++iter) {
       cJSON* value = cJSON_GetObjectItem(root, iter->first.c_str());
@@ -539,6 +577,7 @@ namespace mopo {
       }
     }
 
+    // Setup current control.
     Control* current_control = controls_.at(gui_.getCurrentControl());
     gui_.drawControl(current_control, true);
     gui_.drawControlStatus(current_control, false);
