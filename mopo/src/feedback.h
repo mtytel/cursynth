@@ -22,6 +22,9 @@
 
 namespace mopo {
 
+  // A special processor for the purpose of feedback loops in the signal flow.
+  // Feedback can be used for batch buffer feedback processing or sample by
+  // sample feedback processing.
   class Feedback : public Processor {
     public:
       Feedback() : Processor(1, 1) { }
@@ -39,7 +42,7 @@ namespace mopo {
       }
 
       inline void tickRefreshOutput(int i) {
-        MOPO_ASSERT(i > 0 && i < i < BUFFER_SIZE);
+        MOPO_ASSERT(i > 0 && i < BUFFER_SIZE);
         outputs_[0]->buffer[i] = buffer_[i - 1];
       }
 
