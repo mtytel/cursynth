@@ -19,9 +19,10 @@
 #include "value.h"
 #include "cursynth_engine.h"
 
+#include <libintl.h>
+#include <locale.h>
 #include <math.h>
 #include <ncurses.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
 #include <unistd.h>
