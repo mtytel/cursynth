@@ -497,7 +497,7 @@ namespace mopo {
 
     // Start patch loading by loading last patch browsed.
     state_ = PATCH_LOADING;
-    patch_load_index_ = 0;
+    patch_load_index_ = std::min<int>(patch_load_index_, patches_.size() - 1);
     loadFromFile(patches_[patch_load_index_]);
   }
 
