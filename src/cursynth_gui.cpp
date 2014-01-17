@@ -29,7 +29,7 @@
 #define WIDTH 120
 #define HEIGHT 44
 
-#define LOGO_WIDTH 36
+#define LOGO_WIDTH 44
 #define LOGO_Y 0
 #define SPACE 3
 #define TOTAL_COLUMNS 3
@@ -94,21 +94,23 @@ namespace mopo {
     int logo_x = (WIDTH - LOGO_WIDTH) / 2 + 1;
 
     move(LOGO_Y, logo_x);
-    printw("   __                        __");
+    printw("                                    __  __");
     move(LOGO_Y + 1, logo_x);
-    printw("  / /____  _________ ___ (--) /____");
+    printw("  _______  ______________  ______  / /_/ /_");
     move(LOGO_Y + 2, logo_x);
-    printw(" / __/ _ \\/ ___/ __ `__ \\/ / __/ _ \\");
+    printw(" / ___/ / / / ___/ ___/ / / / __ \\/ __/ __ \\");
     move(LOGO_Y + 3, logo_x);
-    printw("/ /_/  __/ /  / / / / / / / /_/  __/");
+    printw("/ /__/ /_/ / /  /__  / /_/ / / / / /_/ / / /");
     move(LOGO_Y + 4, logo_x);
-    printw("\\__/\\___/_/  /_/ /_/ /_/_/\\__/\\___/");
+    printw("\\___/\\____/_/  /____/\\__  /_/ /_/\\__/_/ /_/");
+    move(LOGO_Y + 5, logo_x);
+    printw("                    /____/");
 
     attroff(A_BOLD);
     attroff(COLOR_PAIR(LOGO_COLOR));
 
-    move(LOGO_Y + 5, logo_x);
-    printw("                          Little IO");
+    move(LOGO_Y + 5, logo_x + 33);
+    printw("Little IO");
   }
 
   void CursynthGui::drawModulationMatrix() {
@@ -147,7 +149,7 @@ namespace mopo {
 
   void CursynthGui::clearPatches() {
     int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
-    move(1 + selection_row, 82);
+    move(1 + selection_row, 83);
     hline(' ', PATCH_BROWSER_WIDTH);
     for (int i = 0; i < PATCH_BROWSER_ROWS; ++i) {
       move(1 + i, 94);
@@ -157,10 +159,10 @@ namespace mopo {
 
   void CursynthGui::drawPatchSaving(std::string patch_name) {
     int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
-    move(1 + selection_row, 82);
+    move(1 + selection_row, 83);
     printw("            ");
     hline(' ', PATCH_BROWSER_WIDTH);
-    move(1 + selection_row, 82);
+    move(1 + selection_row, 83);
     printw("Save Patch: ");
     printw(patch_name.c_str());
   }
@@ -168,7 +170,7 @@ namespace mopo {
   void CursynthGui::drawPatchLoading(std::vector<std::string> patches,
                                      int selected_index) {
     int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
-    move(1 + selection_row, 82);
+    move(1 + selection_row, 83);
     printw("Load Patch:");
 
     int patch_index = selected_index - selection_row;
