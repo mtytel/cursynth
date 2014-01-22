@@ -61,13 +61,13 @@ AC_SUBST( api, [""] )
 AC_MSG_CHECKING(for MIDI API)
 case $host in
   *-*-linux*)
-  AC_ARG_WITH(jack, [  --with-jack = choose JACK server support (mac and linux only)], [
+  AC_ARG_WITH(jack, [  --with-jack = choose JACK server support (Mac OSC and GNU/Linux only)], [
   api="$api -D__UNIX_JACK__"
   AC_MSG_RESULT(using JACK)
   AC_CHECK_LIB(jack, jack_client_open, , AC_MSG_ERROR(JACK support requires the jack library!))], )
 
   # Look for ALSA flag
-  AC_ARG_WITH(alsa, [  --with-alsa = choose native ALSA sequencer API support (linux only)], [
+  AC_ARG_WITH(alsa, [  --with-alsa = choose native ALSA sequencer API support (GNU/Linux only)], [
     api="$api -D__LINUX_ALSA__"
     AC_MSG_RESULT(using ALSA)
     AC_CHECK_LIB(asound, snd_seq_open, , AC_MSG_ERROR(ALSA support requires the asound library!))], )
@@ -83,13 +83,13 @@ case $host in
   ;;
 
   *-apple*)
-  AC_ARG_WITH(jack, [  --with-jack = choose JACK server support (mac and linux only)], [
+  AC_ARG_WITH(jack, [  --with-jack = choose JACK server support (Mac OSX and GNU/Linux only)], [
   api="$api -D__UNIX_JACK__"
   AC_MSG_RESULT(using JACK)
   AC_CHECK_LIB(jack, jack_client_open, , AC_MSG_ERROR(JACK support requires the jack library!))], )
 
   # Look for Core flag
-  AC_ARG_WITH(core, [  --with-core = choose CoreMidi API support (mac only)], [
+  AC_ARG_WITH(core, [  --with-core = choose CoreMidi API support (Mac OSX only)], [
     api="$api -D__MACOSX_CORE__"
     AC_MSG_RESULT(using CoreMidi)
     AC_CHECK_HEADER(CoreMIDI/CoreMIDI.h, [], [AC_MSG_ERROR(CoreMIDI header files not found!)] )

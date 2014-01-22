@@ -3,7 +3,7 @@
     \brief Realtime audio i/o C++ classes.
 
     RtAudio provides a common API (Application Programming Interface)
-    for realtime audio input/output across Linux (native ALSA, Jack,
+    for realtime audio input/output across GNU/Linux (native ALSA, Jack,
     and OSS), Macintosh OS X (CoreAudio and Jack), and Windows
     (DirectSound and ASIO) operating systems.
 
@@ -214,9 +214,9 @@ class RtAudio
   //! Audio API specifier arguments.
   enum Api {
     UNSPECIFIED,    /*!< Search for a working compiled API. */
-    LINUX_ALSA,     /*!< The Advanced Linux Sound Architecture API. */
-    LINUX_PULSE,    /*!< The Linux PulseAudio API. */
-    LINUX_OSS,      /*!< The Linux Open Sound System API. */
+    LINUX_ALSA,     /*!< The Advanced GNU/Linux Sound Architecture API. */
+    LINUX_PULSE,    /*!< The GNU/Linux PulseAudio API. */
+    LINUX_OSS,      /*!< The GNU/Linux Open Sound System API. */
     UNIX_JACK,      /*!< The Jack Low-Latency Audio Server API. */
     MACOSX_CORE,    /*!< Macintosh OS-X Core Audio API. */
     WINDOWS_ASIO,   /*!< The Steinberg Audio Stream I/O API. */
@@ -298,7 +298,7 @@ class RtAudio
     will override any specified input or output device id.
 
     The \c numberOfBuffers parameter can be used to control stream
-    latency in the Windows DirectSound, Linux OSS, and Linux Alsa APIs
+    latency in the Windows DirectSound, GNU/Linux OSS, and GNU/Linux Alsa APIs
     only.  A value of two is usually the smallest allowed.  Larger
     numbers can potentially result in more robust stream performance,
     though likely at the cost of stream latency.  The value set by the
@@ -338,7 +338,7 @@ class RtAudio
     can be thrown.
 
     If no API argument is specified and multiple API support has been
-    compiled, the default order of use is JACK, ALSA, OSS (Linux
+    compiled, the default order of use is JACK, ALSA, OSS (GNU/Linux
     systems) and ASIO, DS (Windows systems).
   */
   RtAudio( RtAudio::Api api=UNSPECIFIED ) throw();

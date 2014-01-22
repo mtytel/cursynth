@@ -57,7 +57,7 @@ class RtMidi
   enum Api {
     UNSPECIFIED,    /*!< Search for a working compiled API. */
     MACOSX_CORE,    /*!< Macintosh OS-X Core Midi API. */
-    LINUX_ALSA,     /*!< The Advanced Linux Sound Architecture API. */
+    LINUX_ALSA,     /*!< The Advanced GNU/Linux Sound Architecture API. */
     UNIX_JACK,      /*!< The Jack Low-Latency MIDI Server API. */
     WINDOWS_MM,     /*!< The Microsoft Multimedia MIDI API. */
     WINDOWS_KS,     /*!< The Microsoft Kernel Streaming MIDI API. */
@@ -106,7 +106,7 @@ class RtMidi
     retrieval using the getMessage() function or immediately passed to
     a user-specified callback function.  Create multiple instances of
     this class to connect to more than one MIDI device at the same
-    time.  With the OS-X and Linux ALSA MIDI APIs, it is also possible
+    time.  With the OS-X and GNU/Linux ALSA MIDI APIs, it is also possible
     to open a virtual input port to which other MIDI software clients
     can connect.
 
@@ -147,7 +147,7 @@ class RtMidiIn : public RtMidi
     incoming messages will be ignored.
 
     If no API argument is specified and multiple API support has been
-    compiled, the default order of use is JACK, ALSA (Linux) and CORE,
+    compiled, the default order of use is JACK, ALSA (GNU/Linux) and CORE,
     Jack (OS-X).
   */
   RtMidiIn( RtMidi::Api api=UNSPECIFIED,
@@ -171,7 +171,7 @@ class RtMidiIn : public RtMidi
   /*!
     This function creates a virtual MIDI input port to which other
     software applications can connect.  This type of functionality
-    is currently only supported by the Macintosh OS-X and Linux ALSA
+    is currently only supported by the Macintosh OS-X and GNU/Linux ALSA
     APIs (the function does nothing for the other APIs).
   */
   void openVirtualPort( const std::string portName = std::string( "RtMidi Input" ) );
@@ -239,7 +239,7 @@ class RtMidiIn : public RtMidi
     connect to one such port, and to send MIDI bytes immediately over
     the connection.  Create multiple instances of this class to
     connect to more than one MIDI device at the same time.  With the
-    OS-X and Linux ALSA MIDI APIs, it is also possible to open a
+    OS-X and GNU/Linux ALSA MIDI APIs, it is also possible to open a
     virtual port to which other MIDI software clients can connect.
 
     by Gary P. Scavone, 2003-2012.
@@ -255,7 +255,7 @@ class RtMidiOut : public RtMidi
     An exception will be thrown if a MIDI system initialization error occurs.
 
     If no API argument is specified and multiple API support has been
-    compiled, the default order of use is JACK, ALSA (Linux) and CORE,
+    compiled, the default order of use is JACK, ALSA (GNU/Linux) and CORE,
     Jack (OS-X).
   */
   RtMidiOut( RtMidi::Api api=UNSPECIFIED,
@@ -283,7 +283,7 @@ class RtMidiOut : public RtMidi
   /*!
       This function creates a virtual MIDI output port to which other
       software applications can connect.  This type of functionality
-      is currently only supported by the Macintosh OS-X and Linux ALSA
+      is currently only supported by the Macintosh OS-X and GNU/Linux ALSA
       APIs (the function does nothing with the other APIs).  An
       exception is thrown if an error occurs while attempting to create
       the virtual port.

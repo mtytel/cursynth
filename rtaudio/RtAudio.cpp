@@ -3,7 +3,7 @@
     \brief Realtime audio i/o C++ classes.
 
     RtAudio provides a common API (Application Programming Interface)
-    for realtime audio input/output across Linux (native ALSA, Jack,
+    for realtime audio input/output across GNU/Linux (native ALSA, Jack,
     and OSS), Macintosh OS X (CoreAudio and Jack), and Windows
     (DirectSound and ASIO) operating systems.
 
@@ -2562,7 +2562,7 @@ bool RtApiJack :: callbackEvent( unsigned long nframes )
 #if defined(__WINDOWS_ASIO__) // ASIO API on Windows
 
 // The ASIO API is designed around a callback scheme, so this
-// implementation is similar to that used for OS-X CoreAudio and Linux
+// implementation is similar to that used for OS-X CoreAudio and GNU/Linux
 // Jack.  The primary constraint with ASIO is that it only allows
 // access to a single driver at a time.  Thus, it is not possible to
 // have more than one simultaneous RtAudio stream.
@@ -5946,7 +5946,7 @@ bool RtApiAlsa :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
 
     // Set the thread attributes for joinable and realtime scheduling
     // priority (optional).  The higher priority will only take affect
-    // if the program is run as root or suid. Note, under Linux
+    // if the program is run as root or suid. Note, under GNU/Linux
     // processes with CAP_SYS_NICE privilege, a user can change
     // scheduling policy and priority (thus need not be root). See
     // POSIX "capabilities".

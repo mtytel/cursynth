@@ -86,21 +86,21 @@ case $host in
   ;;
 
   *-*-linux*)
-  AC_ARG_WITH(jack, [  --with-jack = choose JACK server support (mac and linux only)], [
+  AC_ARG_WITH(jack, [  --with-jack = choose JACK server support (Mac OSX and GNU/Linux only)], [
     api="$api -D__UNIX_JACK__"
     AC_MSG_RESULT(using JACK)
     AC_CHECK_LIB(jack, jack_client_open, , AC_MSG_ERROR(JACK support requires the jack library!))
     AC_CHECK_LIB(asound, snd_pcm_open, , AC_MSG_ERROR(Jack support also requires the asound library!))], )
 
   # Look for ALSA flag
-  AC_ARG_WITH(alsa, [  --with-alsa = choose native ALSA API support (linux only)], [
+  AC_ARG_WITH(alsa, [  --with-alsa = choose native ALSA API support (GNU/Linux only)], [
     api="$api -D__LINUX_ALSA__"
     req="$req alsa"
     AC_MSG_RESULT(using ALSA)
     AC_CHECK_LIB(asound, snd_pcm_open, , AC_MSG_ERROR(ALSA support requires the asound library!))], )
 
   # Look for PULSE flag
-  AC_ARG_WITH(pulse, [  --with-pulse = choose PulseAudio API support (linux only)], [
+  AC_ARG_WITH(pulse, [  --with-pulse = choose PulseAudio API support (GNU/Linux only)], [
     api="$api -D__LINUX_PULSE__"
     req="$req libpulse-simple"
     AC_MSG_RESULT(using PulseAudio)
@@ -108,7 +108,7 @@ case $host in
         LIBS="$LIBS `pkg-config --libs libpulse-simple`" ], )
 
   # Look for OSS flag
-  AC_ARG_WITH(oss, [  --with-oss = choose OSS API support (linux only)], [
+  AC_ARG_WITH(oss, [  --with-oss = choose OSS API support (GNU/Linux only)], [
     api="$api -D__LINUX_OSS__"
     AC_MSG_RESULT(using OSS)], )
 
@@ -134,7 +134,7 @@ case $host in
 
 
   # Look for Core flag
-  AC_ARG_WITH(core, [  --with-core = choose CoreAudio API support (mac only)], [
+  AC_ARG_WITH(core, [  --with-core = choose CoreAudio API support (Mac OSX only)], [
     api="$api -D__MACOSX_CORE__"
     AC_MSG_RESULT(using CoreAudio)
     AC_CHECK_HEADER(CoreAudio/CoreAudio.h, [], [AC_MSG_ERROR(CoreAudio header files not found!)] )
