@@ -39,6 +39,8 @@ namespace mopo {
   class Oscillator;
   class SmoothValue;
 
+  // The oscillators of the synthesizer. This section of the synth is processed
+  // sample by sample to allow for cross modulation.
   class CursynthOscillators : public TickRouter {
     public:
       CursynthOscillators();
@@ -67,6 +69,8 @@ namespace mopo {
         freq_mod2_->setSampleRate(sample_rate);
       }
 
+      // Process one sample of the oscillators. Must be done in the correct
+      // order.
       void tick(int i) {
         freq_mod1_->tick(i);
         normalized_fm1_->tick(i);
@@ -89,6 +93,9 @@ namespace mopo {
       Add* normalized_fm2_;
   };
 
+  // The voice handler duplicates processors to produce polyphony.
+  // Everything in the synthesizer we want per-voice instances of must be
+  // contained in here.
   class CursynthVoiceHandler : public VoiceHandler {
     public:
       CursynthVoiceHandler();
@@ -101,9 +108,17 @@ namespace mopo {
       void setModulationDestination(int index, std::string destination);
 
     private:
+      // Create the portamento, legato, amplifier envelope and other processors
+      // that effect how voices start and turn into other notes.
       void createArticulation(Output* note, Output* velocity, Output* trigger);
+
+      // Create the oscillators and hook up frequency controls.
       void createOscillators(Output* frequency, Output* reset);
+
+      // Create the filter and filter envelope.
       void createFilter(Output* audio, Output* keytrack, Output* reset);
+
+      // Create the modulation matrix.
       void createModMatrix();
 
       Add* note_from_center_;
@@ -134,6 +149,7 @@ namespace mopo {
       std::string current_mod_destinations_[MOD_MATRIX_SIZE];
   };
 
+  // A modulation matrix source entry.
   class MatrixSourceValue : public Value {
     public:
       MatrixSourceValue(CursynthVoiceHandler* handler) :
@@ -160,6 +176,7 @@ namespace mopo {
       int mod_index_;
   };
 
+  // A modulation matrix destination entry.
   class MatrixDestinationValue : public Value {
     public:
       MatrixDestinationValue(CursynthVoiceHandler* handler) :
@@ -188,6 +205,7 @@ namespace mopo {
       int mod_index_;
   };
 
+  // The overall cursynth engine. All audio processing is contained in here.
   class CursynthEngine : public ProcessorRouter {
     public:
       CursynthEngine();
