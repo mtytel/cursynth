@@ -15,10 +15,13 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 AM_PROG_AR
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.18.3])
 
 # Checks for libraries.
-AC_CHECK_LIB([pthread], [pthread_create])
+AC_CHECK_LIB([intl], [gettext])
 AC_CHECK_LIB([ncurses], [curs_set])
+AC_CHECK_LIB([pthread], [pthread_create])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h float.h libintl.h limits.h locale.h math.h ncurses.h ZZstddef.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h])
@@ -147,7 +150,7 @@ AC_CONFIG_SUBDIRS([mopo
                    rtaudio
                    rtmidi])
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([Makefile po/Makefile.in
                  src/Makefile
                  cJSON/Makefile
                  doc/Makefile])

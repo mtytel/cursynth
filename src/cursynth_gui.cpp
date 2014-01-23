@@ -287,7 +287,7 @@ namespace mopo {
       if (active)
         attron(A_BOLD);
       move(details->y, details->x);
-      printw(details->label.c_str());
+      printw(gettext(details->label.c_str()));
       attroff(A_BOLD);
     }
 
@@ -327,12 +327,19 @@ namespace mopo {
     noecho();
     keypad(stdscr, TRUE);
 
+    // Make sure we have color.
     if(has_colors() == FALSE) {
       endwin();
       printf("Your terminal does not support color\n");
       return;
     }
 
+    // Setup gettext for internationalization.
+    setlocale(LC_ALL, "");
+    bindtextdomain("cursynth", "/usr/share/locale");
+    textdomain("cursynth");
+
+    // Prepare all the color schemes.
     start_color();
     init_pair(BG_COLOR, COLOR_BLACK, COLOR_BLACK);
     init_pair(SLIDER_FG_COLOR, COLOR_WHITE, COLOR_YELLOW);
@@ -341,6 +348,7 @@ namespace mopo {
     init_pair(PATCH_LOAD_COLOR, COLOR_BLACK, COLOR_CYAN);
     init_pair(CONTROL_TEXT_COLOR, COLOR_BLACK, COLOR_WHITE);
 
+    // Start initial drawing.
     refresh();
     drawLogo();
     drawModulationMatrix();

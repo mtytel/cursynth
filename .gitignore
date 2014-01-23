@@ -23,6 +23,7 @@ a.out
 Makefile.in
 ar-lib
 config.guess
+config.rpath
 config.sub
 config.h.in
 *.la
