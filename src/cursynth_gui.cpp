@@ -17,7 +17,6 @@
 #include "cursynth_gui.h"
 
 #include "value.h"
-#include "cursynth_engine.h"
 
 #include <libintl.h>
 #include <locale.h>
@@ -55,7 +54,8 @@ namespace mopo {
     move(9, 43);
     printw("website - littleio.co/cursynth");
     move(10, 43);
-    printw("contact - ");
+    printw(gettext("contact"));
+    printw(" - ");
     printw(PACKAGE_BUGREPORT);
     move(12, 41);
     attron(A_BOLD);
@@ -287,7 +287,7 @@ namespace mopo {
       if (active)
         attron(A_BOLD);
       move(details->y, details->x);
-      printw(gettext(details->label.c_str()));
+      printw(details->label.c_str());
       attroff(A_BOLD);
     }
 

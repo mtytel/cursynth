@@ -27,7 +27,6 @@
 
 namespace mopo {
   class Value;
-  class CursynthEngine;
 
   struct DisplayDetails {
     int x, y, width;
