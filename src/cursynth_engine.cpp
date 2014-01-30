@@ -581,7 +581,8 @@ namespace mopo {
     addProcessor(delay);
 
     controls_["delay time"] = new Control(delay_time, 0.01, 1, MIDI_SIZE);
-    controls_["delay feedback"] = new Control(delay_feedback, -1, 1, MIDI_SIZE);
+    controls_["delay feedback"] =
+        new Control(delay_feedback, -1, 1, MIDI_SIZE);
     controls_["delay dry/wet"] = new Control(delay_wet, 0, 1, MIDI_SIZE);
 
     // Volume.
