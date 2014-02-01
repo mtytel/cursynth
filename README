@@ -34,6 +34,7 @@ $ sudo make install
 * If you want key up events, you have to use a MIDI keyboard
 
 ### TODO:
+* Make a LV2 plugin version of cursynth
 * More modulation sources and destinations
 * Routable Envelopes
 * On startup select audio output device

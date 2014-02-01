@@ -26,6 +26,8 @@
 #include <sstream>
 #include <unistd.h>
 
+#define gettext_noop(String) String
+
 #define WIDTH 120
 #define HEIGHT 44
 
@@ -46,41 +48,55 @@ namespace mopo {
     drawLogo();
     move(7, 41);
     attron(A_BOLD);
-    printw("INFO:");
+    printw(gettext("INFO"));
     attroff(A_BOLD);
     move(8, 43);
-    printw("version - ");
+    printw(gettext("version"));
+    printw(" - ");
     printw(VERSION);
     move(9, 43);
-    printw("website - littleio.co/cursynth");
+    printw(gettext("website"));
+    printw(" - littleio.co/cursynth");
     move(10, 43);
     printw(gettext("contact"));
     printw(" - ");
     printw(PACKAGE_BUGREPORT);
     move(12, 41);
     attron(A_BOLD);
-    printw("CONTROLS:");
+    printw(gettext("CONTROLS"));
     attroff(A_BOLD);
     move(14, 43);
-    printw("awsedftgyhujkolp;' - a playable keyboard");
-    move(15, 43);
-    printw("                     (no key up events)");
-    move(17, 43);
-    printw("`1234567890 - a slider for the current selected control");
-    move(19, 43);
-    printw("up/down - previous/next control");
-    move(21, 43);
-    printw("left/right - decrement/increment control");
-    move(23, 43);
-    printw("F1 (or [shift] + H) - help/controls");
-    move(25, 43);
-    printw("[shift] + L - browse/load patches");
-    move(27, 43);
-    printw("[shift] + S - save patch");
-    move(29, 43);
-    printw("m - arm MIDI learn");
-    move(31, 43);
-    printw("c - erase MIDI learn");
+    printw("awsedftgyhujkolp;' - ");
+    printw(gettext("a playable keyboard"));
+    move(16, 43);
+    printw("`1234567890 - ");
+    printw(gettext("a slider for the current selected control"));
+    move(18, 43);
+    printw(gettext("up/down"));
+    printw(" - ");
+    printw(gettext("previous/next control"));
+    move(20, 43);
+    printw(gettext("left/right"));
+    printw(" - ");
+    printw(gettext("decrement/increment control"));
+    move(22, 43);
+    printw(gettext("F1 (or [shift] + H)"));
+    printw(" - ");
+    printw(gettext("help/controls"));
+    move(24, 43);
+    printw(gettext("[shift] + L"));
+    printw(" - ");
+    printw(gettext("browse/load patches"));
+    move(26, 43);
+    printw(gettext("[shift] + S"));
+    printw(" - ");
+    printw(gettext("save patch"));
+    move(28, 43);
+    printw("m - ");
+    printw(gettext("arm MIDI learn"));
+    move(30, 43);
+    printw("c - ");
+    printw(gettext("erase MIDI learn"));
   }
 
   void CursynthGui::drawMain() {
@@ -117,20 +133,28 @@ namespace mopo {
   void CursynthGui::drawModulationMatrix() {
     move(34, 26);
     attron(A_BOLD);
-    printw("---------------------------Modulation Matrix--------------------------");
+    printw("----------------------------------------------------------------------");
+    move(34, 53);
+    printw(gettext("Modulation Matrix"));
     attroff(A_BOLD);
 
     move(35, 26);
-    printw("        source       ");
+    printw("                     ");
+    move(35, 34);
+    printw(gettext("source"));
     move(35, 50);
-    printw("        scale        ");
+    printw("                     ");
+    move(35, 58);
+    printw(gettext("scale"));
     move(35, 74);
-    printw("     destination     ");
+    printw("                     ");
+    move(35, 79);
+    printw(gettext("destination"));
   }
 
   void CursynthGui::drawMidi(std::string status) {
     move(2, 2);
-    printw("MIDI Learn: ");
+    printw(gettext("MIDI Learn: "));
     attron(A_BOLD);
     hline(' ', MAX_STATUS_SIZE);
     printw(status.substr(0, MAX_STATUS_SIZE).c_str());
@@ -140,10 +164,10 @@ namespace mopo {
 
   void CursynthGui::drawStatus(std::string status) {
     move(1, 2);
-    printw("Current Value: ");
+    printw(gettext("Current Value: "));
     attron(A_BOLD);
     hline(' ', MAX_STATUS_SIZE);
-    printw(status.substr(0, MAX_STATUS_SIZE).c_str());
+    printw(gettext(status.substr(0, MAX_STATUS_SIZE).c_str()));
     attroff(A_BOLD);
     refresh();
   }
@@ -164,7 +188,7 @@ namespace mopo {
     printw("            ");
     hline(' ', PATCH_BROWSER_WIDTH);
     move(1 + selection_row, 83);
-    printw("Save Patch: ");
+    printw(gettext("Save Patch: "));
     printw(patch_name.c_str());
   }
 
@@ -172,7 +196,7 @@ namespace mopo {
                                      int selected_index) {
     int selection_row = (PATCH_BROWSER_ROWS - 1) / 2;
     move(1 + selection_row, 83);
-    printw("Load Patch:");
+    printw(gettext("Load Patch:"));
 
     int patch_index = selected_index - selection_row;
     int num_patches = patches.size();
@@ -272,7 +296,7 @@ namespace mopo {
     // Draw text.
     attron(COLOR_PAIR(CONTROL_TEXT_COLOR));
     move(y, details->x);
-    printw(text.c_str());
+    printw(gettext(text.c_str()));
     attroff(A_BOLD);
     attroff(COLOR_PAIR(CONTROL_TEXT_COLOR));
   }
@@ -287,7 +311,7 @@ namespace mopo {
       if (active)
         attron(A_BOLD);
       move(details->y, details->x);
-      printw(details->label.c_str());
+      printw(gettext(details->label.c_str()));
       attroff(A_BOLD);
     }
 
@@ -390,114 +414,162 @@ namespace mopo {
 
   void CursynthGui::addControls(const control_map& controls) {
     // Oscillators.
-    placeControl("osc 1 waveform", controls.at("osc 1 waveform"),
-        2, 7, 18);
-    placeControl("osc 2 waveform", controls.at("osc 2 waveform"),
-        22, 7, 18);
-    placeControl("cross modulation", controls.at("cross modulation"),
-        2, 10, 18);
-    placeControl("osc mix", controls.at("osc mix"),
-        22, 10, 18);
-    placeControl("osc 2 transpose", controls.at("osc 2 transpose"),
-        2, 13, 18);
-    placeControl("osc 2 tune", controls.at("osc 2 tune"),
-        22, 13, 18);
+    placeControl(gettext_noop("osc 1 waveform"),
+                 controls.at("osc 1 waveform"),
+                 2, 7, 18);
+    placeControl(gettext_noop("osc 2 waveform"),
+                 controls.at("osc 2 waveform"),
+                 22, 7, 18);
+    placeControl(gettext_noop("cross modulation"),
+                 controls.at("cross modulation"),
+                 2, 10, 18);
+    placeControl(gettext_noop("osc mix"),
+                 controls.at("osc mix"),
+                 22, 10, 18);
+    placeControl(gettext_noop("osc 2 transpose"),
+                 controls.at("osc 2 transpose"),
+                 2, 13, 18);
+    placeControl(gettext_noop("osc 2 tune"),
+                 controls.at("osc 2 tune"),
+                 22, 13, 18);
 
     // LFOs.
-    placeControl("lfo 1 waveform", controls.at("lfo 1 waveform"),
-        2, 19, 18);
-    placeControl("lfo 1 frequency", controls.at("lfo 1 frequency"),
-        22, 19, 18);
-    placeControl("lfo 2 waveform", controls.at("lfo 2 waveform"),
-        2, 22, 18);
-    placeControl("lfo 2 frequency", controls.at("lfo 2 frequency"),
-        22, 22, 18);
+    placeControl(gettext_noop("lfo 1 waveform"),
+                 controls.at("lfo 1 waveform"),
+                 2, 19, 18);
+    placeControl(gettext_noop("lfo 1 frequency"),
+                 controls.at("lfo 1 frequency"),
+                 22, 19, 18);
+    placeControl(gettext_noop("lfo 2 waveform"),
+                 controls.at("lfo 2 waveform"),
+                 2, 22, 18);
+    placeControl(gettext_noop("lfo 2 frequency"),
+                 controls.at("lfo 2 frequency"),
+                 22, 22, 18);
 
     // Volume / Delay.
-    placeControl("volume", controls.at("volume"),
-        2, 25, 38);
-    placeControl("delay time", controls.at("delay time"),
-        2, 28, 38);
-    placeControl("delay feedback", controls.at("delay feedback"),
-        2, 31, 18);
-    placeControl("delay dry/wet", controls.at("delay dry/wet"),
-        22, 31, 18);
+    placeControl(gettext_noop("volume"),
+                 controls.at("volume"),
+                 2, 25, 38);
+    placeControl(gettext_noop("delay time"),
+                 controls.at("delay time"),
+                 2, 28, 38);
+    placeControl(gettext_noop("delay feedback"),
+                 controls.at("delay feedback"),
+                 2, 31, 18);
+    placeControl(gettext_noop("delay dry/wet"),
+                 controls.at("delay dry/wet"),
+                 22, 31, 18);
 
     // Filter.
-    placeControl("filter type", controls.at("filter type"),
-        42, 7, 38);
-    placeControl("cutoff", controls.at("cutoff"),
-        42, 10, 38);
-    placeControl("resonance", controls.at("resonance"),
-        42, 13, 38);
-    placeControl("keytrack", controls.at("keytrack"),
-        42, 16, 38);
-    placeControl("fil env depth", controls.at("fil env depth"),
-        42, 19, 38);
-    placeControl("fil attack", controls.at("fil attack"),
-        42, 22, 38);
-    placeControl("fil decay", controls.at("fil decay"),
-        42, 25, 38);
-    placeControl("fil sustain", controls.at("fil sustain"),
-        42, 28, 38);
-    placeControl("fil release", controls.at("fil release"),
-        42, 31, 38);
+    placeControl(gettext_noop("filter type"),
+                 controls.at("filter type"),
+                 42, 7, 38);
+    placeControl(gettext_noop("cutoff"),
+                 controls.at("cutoff"),
+                 42, 10, 38);
+    placeControl(gettext_noop("resonance"),
+                 controls.at("resonance"),
+                 42, 13, 38);
+    placeControl(gettext_noop("keytrack"),
+                 controls.at("keytrack"),
+                 42, 16, 38);
+    placeControl(gettext_noop("fil env depth"),
+                 controls.at("fil env depth"),
+                 42, 19, 38);
+    placeControl(gettext_noop("fil attack"),
+                 controls.at("fil attack"),
+                 42, 22, 38);
+    placeControl(gettext_noop("fil decay"),
+                 controls.at("fil decay"),
+                 42, 25, 38);
+    placeControl(gettext_noop("fil sustain"),
+                 controls.at("fil sustain"),
+                 42, 28, 38);
+    placeControl(gettext_noop("fil release"),
+                 controls.at("fil release"),
+                 42, 31, 38);
 
     // Performance.
-    placeControl("polyphony", controls.at("polyphony"),
-        82, 7, 30);
-    placeControl("legato", controls.at("legato"),
-        114, 7, 6);
-    placeControl("portamento", controls.at("portamento"),
-        82, 10, 21);
-    placeControl("portamento type", controls.at("portamento type"),
-        105, 10, 15);
-    placeControl("pitch bend range", controls.at("pitch bend range"),
-        82, 13, 38);
+    placeControl(gettext_noop("polyphony"),
+                 controls.at("polyphony"),
+                 82, 7, 30);
+    placeControl(gettext_noop("legato"),
+                 controls.at("legato"),
+                 114, 7, 6);
+    placeControl(gettext_noop("portamento"),
+                 controls.at("portamento"),
+                 82, 10, 21);
+    placeControl(gettext_noop("portamento type"),
+                 controls.at("portamento type"),
+                 105, 10, 15);
+    placeControl(gettext_noop("pitch bend range"),
+                 controls.at("pitch bend range"),
+                 82, 13, 38);
 
     // Amplitude Envelope.
-    placeControl("amp attack", controls.at("amp attack"),
-        82, 19, 38);
-    placeControl("amp decay", controls.at("amp decay"),
-        82, 22, 38);
-    placeControl("amp sustain", controls.at("amp sustain"),
-        82, 25, 38);
-    placeControl("amp release", controls.at("amp release"),
-        82, 28, 38);
-    placeControl("velocity track", controls.at("velocity track"),
-        82, 31, 38);
+    placeControl(gettext_noop("amp attack"),
+                 controls.at("amp attack"),
+                 82, 19, 38);
+    placeControl(gettext_noop("amp decay"),
+                 controls.at("amp decay"),
+                 82, 22, 38);
+    placeControl(gettext_noop("amp sustain"),
+                 controls.at("amp sustain"),
+                 82, 25, 38);
+    placeControl(gettext_noop("amp release"),
+                 controls.at("amp release"),
+                 82, 28, 38);
+    placeControl(gettext_noop("velocity track"),
+                 controls.at("velocity track"),
+                 82, 31, 38);
 
     // Modulation Matrix.
-    placeMinimalControl("mod source 1", controls.at("mod source 1"),
-        26, 36, 22);
-    placeMinimalControl("mod scale 1", controls.at("mod scale 1"),
-        50, 36, 22);
-    placeMinimalControl("mod destination 1", controls.at("mod destination 1"),
-        74, 36, 22);
-    placeMinimalControl("mod source 2", controls.at("mod source 2"),
-        26, 37, 22);
-    placeMinimalControl("mod scale 2", controls.at("mod scale 2"),
-        50, 37, 22);
-    placeMinimalControl("mod destination 2", controls.at("mod destination 2"),
-        74, 37, 22);
-    placeMinimalControl("mod source 3", controls.at("mod source 3"),
-        26, 38, 22);
-    placeMinimalControl("mod scale 3", controls.at("mod scale 3"),
-        50, 38, 22);
-    placeMinimalControl("mod destination 3", controls.at("mod destination 3"),
-        74, 38, 22);
-    placeMinimalControl("mod source 4", controls.at("mod source 4"),
-        26, 39, 22);
-    placeMinimalControl("mod scale 4", controls.at("mod scale 4"),
-        50, 39, 22);
-    placeMinimalControl("mod destination 4", controls.at("mod destination 4"),
-        74, 39, 22);
-    placeMinimalControl("mod source 5", controls.at("mod source 5"),
-        26, 40, 22);
-    placeMinimalControl("mod scale 5", controls.at("mod scale 5"),
-        50, 40, 22);
-    placeMinimalControl("mod destination 5", controls.at("mod destination 5"),
-        74, 40, 22);
+    placeMinimalControl(gettext_noop("mod source 1"),
+                        controls.at("mod source 1"),
+                        26, 36, 22);
+    placeMinimalControl(gettext_noop("mod scale 1"),
+                        controls.at("mod scale 1"),
+                        50, 36, 22);
+    placeMinimalControl(gettext_noop("mod destination 1"),
+                        controls.at("mod destination 1"),
+                        74, 36, 22);
+    placeMinimalControl(gettext_noop("mod source 2"),
+                        controls.at("mod source 2"),
+                        26, 37, 22);
+    placeMinimalControl(gettext_noop("mod scale 2"),
+                        controls.at("mod scale 2"),
+                        50, 37, 22);
+    placeMinimalControl(gettext_noop("mod destination 2"),
+                        controls.at("mod destination 2"),
+                        74, 37, 22);
+    placeMinimalControl(gettext_noop("mod source 3"),
+                        controls.at("mod source 3"),
+                        26, 38, 22);
+    placeMinimalControl(gettext_noop("mod scale 3"),
+                        controls.at("mod scale 3"),
+                        50, 38, 22);
+    placeMinimalControl(gettext_noop("mod destination 3"),
+                        controls.at("mod destination 3"),
+                        74, 38, 22);
+    placeMinimalControl(gettext_noop("mod source 4"),
+                        controls.at("mod source 4"),
+                        26, 39, 22);
+    placeMinimalControl(gettext_noop("mod scale 4"),
+                        controls.at("mod scale 4"),
+                        50, 39, 22);
+    placeMinimalControl(gettext_noop("mod destination 4"),
+                        controls.at("mod destination 4"),
+                        74, 39, 22);
+    placeMinimalControl(gettext_noop("mod source 5"),
+                        controls.at("mod source 5"),
+                        26, 40, 22);
+    placeMinimalControl(gettext_noop("mod scale 5"),
+                        controls.at("mod scale 5"),
+                        50, 40, 22);
+    placeMinimalControl(gettext_noop("mod destination 5"),
+                        controls.at("mod destination 5"),
+                        74, 40, 22);
   }
 
   std::string CursynthGui::getCurrentControl() {
