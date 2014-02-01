@@ -1,4 +1,4 @@
-cursynth v1.2
+cursynth
 ------------
 cursynth is a polyphonic, MIDI enabled, subtractive synth that runs in your
 terminal with an ascii interface.
