@@ -28,6 +28,7 @@
 namespace mopo {
   class Value;
 
+  // Stores information on how and where to draw a control.
   struct DisplayDetails {
     int x, y, width;
     std::string label;
@@ -48,22 +49,25 @@ namespace mopo {
 
       CursynthGui() : control_index_(0) { }
 
+      // Start and stop the GUI.
       void start();
       void stop();
 
+      // Add all of the controls for drawing.
       void addControls(const control_map& controls);
 
       void drawHelp();
       void drawMain();
       void drawSlider(const DisplayDetails* slider,
                       float percentage, bool active);
-      void drawText(const DisplayDetails* details,
-                    std::string text, bool active);
       void drawControl(const Control* control, bool active);
       void drawControlStatus(const Control* control, bool armed);
       void drawPatchLoading(std::vector<std::string> patches, int index);
       void drawPatchSaving(std::string patch_name);
+
       void clearPatches();
+
+      // Linear navigation of controls.
       std::string getCurrentControl();
       std::string getNextControl();
       std::string getPrevControl();
@@ -73,8 +77,14 @@ namespace mopo {
       void drawModulationMatrix();
       void drawMidi(std::string status);
       void drawStatus(std::string status);
+      void drawText(const DisplayDetails* details,
+                    std::string text, bool active);
+
+      // Place a given control with text display at a location and width.
       void placeControl(std::string name, const Control* control,
                         int x, int y, int width);
+
+      // Place a given control (slider only) at a location and width.
       void placeMinimalControl(std::string name, const Control* control,
                                int x, int y, int width);
 

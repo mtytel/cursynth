@@ -26,6 +26,8 @@
 
 namespace mopo {
 
+  // A container for a given control its metadata such as maximum and minimum
+  // value.
   class Control {
     public:
       Control(Value* value, mopo_float min, mopo_float max, int resolution) :

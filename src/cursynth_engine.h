@@ -70,7 +70,7 @@ namespace mopo {
       }
 
       // Process one sample of the oscillators. Must be done in the correct
-      // order.
+      // order currently.
       void tick(int i) {
         freq_mod1_->tick(i);
         normalized_fm1_->tick(i);
@@ -104,6 +104,7 @@ namespace mopo {
 
       void setModWheel(mopo_float value);
       void setPitchWheel(mopo_float value);
+
       void setModulationSource(int index, std::string source);
       void setModulationDestination(int index, std::string destination);
 
@@ -218,8 +219,12 @@ namespace mopo {
       void setPitchWheel(mopo_float value) {
         voice_handler_->setPitchWheel(value);
       }
+
+      // Keyboard events.
       void noteOn(mopo_float note, mopo_float velocity = 1.0);
       void noteOff(mopo_float note);
+
+      // Sustain pedal events.
       void sustainOn() { voice_handler_->sustainOn(); }
       void sustainOff() { voice_handler_->sustainOff(); }
 

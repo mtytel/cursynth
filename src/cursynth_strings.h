@@ -20,6 +20,7 @@
 
 namespace mopo {
 
+  // Container for all the strings we'll use in the UI.
   class CursynthStrings {
     public:
       static const char* filter_strings_[];

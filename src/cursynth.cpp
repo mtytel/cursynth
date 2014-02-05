@@ -42,6 +42,7 @@
 
 namespace {
 
+  // Receive MIDI data and send it to the synth.
   void midiCallback(double delta_time, std::vector<unsigned char>* message,
                     void* user_data) {
     UNUSED(delta_time);
@@ -49,6 +50,7 @@ namespace {
     cursynth->processMidi(message);
   }
 
+  // Receive audio buffers and send them to the synth.
   int audioCallback(void *out_buffer, void *in_buffer,
                     unsigned int n_frames, double stream_time,
                     RtAudioStreamStatus status, void *user_data) {
@@ -62,25 +64,28 @@ namespace {
     return 0;
   }
 
+  // Return the directory containing the configuration file and patches.
   std::string getConfigPath() {
     std::stringstream config_path;
     config_path << getenv("HOME") << "/" << CONFIG_DIR;
     return config_path.str();
   }
 
+  // Return the location of the configuration file.
   std::string getConfigFile() {
     std::stringstream config_path;
     config_path << getConfigPath() << CONFIG_FILE;
     return config_path.str();
   }
 
+  // Return the location of the user patches.
   std::string getUserPatchesPath() {
     std::stringstream patches_path;
     patches_path << getConfigPath() << USER_PATCHES_DIR;
     return patches_path.str();
   }
 
-  // If the directory _path_ doesn't exist, create it.
+  // Check if the directory _path_ exists, if not, create it.
   void confirmPathExists(std::string path) {
     if (opendir(path.c_str()) == NULL)
       mkdir(path.c_str(), 0755);
@@ -314,9 +319,11 @@ namespace mopo {
   void Cursynth::setupGui() {
     gui_.start();
 
+    // Add the controls to the GUI for viewing.
     controls_ = synth_.getControls();
     gui_.addControls(controls_);
 
+    // Make sure we are drawing he current control.
     Control* control = controls_.at(gui_.getCurrentControl());
     gui_.drawControl(control, true);
     gui_.drawControlStatus(control, false);

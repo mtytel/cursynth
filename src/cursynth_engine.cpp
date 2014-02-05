@@ -530,12 +530,14 @@ namespace mopo {
   }
 
   CursynthVoiceHandler::CursynthVoiceHandler() {
+    // Create modulation and pitch wheels.
     mod_wheel_amount_ = new SmoothValue(0);
     pitch_wheel_amount_ = new SmoothValue(0);
 
     mod_sources_["pitch wheel"] = pitch_wheel_amount_->output();
     mod_sources_["mod wheel"] = mod_wheel_amount_->output();
 
+    // Create all synthesizer voice components.
     createArticulation(note(), velocity(), voice_event());
     createOscillators(current_frequency_->output(),
                       amplitude_envelope_->output(Envelope::kFinished));
@@ -550,6 +552,7 @@ namespace mopo {
     addProcessor(output_);
     addGlobalProcessor(pitch_wheel_amount_);
     addGlobalProcessor(mod_wheel_amount_);
+
     setVoiceOutput(output_);
     setVoiceKiller(amplitude_envelope_->output(Envelope::kValue));
   }
@@ -633,9 +636,12 @@ namespace mopo {
   void CursynthVoiceHandler::setModulationDestination(
       int matrix_index, std::string destination) {
     std::string current = current_mod_destinations_[matrix_index];
+
+    // First unplug the previous destination.
     if (current.length())
       mod_destinations_[current]->unplug(mod_matrix_[matrix_index]);
 
+    // Then plug in to the new destination.
     current_mod_destinations_[matrix_index] = destination;
     if (destination.length())
       mod_destinations_[destination]->plugNext(mod_matrix_[matrix_index]);
