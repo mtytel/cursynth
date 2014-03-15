@@ -1,3 +1,9 @@
+2014-03-15  Matt Tytel  <matthewtytel@gmail.com>
+
+	* patches/*: Edited levels of all patches.
+	* configure.ac: Bumped version to 1.4
+	* src/cursynth_gui.cpp: Updated website to gnu.org/software/cursynth
+
 2014-01-22  gettextize  <bug-gnu-gettext@gnu.org>
 
 	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
@@ -5,3 +11,6 @@
 	* configure.ac (AC_CONFIG_FILES): Add po/Makefile.in.
 	(AM_GNU_GETTEXT_VERSION): Bump to 0.18.3.
 
+Copyright 2014 Little IO
+Copying and distribution of this file, with or without modification, are
+promitted provided the copyright notice and this notice are preserved.

@@ -56,7 +56,7 @@ namespace mopo {
     printw(VERSION);
     move(9, 43);
     printw(gettext("website"));
-    printw(" - littleio.co/cursynth");
+    printw(" - gnu.org/software/cursynth");
     move(10, 43);
     printw(gettext("contact"));
     printw(" - ");
