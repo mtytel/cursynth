@@ -3,7 +3,7 @@
  "amp decay": 0.700000,
  "amp release": 0.300000,
  "amp sustain": 0,
- "cross modulation": 0.000000,
+ "cross modulation": 0,
  "cutoff": 57.968750,
  "delay dry/wet": 0.401562,
  "delay feedback": -0.612500,
@@ -46,5 +46,5 @@
  "portamento type": 0,
  "resonance": 3,
  "velocity track": 0.300000,
- "volume": 0.600000
+ "volume": 0.271875
 }
