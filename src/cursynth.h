@@ -56,6 +56,10 @@ namespace mopo {
       void unlock() { pthread_mutex_unlock(&mutex_); }
 
     private:
+      static const unsigned int preferred_sample_rates_[];
+
+      unsigned int chooseSampleRate(const RtAudio::DeviceInfo& device);
+
       // Load and save global configuration settings (like MIDI learn).
       void loadConfiguration();
       void saveConfiguration();

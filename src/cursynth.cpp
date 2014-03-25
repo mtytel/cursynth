@@ -111,6 +111,9 @@ namespace {
 } // namespace
 
 namespace mopo {
+  const unsigned int Cursynth::preferred_sample_rates_[] =
+      { 48000, 44100, 96000, 88200, 192000, 22050 };
+
   Cursynth::Cursynth() : state_(STANDARD), patch_load_index_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
@@ -287,6 +290,10 @@ namespace mopo {
     return true;
   }
 
+  unsigned int Cursynth::chooseSampleRate(const RtAudio::DeviceInfo& device) {
+    return device.sampleRates[device.sampleRates.size() - 1];
+  }
+
   void Cursynth::setupAudio() {
     // Make sure we have a device to make sound with.
     if (dac_.getDeviceCount() < 1) {
@@ -299,7 +306,8 @@ namespace mopo {
     parameters.deviceId = dac_.getDefaultOutputDevice();
     parameters.nChannels = NUM_CHANNELS;
     parameters.firstChannel = 0;
-    unsigned int sample_rate = 44100;
+    RtAudio::DeviceInfo device_info = dac_.getDeviceInfo(parameters.deviceId);
+    unsigned int sample_rate = chooseSampleRate(device_info);
     unsigned int buffer_frames = 64;
 
     synth_.setSampleRate(sample_rate);
