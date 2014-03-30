@@ -7,6 +7,10 @@ cursynth will connect to all MIDI devices and send output to the default audio
 device on your system.
 
 ### Building
+If you just want to build Cursynth, check out [ftp://ftp.gnu.org/gnu/cursynth]
+for latest source releases that don't require as much to build.
+
+If you want to develop Cursynth, this source is the right place.
 Run these commands to build the project from source:
 
 $ autoreconf -i
