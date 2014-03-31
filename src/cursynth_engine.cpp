@@ -87,7 +87,7 @@ namespace mopo {
     oscillator2_->preprocess();
     tick(0);
 
-    for (int i = 1; i < BUFFER_SIZE; ++i) {
+    for (int i = 1; i < buffer_size_; ++i) {
       for (int f = 0; f < num_feedbacks; ++f)
         feedback_processors_[feedback_order_->at(f)]->tickRefreshOutput(i);
 
