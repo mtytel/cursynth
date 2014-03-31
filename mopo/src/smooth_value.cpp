@@ -25,9 +25,13 @@ namespace mopo {
   SmoothValue::SmoothValue(mopo_float value) :
       Value(value), target_value_(value) { }
 
-  void SmoothValue::process() {
+  void SmoothValue::setSampleRate(int sample_rate) {
+    sample_rate_ = sample_rate;
     decay_ = 1 - exp(-2.0 * PI * SMOOTH_CUTOFF / sample_rate_);
-    for (int i = 0; i < BUFFER_SIZE; ++i)
+  }
+
+  void SmoothValue::process() {
+    for (int i = 0; i < buffer_size_; ++i)
       outputs_[0]->buffer[i] = tick();
   }
 
