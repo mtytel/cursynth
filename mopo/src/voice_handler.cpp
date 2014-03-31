@@ -46,7 +46,7 @@ namespace mopo {
 
   void VoiceHandler::processVoice(Voice* voice) {
     voice->processor()->process();
-    for (int i = 0; i < BUFFER_SIZE; ++i)
+    for (int i = 0; i < buffer_size_; ++i)
       outputs_[0]->buffer[i] += voice_output_->buffer[i];
   }
 
@@ -55,7 +55,7 @@ namespace mopo {
 
     size_t polyphony = static_cast<size_t>(inputs_[kPolyphony]->at(0));
     setPolyphony(CLAMP(polyphony, 1, polyphony));
-    memset(outputs_[0]->buffer, 0, BUFFER_SIZE * sizeof(mopo_float));
+    memset(outputs_[0]->buffer, 0, buffer_size_ * sizeof(mopo_float));
 
     std::list<Voice*>::iterator iter = active_voices_.begin();
     while (iter != active_voices_.end()) {
@@ -64,8 +64,8 @@ namespace mopo {
       processVoice(voice);
 
       // Remove voice if the right processor has a full silent buffer.
-      if (voice_killer_ &&
-          utils::isSilent(voice_killer_->buffer, BUFFER_SIZE)) {
+      if (voice_killer_ && voice->state()->event != kVoiceOn &&
+          utils::isSilent(voice_killer_->buffer, buffer_size_)) {
         free_voices_.push_back(voice);
         iter = active_voices_.erase(iter);
       }
@@ -75,9 +75,19 @@ namespace mopo {
   }
 
   void VoiceHandler::setSampleRate(int sample_rate) {
+    voice_router_.setSampleRate(sample_rate);
+    global_router_.setSampleRate(sample_rate);
     std::set<Voice*>::iterator iter = all_voices_.begin();
     for (; iter != all_voices_.end(); ++iter)
       (*iter)->processor()->setSampleRate(sample_rate);
+  }
+
+  void VoiceHandler::setBufferSize(int buffer_size) {
+    voice_router_.setBufferSize(buffer_size);
+    global_router_.setBufferSize(buffer_size);
+    std::set<Voice*>::iterator iter = all_voices_.begin();
+    for (; iter != all_voices_.end(); ++iter)
+      (*iter)->processor()->setBufferSize(buffer_size);
   }
 
   void VoiceHandler::sustainOn() {

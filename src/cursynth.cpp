@@ -322,6 +322,8 @@ namespace mopo {
       error.printMessage();
       exit(0);
     }
+
+    synth_.setBufferSize(buffer_frames);
   }
 
   void Cursynth::setupGui() {

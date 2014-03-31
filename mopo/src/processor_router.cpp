@@ -24,6 +24,7 @@
 #include <vector>
 
 namespace mopo {
+
   ProcessorRouter::ProcessorRouter(int num_inputs, int num_outputs) :
       Processor(num_inputs, num_outputs) {
     order_ = new std::vector<const Processor*>();
@@ -72,6 +73,14 @@ namespace mopo {
     int num_processors = order_->size();
     for (int i = 0; i < num_processors; ++i)
       processors_[order_->at(i)]->setSampleRate(sample_rate);
+  }
+
+  void ProcessorRouter::setBufferSize(int buffer_size) {
+    updateAllProcessors();
+
+    int num_processors = order_->size();
+    for (int i = 0; i < num_processors; ++i)
+      processors_[order_->at(i)]->setBufferSize(buffer_size);
   }
 
   void ProcessorRouter::addProcessor(Processor* processor) {
