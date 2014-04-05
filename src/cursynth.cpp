@@ -18,6 +18,7 @@
 
 #include "cJSON.h"
 
+#include <cstdio>
 #include <cstdlib>
 #include <dirent.h>
 #include <fstream>
@@ -25,7 +26,6 @@
 #include <ncurses.h>
 #include <sstream>
 #include <string>
-#include <stdio.h>
 #include <sys/stat.h>
 
 #define KEYBOARD "awsedftgyhujkolp;'"
