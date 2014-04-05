@@ -308,7 +308,7 @@ namespace mopo {
     parameters.firstChannel = 0;
     RtAudio::DeviceInfo device_info = dac_.getDeviceInfo(parameters.deviceId);
     unsigned int sample_rate = chooseSampleRate(device_info);
-    unsigned int buffer_frames = 64;
+    unsigned int buffer_frames = DEFAULT_BUFFER_SIZE;
 
     synth_.setSampleRate(sample_rate);
 
