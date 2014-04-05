@@ -58,16 +58,6 @@ namespace mopo {
 
       virtual void process();
       virtual Processor* clone() const { return new CursynthOscillators(*this); }
-      virtual void setSampleRate(int sample_rate) {
-        normalized_fm1_->setSampleRate(sample_rate);
-        normalized_fm2_->setSampleRate(sample_rate);
-        frequency1_->setSampleRate(sample_rate);
-        frequency2_->setSampleRate(sample_rate);
-        oscillator1_->setSampleRate(sample_rate);
-        oscillator2_->setSampleRate(sample_rate);
-        freq_mod1_->setSampleRate(sample_rate);
-        freq_mod2_->setSampleRate(sample_rate);
-      }
 
       // Process one sample of the oscillators. Must be done in the correct
       // order currently.
