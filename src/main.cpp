@@ -15,9 +15,45 @@
  */
 
 #include "cursynth.h"
+#include <iostream>
+#include <stdlib.h>
+#include <getopt.h>
 
-int main() {
+int main(int argc, char **argv) {
+  unsigned buffer_size = mopo::DEFAULT_BUFFER_SIZE;
+  unsigned sample_rate = mopo::DEFAULT_SAMPLE_RATE;
+
+  int getopt_response = 0;
+  int digit_optind = 0;
+
+  while (getopt_response != -1) {
+    static const struct option long_options[] = {
+      {"sample-rate", required_argument, 0, 's'},
+      {"buffer-size", required_argument, 0, 'b'},
+      {"version", no_argument, 0, 'v'},
+      {0, 0, 0, 0}
+    };
+
+    int option_index = 0;
+    getopt_response = getopt_long(argc, argv, "s:b:v",
+                                  long_options, &option_index);
+
+    switch (getopt_response) {
+      case 's':
+        sample_rate = atoi(optarg);
+        break;
+      case 'b':
+        buffer_size = atoi(optarg);
+        break;
+      case 'v':
+        std::cout << "Cursynth " << VERSION << std::endl;
+        exit(EXIT_SUCCESS);
+        break;
+    }
+  }
+
   mopo::Cursynth cursynth;
-  cursynth.start();
+  cursynth.start(sample_rate, buffer_size);
+
   return 0;
 }

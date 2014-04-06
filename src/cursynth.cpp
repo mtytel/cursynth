@@ -111,16 +111,13 @@ namespace {
 } // namespace
 
 namespace mopo {
-  const unsigned int Cursynth::preferred_sample_rates_[] =
-      { 48000, 44100, 96000, 88200, 192000, 22050 };
-
   Cursynth::Cursynth() : state_(STANDARD), patch_load_index_(0) {
     pthread_mutex_init(&mutex_, 0);
   }
 
-  void Cursynth::start() {
+  void Cursynth::start(unsigned sample_rate, unsigned buffer_size) {
     // Setup all callbacks.
-    setupAudio();
+    setupAudio(sample_rate, buffer_size);
     setupMidi();
     setupGui();
     loadConfiguration();
@@ -290,11 +287,17 @@ namespace mopo {
     return true;
   }
 
-  unsigned int Cursynth::chooseSampleRate(const RtAudio::DeviceInfo& device) {
+  unsigned int Cursynth::chooseSampleRate(const RtAudio::DeviceInfo& device,
+                                          unsigned preferred_sample_rate) {
+    for (int i = 0; i < device.sampleRates.size(); ++i) {
+      if (device.sampleRates[i] == preferred_sample_rate)
+        return preferred_sample_rate;
+    }
+
     return device.sampleRates[0];
   }
 
-  void Cursynth::setupAudio() {
+  void Cursynth::setupAudio(unsigned sample_rate, unsigned buffer_size) {
     // Make sure we have a device to make sound with.
     if (dac_.getDeviceCount() < 1) {
       std::cout << "No audio devices found.\n";
@@ -307,15 +310,14 @@ namespace mopo {
     parameters.nChannels = NUM_CHANNELS;
     parameters.firstChannel = 0;
     RtAudio::DeviceInfo device_info = dac_.getDeviceInfo(parameters.deviceId);
-    unsigned int sample_rate = chooseSampleRate(device_info);
-    unsigned int buffer_frames = DEFAULT_BUFFER_SIZE;
 
-    synth_.setSampleRate(sample_rate);
+    unsigned actual_sample_rate = chooseSampleRate(device_info, sample_rate);
+    synth_.setSampleRate(actual_sample_rate);
 
     // Start the audio callbacks.
     try {
-      dac_.openStream(&parameters, NULL, RTAUDIO_FLOAT64, sample_rate,
-                      &buffer_frames, &audioCallback, (void*)this);
+      dac_.openStream(&parameters, NULL, RTAUDIO_FLOAT64, actual_sample_rate,
+                      &buffer_size, &audioCallback, (void*)this);
       dac_.startStream();
     }
     catch (RtError& error) {
@@ -323,7 +325,7 @@ namespace mopo {
       exit(0);
     }
 
-    synth_.setBufferSize(buffer_frames);
+    synth_.setBufferSize(buffer_size);
   }
 
   void Cursynth::setupGui() {

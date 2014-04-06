@@ -40,7 +40,7 @@ namespace mopo {
       Cursynth();
 
       // Start/stop everything - UI, synth engine, input/output.
-      void start();
+      void start(unsigned sample_rate, unsigned buffer_size);
       void stop();
 
       // Runs the synth engine for _n_frames_ samples and copies the output
@@ -56,9 +56,8 @@ namespace mopo {
       void unlock() { pthread_mutex_unlock(&mutex_); }
 
     private:
-      static const unsigned int preferred_sample_rates_[];
-
-      unsigned int chooseSampleRate(const RtAudio::DeviceInfo& device);
+      unsigned int chooseSampleRate(const RtAudio::DeviceInfo& device,
+                                    unsigned preferred_sample_rate);
 
       // Load and save global configuration settings (like MIDI learn).
       void loadConfiguration();
@@ -86,7 +85,7 @@ namespace mopo {
       bool textInput(int key);
 
       // Setup functions initialize objects and callbacks.
-      void setupAudio();
+      void setupAudio(unsigned sample_rate, unsigned buffer_size);
       void setupMidi();
       void setupControls();
       void setupGui();
