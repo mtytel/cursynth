@@ -291,7 +291,7 @@ namespace mopo {
   }
 
   unsigned int Cursynth::chooseSampleRate(const RtAudio::DeviceInfo& device) {
-    return device.sampleRates[device.sampleRates.size() - 1];
+    return device.sampleRates[0];
   }
 
   void Cursynth::setupAudio() {
