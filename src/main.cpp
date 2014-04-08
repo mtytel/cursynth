@@ -30,12 +30,12 @@ int main(int argc, char **argv) {
     static const struct option long_options[] = {
       {"sample-rate", required_argument, 0, 's'},
       {"buffer-size", required_argument, 0, 'b'},
-      {"version", no_argument, 0, 'v'},
+      {"version", no_argument, 0, 'V'},
       {0, 0, 0, 0}
     };
 
     int option_index = 0;
-    getopt_response = getopt_long(argc, argv, "s:b:v",
+    getopt_response = getopt_long(argc, argv, "s:b:V",
                                   long_options, &option_index);
 
     switch (getopt_response) {
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
       case 'b':
         buffer_size = atoi(optarg);
         break;
-      case 'v':
+      case 'V':
         std::cout << "Cursynth " << VERSION << std::endl;
         exit(EXIT_SUCCESS);
         break;
