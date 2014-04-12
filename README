@@ -21,6 +21,11 @@ And then if you want to install, next run:
 
 $ sudo make install
 
+### Usage
+cursynth [--buffer-size OR -b preferred-buffer-size]
+         [--sample-rate OR -s preferred-sample-rate]
+         [--version OR -V]
+
 ### Controls
 * awsedftgyhujkolp;' - a playable keyboard (no key up events)
 * \`1234567890 - a slider for the current selected control

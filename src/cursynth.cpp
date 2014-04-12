@@ -313,6 +313,7 @@ namespace mopo {
 
     unsigned actual_sample_rate = chooseSampleRate(device_info, sample_rate);
     synth_.setSampleRate(actual_sample_rate);
+    buffer_size = CLAMP(buffer_size, 0, mopo::MAX_BUFFER_SIZE);
 
     // Start the audio callbacks.
     try {

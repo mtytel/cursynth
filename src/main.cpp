@@ -49,6 +49,18 @@ int main(int argc, char **argv) {
         std::cout << "Cursynth " << VERSION << std::endl;
         exit(EXIT_SUCCESS);
         break;
+      case -1:
+        break;
+      default:
+        std::cout << std::endl << "Usage:" << std::endl
+                  << "cursynth [--buffer-size OR -b preferred-buffer-size]"
+                  << std::endl
+                  << "         [--sample-rate OR -s preferred-sample-rate]"
+                  << std::endl
+                  << "         [--version OR -V]"
+                  << std::endl;
+        exit(EXIT_FAILURE);
+        break;
     }
   }
 
