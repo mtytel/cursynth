@@ -18,6 +18,8 @@ cursynth_CPPFLAGS = -I. \
                     -I$(top_srcdir)/rtaudio \
                     -I$(top_srcdir)/rtmidi \
                     -I$(top_srcdir)/mopo/src \
+                    -I$(top_srcdir)/mopo/src \
+										-I/usr/local/opt/gettext/include \
                     -DPATCHES_DIRECTORY=\"$(patchesdir)\"
 
 cursynth_LDADD = ../cJSON/libcJSON.a \
