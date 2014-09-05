@@ -20,6 +20,7 @@
 
 #include "mopo.h"
 #include <cmath>
+#include <cstdlib>
 
 #define LOOKUP_SIZE 2048
 #define HIGH_FREQUENCY 20000
