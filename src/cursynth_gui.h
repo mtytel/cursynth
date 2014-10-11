@@ -52,6 +52,7 @@ namespace mopo {
       // Start and stop the GUI.
       void start();
       void stop();
+      void redrawBase();
 
       // Add all of the controls for drawing.
       void addControls(const control_map& controls);

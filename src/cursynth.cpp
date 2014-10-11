@@ -257,6 +257,9 @@ namespace mopo {
         control->decrement();
         should_redraw_control = true;
         break;
+      case KEY_RESIZE:
+        refreshGui();
+        break;
       default:
         // Check if they pressed the slider keys and change the current value.
         size_t slider_size = strlen(SLIDER) - 1;
@@ -337,6 +340,17 @@ namespace mopo {
     gui_.addControls(controls_);
 
     // Make sure we are drawing he current control.
+    Control* control = controls_.at(gui_.getCurrentControl());
+    gui_.drawControl(control, true);
+    gui_.drawControlStatus(control, false);
+  }
+
+  void Cursynth::refreshGui() {
+    gui_.redrawBase();
+    controls_ = synth_.getControls();
+    gui_.addControls(controls_);
+
+    // Make sure we are drawing the current control.
     Control* control = controls_.at(gui_.getCurrentControl());
     gui_.drawControl(control, true);
     gui_.drawControlStatus(control, false);

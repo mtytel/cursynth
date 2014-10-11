@@ -383,6 +383,15 @@ namespace mopo {
     endwin();
   }
 
+  void CursynthGui::redrawBase()
+  {
+    erase();
+    refresh();
+    drawLogo();
+    drawModulationMatrix();
+    curs_set(0);
+  }
+
   void CursynthGui::placeMinimalControl(std::string name,
                                         const Control* control,
                                         int x, int y, int width) {

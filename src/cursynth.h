@@ -90,6 +90,9 @@ namespace mopo {
       void setupControls();
       void setupGui();
 
+      // Clear screen and redraw GUI
+      void refreshGui();
+
       // Helper function to erase all evidence of MIDI learn for a control.
       void eraseMidiLearn(Control* control);
 
