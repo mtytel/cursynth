@@ -373,18 +373,14 @@ namespace mopo {
     init_pair(CONTROL_TEXT_COLOR, COLOR_BLACK, COLOR_WHITE);
 
     // Start initial drawing.
-    refresh();
-    drawLogo();
-    drawModulationMatrix();
-    curs_set(0);
+    redrawBase();
   }
 
   void CursynthGui::stop() {
     endwin();
   }
 
-  void CursynthGui::redrawBase()
-  {
+  void CursynthGui::redrawBase() {
     erase();
     refresh();
     drawLogo();
@@ -392,10 +388,23 @@ namespace mopo {
     curs_set(0);
   }
 
+  DisplayDetails* CursynthGui::initControl(std::string name,
+                                           const Control* control) {
+    std::map<const Control*, DisplayDetails*>::iterator found =
+        details_lookup_.find(control);
+
+    // If we've already created this control, just return that one.
+    if (found != details_lookup_.end())
+      return found->second;
+
+    control_order_.push_back(name);
+    return new DisplayDetails();
+  }
+
   void CursynthGui::placeMinimalControl(std::string name,
                                         const Control* control,
                                         int x, int y, int width) {
-    DisplayDetails* details = new DisplayDetails();
+    DisplayDetails* details = initControl(name, control);
     details->x = x;
     details->y = y;
     details->width = width;
@@ -404,12 +413,11 @@ namespace mopo {
 
     details_lookup_[control] = details;
     drawControl(control, false);
-    control_order_.push_back(name);
   }
 
   void CursynthGui::placeControl(std::string name, const Control* control,
                                  int x, int y, int width) {
-    DisplayDetails* details = new DisplayDetails();
+    DisplayDetails* details = initControl(name, control);
     details->x = x;
     details->y = y;
     details->width = width;
@@ -418,7 +426,6 @@ namespace mopo {
 
     details_lookup_[control] = details;
     drawControl(control, false);
-    control_order_.push_back(name);
   }
 
   void CursynthGui::addControls(const control_map& controls) {

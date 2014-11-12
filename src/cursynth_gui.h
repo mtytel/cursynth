@@ -81,6 +81,9 @@ namespace mopo {
       void drawText(const DisplayDetails* details,
                     std::string text, bool active);
 
+      // Creates control details and places control in the control order.
+      DisplayDetails* initControl(std::string name, const Control* control);
+
       // Place a given control with text display at a location and width.
       void placeControl(std::string name, const Control* control,
                         int x, int y, int width);
