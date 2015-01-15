@@ -30,7 +30,7 @@ Texts.  A copy of the license is included in the section entitled
 @titlepage
 @title GNU Sample
 @subtitle for version @value{VERSION}, @value{UPDATED}
-@author Little IO (@email{littleioaudio@@gmail.com})
+@author Matt Tytel (@email{matthewtytel@@gmail.com})
 @page
 @vskip 0pt plus 1filll
 @insertcopying

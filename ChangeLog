@@ -11,6 +11,6 @@
 	* configure.ac (AC_CONFIG_FILES): Add po/Makefile.in.
 	(AM_GNU_GETTEXT_VERSION): Bump to 0.18.3.
 
-Copyright 2014 Little IO
+Copyright 2013-2015 Matt Tytel
 Copying and distribution of this file, with or without modification, are
 promitted provided the copyright notice and this notice are preserved.

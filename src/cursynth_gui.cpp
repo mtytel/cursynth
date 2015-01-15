@@ -1,4 +1,4 @@
-/* Copyright 2013-2014 Little IO
+/* Copyright 2013-2015 Matt Tytel
  *
  * cursynth is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,7 +127,7 @@ namespace mopo {
     attroff(COLOR_PAIR(LOGO_COLOR));
 
     move(LOGO_Y + 5, logo_x + 33);
-    printw("Little IO");
+    printw("Matt Tytel");
   }
 
   void CursynthGui::drawModulationMatrix() {
