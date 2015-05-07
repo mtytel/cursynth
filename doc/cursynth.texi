@@ -243,9 +243,9 @@ seconds-per-octave.
 
 portamento type controls when the notes slide. When 'off' notes never slide
 their frequency. When 'on' notes always slide their frequency. When 'auto'
-notes slide only when the note that is being overriden is still held down on
+notes slide only when the note that is being overridden is still held down on
 the keyboard, that is will jump to the new frequency immediately if the
-overriden note was already released.
+overridden note was already released.
 
 pitch bend range controls how much the pitch wheel affects the pitch of all the
 voices, measured in semitones.
