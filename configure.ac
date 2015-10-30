@@ -17,6 +17,10 @@ AM_PROG_CC_C_O
 AM_PROG_AR
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.18.3])
+AC_CHECK_PROG(MAKEINFO_CHECK,makeinfo,yes,no)
+if test x"$FFMPEG_CHECK" != x"yes" ; then
+    AC_MSG_ERROR([cursynth requires the makeinfo binary (for gettext)!])
+fi
 
 # Checks for libraries.
 AC_CHECK_LIB([ncurses], [curs_set],, AC_MSG_ERROR([cursynth requires the ncurses library!]))
