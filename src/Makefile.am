@@ -24,5 +24,9 @@ cursynth_CPPFLAGS = -I. \
 
 cursynth_LDADD = ../cJSON/libcJSON.a \
                  ../rtaudio/librtaudio.a \
-                 ../rtmidi/librtmidi.a \
-                 ../mopo/src/libmopo.a
+                 ../rtmidi/librtmidi.a 
+
+# For local mopo
+if MOPO_LOCAL
+  cursynth_LDADD += ../mopo/src/libmopo.a
+endif MOPO_LOCAL

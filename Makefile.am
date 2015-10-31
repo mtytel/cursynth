@@ -1,5 +1,12 @@
-SUBDIRS = cJSON rtaudio rtmidi mopo src po doc
+SUBDIRS = cJSON rtaudio rtmidi po doc
 EXTRA_DIST = config.rpath patches
+
+# For local mopo
+if MOPO_LOCAL
+  SUBDIRS += mopo
+endif MOPO_LOCAL
+
+SUBDIRS += src
 
 patchesdir = $(pkgdatadir)/patches
 patches_DATA = $(top_srcdir)/patches/*.mite

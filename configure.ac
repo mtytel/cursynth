@@ -127,6 +127,18 @@ case $host in
   ;;
 esac
 
+  # Use bundled libraries or not ?
+  # Mopo
+  AC_ARG_WITH(external-mopo, [ --with-external-mopo = Build using external mopo library], [
+    AC_CHECK_LIB(mopo, main, , AC_MSG_ERROR(Using external mopo requires libmopo installed!))
+    external_mopo=true
+    AC_MSG_RESULT(using external mopo)], [
+    AC_CONFIG_SUBDIRS(mopo/)
+    external_mopo=false
+    AC_MSG_RESULT(using internal mopo)
+  ])
+  AM_CONDITIONAL([MOPO_LOCAL], [test x$external_mopo = xfalse])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 AC_TYPE_PID_T
@@ -144,8 +156,7 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([dup2 floor gettimeofday memset modf pow rmdir strcasecmp strchr strdup strerror])
 
-AC_CONFIG_SUBDIRS([mopo
-                   rtaudio
+AC_CONFIG_SUBDIRS([rtaudio
                    rtmidi])
 
 AC_CONFIG_FILES([Makefile po/Makefile.in
