@@ -15,16 +15,20 @@ cursynth_SOURCES = main.cpp \
 cursynth_CPPFLAGS = -I. \
                     -I.. \
                     -I$(top_srcdir)/cJSON \
-                    -I$(top_srcdir)/rtaudio \
                     -I$(top_srcdir)/rtmidi \
                     -I$(top_srcdir)/mopo/src \
                     -I$(top_srcdir)/mopo/src \
-										-I/usr/local/opt/gettext/include \
+		    -I/usr/local/opt/gettext/include \
                     -DPATCHES_DIRECTORY=\"$(patchesdir)\"
 
 cursynth_LDADD = ../cJSON/libcJSON.a \
-                 ../rtaudio/librtaudio.a \
                  ../rtmidi/librtmidi.a 
+
+# For local rtaudio
+if RTAUDIO_LOCAL
+  cursynth_CPPFLAGS += -I$(top_srcdir)/rtaudio
+  cursynth_LDADD += ../rtaudio/librtaudio.a
+endif RTAUDIO_LOCAL
 
 # For local mopo
 if MOPO_LOCAL

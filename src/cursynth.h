@@ -18,7 +18,12 @@
 #ifndef CURSYNTH_H
 #define CURSYNTH_H
 
+#ifdef HAVE_LIBrtaudio
+#include <RtAudio.h>
+#else
 #include "RtAudio.h"
+#endif
+
 #include "RtMidi.h"
 #include "cursynth_gui.h"
 #include "cursynth_engine.h"
