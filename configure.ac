@@ -17,11 +17,14 @@ AM_PROG_CC_C_O
 AM_PROG_AR
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.18.3])
+AC_CHECK_PROG(MAKEINFO_CHECK,makeinfo,yes,no)
+if test x"$MAKEINFO_CHECK" != x"yes" ; then
+    AC_MSG_ERROR([cursynth requires the makeinfo binary (for gettext)!])
+fi
 
 # Checks for libraries.
-AC_CHECK_LIB([intl], [gettext])
-AC_CHECK_LIB([ncurses], [curs_set])
-AC_CHECK_LIB([pthread], [pthread_create])
+AC_CHECK_LIB([ncurses], [curs_set],, AC_MSG_ERROR([cursynth requires the ncurses library!]))
+AC_CHECK_LIB([pthread], [pthread_create],, AC_MSG_ERROR([cursynth requires the pthread library!]))
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h float.h libintl.h limits.h locale.h math.h ncurses.h stddef.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h])
@@ -34,7 +37,6 @@ case $host in
     AC_MSG_RESULT(using OSS)
     api="$api -D__LINUX_OSS__"
     LIBS="$LIBS -lossaudio"
-    AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(cursynth requires the pthread library!))
   ;;
 
   *-*-linux*)
@@ -71,8 +73,6 @@ case $host in
     req="$req alsa"
     AC_CHECK_LIB(asound, snd_pcm_open, , AC_MSG_ERROR(ALSA support requires the asound library!))
   fi
-
-  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(cursynth requires the pthread library!))
   ;;
 
   *-apple*)
@@ -97,8 +97,6 @@ case $host in
       [AC_MSG_ERROR(CoreAudio header files not found!)] )
     LIBS="$LIBS -framework CoreAudio -framework CoreMIDI -framework CoreFoundation"
   fi
-
-  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(cursynth requires the pthread library!))
   ;;
 
   *-mingw32*)
