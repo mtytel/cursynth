@@ -150,6 +150,17 @@ esac
   ])
   AM_CONDITIONAL([RTAUDIO_LOCAL], [test x$external_rtaudio = xfalse])
 
+  # RtMidi
+  AC_ARG_WITH(external-rtmidi, [ --with-external-rtmidi = Build using external rtmidi library], [
+    AC_CHECK_LIB(rtmidi, main, , AC_MSG_ERROR(Using external rtaudio requires librtmidi installed!))
+    external_rtaudio=true
+    AC_MSG_RESULT(using external rtmidi)], [
+    AC_CONFIG_SUBDIRS(rtmidi)
+    external_rtaudio=false
+    AC_MSG_RESULT(using internal rtmidi)
+  ])
+  AM_CONDITIONAL([RTMIDI_LOCAL], [test x$external_rtmidi = xfalse])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 AC_TYPE_PID_T
@@ -166,8 +177,6 @@ AC_FUNC_ERROR_AT_LINE
 AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([dup2 floor gettimeofday memset modf pow rmdir strcasecmp strchr strdup strerror])
-
-AC_CONFIG_SUBDIRS([rtmidi])
 
 AC_CONFIG_FILES([Makefile po/Makefile.in
                  src/Makefile
