@@ -16,8 +16,6 @@ cursynth_CPPFLAGS = -I. \
                     -I.. \
                     -I$(top_srcdir)/cJSON \
                     -I$(top_srcdir)/rtmidi \
-                    -I$(top_srcdir)/mopo/src \
-                    -I$(top_srcdir)/mopo/src \
 		    -I/usr/local/opt/gettext/include \
                     -DPATCHES_DIRECTORY=\"$(patchesdir)\"
 
@@ -32,5 +30,6 @@ endif RTAUDIO_LOCAL
 
 # For local mopo
 if MOPO_LOCAL
+  cursynth_CPPFLAGS += -I$(top_srcdir)/mopo/src
   cursynth_LDADD += ../mopo/src/libmopo.a
 endif MOPO_LOCAL

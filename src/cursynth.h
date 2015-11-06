@@ -18,7 +18,7 @@
 #ifndef CURSYNTH_H
 #define CURSYNTH_H
 
-#ifdef HAVE_LIBrtaudio
+#ifdef HAVE_LIBRTAUDIO
 #include <RtAudio.h>
 #else
 #include "RtAudio.h"

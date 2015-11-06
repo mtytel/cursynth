@@ -19,7 +19,12 @@
 #define CURSYNTH_COMMON_H
 
 #include "config.h"
+
+#ifdef HAVE_LIBMOPO
+#include <mopo/value.h>
+#else
 #include "value.h"
+#endif
 
 #include <map>
 #include <string>

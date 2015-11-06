@@ -18,12 +18,23 @@
 #ifndef CURSYNTH_SYNTH_H
 #define CURSYNTH_SYNTH_H
 
+#include "config.h"
+
+#ifdef HAVE_LIBMOPO
+#include <mopo/feedback.h>
+#include <mopo/operators.h>
+#include <mopo/oscillator.h>
+#include <mopo/tick_router.h>
+#include <mopo/voice_handler.h>
+#else
 #include "feedback.h"
 #include "operators.h"
 #include "oscillator.h"
-#include "cursynth_common.h"
 #include "tick_router.h"
 #include "voice_handler.h"
+#endif
+
+#include "cursynth_common.h"
 
 #include <vector>
 
