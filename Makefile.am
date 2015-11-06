@@ -1,5 +1,10 @@
-SUBDIRS = cJSON po doc
+SUBDIRS = po doc
 EXTRA_DIST = config.rpath patches
+
+# For local rtaudio
+if CJSON_LOCAL
+  SUBDIRS += cJSON
+endif CJSON_LOCAL
 
 # For local rtaudio
 if RTAUDIO_LOCAL

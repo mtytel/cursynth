@@ -128,6 +128,17 @@ case $host in
 esac
 
   # Use bundled libraries or not ?
+  # CJSON
+  AC_ARG_WITH(external-cJSON, [ --with-external-cJSON = Build using external cjson library], [
+    AC_CHECK_LIB(cJSON, main, , AC_MSG_ERROR(Using external rtaudio requires libcJSON installed!))
+    external_cJSON=true
+    AC_MSG_RESULT(using external cJSON)], [
+    AC_CONFIG_FILES(cJSON/Makefile)
+    external_cJSON=false
+    AC_MSG_RESULT(using internal cJSON)
+  ])
+  AM_CONDITIONAL([CJSON_LOCAL], [test x$external_cJSON = xfalse])
+
   # Mopo
   AC_ARG_WITH(external-mopo, [ --with-external-mopo = Build using external mopo library], [
     AC_CHECK_LIB(mopo, main, , AC_MSG_ERROR(Using external mopo requires libmopo installed!))
@@ -153,10 +164,10 @@ esac
   # RtMidi
   AC_ARG_WITH(external-rtmidi, [ --with-external-rtmidi = Build using external rtmidi library], [
     AC_CHECK_LIB(rtmidi, main, , AC_MSG_ERROR(Using external rtaudio requires librtmidi installed!))
-    external_rtaudio=true
+    external_rtmidi=true
     AC_MSG_RESULT(using external rtmidi)], [
     AC_CONFIG_SUBDIRS(rtmidi)
-    external_rtaudio=false
+    external_rtmidi=false
     AC_MSG_RESULT(using internal rtmidi)
   ])
   AM_CONDITIONAL([RTMIDI_LOCAL], [test x$external_rtmidi = xfalse])
@@ -180,6 +191,5 @@ AC_CHECK_FUNCS([dup2 floor gettimeofday memset modf pow rmdir strcasecmp strchr 
 
 AC_CONFIG_FILES([Makefile po/Makefile.in
                  src/Makefile
-                 cJSON/Makefile
                  doc/Makefile])
 AC_OUTPUT

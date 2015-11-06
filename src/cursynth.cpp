@@ -16,7 +16,13 @@
 
 #include "cursynth.h"
 
-#include "cJSON.h"
+#include "config.h"
+
+#ifdef HAVE_LIBCJSON
+#include <cjson/cJSON.h>
+#else
+#include "cjson.h"
+#endif
 
 #include <cstdio>
 #include <cstdlib>
