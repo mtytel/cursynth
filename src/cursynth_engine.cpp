@@ -16,6 +16,20 @@
 
 #include "cursynth_engine.h"
 
+#include "config.h"
+
+#ifdef HAVE_LIBMOPO
+#include <mopo/delay.h>
+#include <mopo/envelope.h>
+#include <mopo/filter.h>
+#include <mopo/operators.h>
+#include <mopo/oscillator.h>
+#include <mopo/processor_router.h>
+#include <mopo/linear_slope.h>
+#include <mopo/smooth_value.h>
+#include <mopo/trigger_operators.h>
+#include <mopo/value.h>
+#else
 #include "delay.h"
 #include "envelope.h"
 #include "filter.h"
@@ -24,9 +38,11 @@
 #include "processor_router.h"
 #include "linear_slope.h"
 #include "smooth_value.h"
-#include "cursynth_strings.h"
 #include "trigger_operators.h"
 #include "value.h"
+#endif
+
+#include "cursynth_strings.h"
 
 #include <sstream>
 

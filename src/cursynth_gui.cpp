@@ -16,7 +16,11 @@
 
 #include "cursynth_gui.h"
 
+#ifdef HAVE_LIBMOPO
+#include <mopo/value.h>
+#else
 #include "value.h"
+#endif
 
 #include <cmath>
 #include <cstdlib>

@@ -17,11 +17,14 @@ AM_PROG_CC_C_O
 AM_PROG_AR
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.18.3])
+AC_CHECK_PROG(MAKEINFO_CHECK,makeinfo,yes,no)
+if test x"$MAKEINFO_CHECK" != x"yes" ; then
+    AC_MSG_ERROR([cursynth requires the makeinfo binary (for gettext)!])
+fi
 
 # Checks for libraries.
-AC_CHECK_LIB([intl], [gettext])
-AC_CHECK_LIB([ncurses], [curs_set])
-AC_CHECK_LIB([pthread], [pthread_create])
+AC_CHECK_LIB([ncurses], [curs_set],, AC_MSG_ERROR([cursynth requires the ncurses library!]))
+AC_CHECK_LIB([pthread], [pthread_create],, AC_MSG_ERROR([cursynth requires the pthread library!]))
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h float.h libintl.h limits.h locale.h math.h ncurses.h stddef.h stdlib.h string.h strings.h sys/ioctl.h sys/time.h unistd.h])
@@ -34,7 +37,6 @@ case $host in
     AC_MSG_RESULT(using OSS)
     api="$api -D__LINUX_OSS__"
     LIBS="$LIBS -lossaudio"
-    AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(cursynth requires the pthread library!))
   ;;
 
   *-*-linux*)
@@ -71,8 +73,6 @@ case $host in
     req="$req alsa"
     AC_CHECK_LIB(asound, snd_pcm_open, , AC_MSG_ERROR(ALSA support requires the asound library!))
   fi
-
-  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(cursynth requires the pthread library!))
   ;;
 
   *-apple*)
@@ -97,8 +97,6 @@ case $host in
       [AC_MSG_ERROR(CoreAudio header files not found!)] )
     LIBS="$LIBS -framework CoreAudio -framework CoreMIDI -framework CoreFoundation"
   fi
-
-  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(cursynth requires the pthread library!))
   ;;
 
   *-mingw32*)
@@ -129,6 +127,51 @@ case $host in
   ;;
 esac
 
+  # Use bundled libraries or not ?
+  # CJSON
+  AC_ARG_WITH(external-cJSON, [ --with-external-cJSON = Build using external cjson library], [
+    AC_CHECK_LIB(cJSON, main, , AC_MSG_ERROR(Using external rtaudio requires libcJSON installed!))
+    external_cJSON=true
+    AC_MSG_RESULT(using external cJSON)], [
+    AC_CONFIG_FILES(cJSON/Makefile)
+    external_cJSON=false
+    AC_MSG_RESULT(using internal cJSON)
+  ])
+  AM_CONDITIONAL([CJSON_LOCAL], [test x$external_cJSON = xfalse])
+
+  # Mopo
+  AC_ARG_WITH(external-mopo, [ --with-external-mopo = Build using external mopo library], [
+    AC_CHECK_LIB(mopo, main, , AC_MSG_ERROR(Using external mopo requires libmopo installed!))
+    external_mopo=true
+    AC_MSG_RESULT(using external mopo)], [
+    AC_CONFIG_SUBDIRS(mopo/)
+    external_mopo=false
+    AC_MSG_RESULT(using internal mopo)
+  ])
+  AM_CONDITIONAL([MOPO_LOCAL], [test x$external_mopo = xfalse])
+
+  # RtAudio
+  AC_ARG_WITH(external-rtaudio, [ --with-external-rtaudio = Build using external rtaudio library], [
+    AC_CHECK_LIB(rtaudio, main, , AC_MSG_ERROR(Using external rtaudio requires librtaudio installed!))
+    external_rtaudio=true
+    AC_MSG_RESULT(using external rtaudio)], [
+    AC_CONFIG_SUBDIRS(rtaudio)
+    external_rtaudio=false
+    AC_MSG_RESULT(using internal rtaudio)
+  ])
+  AM_CONDITIONAL([RTAUDIO_LOCAL], [test x$external_rtaudio = xfalse])
+
+  # RtMidi
+  AC_ARG_WITH(external-rtmidi, [ --with-external-rtmidi = Build using external rtmidi library], [
+    AC_CHECK_LIB(rtmidi, main, , AC_MSG_ERROR(Using external rtaudio requires librtmidi installed!))
+    external_rtmidi=true
+    AC_MSG_RESULT(using external rtmidi)], [
+    AC_CONFIG_SUBDIRS(rtmidi)
+    external_rtmidi=false
+    AC_MSG_RESULT(using internal rtmidi)
+  ])
+  AM_CONDITIONAL([RTMIDI_LOCAL], [test x$external_rtmidi = xfalse])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 AC_TYPE_PID_T
@@ -146,12 +189,7 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([dup2 floor gettimeofday memset modf pow rmdir strcasecmp strchr strdup strerror])
 
-AC_CONFIG_SUBDIRS([mopo
-                   rtaudio
-                   rtmidi])
-
 AC_CONFIG_FILES([Makefile po/Makefile.in
                  src/Makefile
-                 cJSON/Makefile
                  doc/Makefile])
 AC_OUTPUT

@@ -18,7 +18,15 @@
 #ifndef CURSYNTH_GUI_H
 #define CURSYNTH_GUI_H
 
+// Include here first
+#include "config.h"
+
+#ifdef HAVE_LIBMOPO
+#include <mopo/mopo.h>
+#else
 #include "mopo.h"
+#endif
+
 #include "cursynth_common.h"
 
 #include <map>

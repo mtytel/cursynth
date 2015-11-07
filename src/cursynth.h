@@ -18,8 +18,18 @@
 #ifndef CURSYNTH_H
 #define CURSYNTH_H
 
+#ifdef HAVE_LIBRTAUDIO
+#include <RtAudio.h>
+#else
 #include "RtAudio.h"
+#endif
+
+#ifdef HAVE_LIBRTMIDI
+#include <RtMidi.h>
+#else
 #include "RtMidi.h"
+#endif
+
 #include "cursynth_gui.h"
 #include "cursynth_engine.h"
 
