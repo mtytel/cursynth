@@ -18,25 +18,41 @@ cursynth_CPPFLAGS = -I. \
                     -DPATCHES_DIRECTORY=\"$(patchesdir)\"
 
 # For local cJSON
-if MOPO_LOCAL
+if CJSON_LOCAL
   cursynth_CPPFLAGS += -I$(top_srcdir)/cJSON 
-  cursynth_LDADD += ../cJSON/libcJSON.a
-endif MOPO_LOCAL
+  if !cursynth_LDADD
+    cursynth_LDADD = ../cJSON/libcJSON.a
+  else
+    cursynth_LDADD += ../cJSON/libcJSON.a
+  endif
+endif CJSON_LOCAL
 
 # For local mopo
 if MOPO_LOCAL
   cursynth_CPPFLAGS += -I$(top_srcdir)/mopo/src
-  cursynth_LDADD += ../mopo/src/libmopo.a
+  if !cursynth_LDADD
+    cursynth_LDADD = ../mopo/src/libmopo.a
+  else
+    cursynth_LDADD += ../mopo/src/libmopo.a
+  endif
 endif MOPO_LOCAL
 
 # For local rtaudio
 if RTAUDIO_LOCAL
   cursynth_CPPFLAGS += -I$(top_srcdir)/rtaudio
-  cursynth_LDADD += ../rtaudio/librtaudio.a
+  if !cursynth_LDADD
+    cursynth_LDADD = ../rtaudio/librtaudio.a
+  else
+    cursynth_LDADD += ../rtaudio/librtaudio.a
+  endif 
 endif RTAUDIO_LOCAL
 
 # For local rtmidi
-if RTAUDIO_LOCAL
+if RTMIDI_LOCAL
   cursynth_CPPFLAGS += -I$(top_srcdir)/rtmidi
-  cursynth_LDADD += ../rtmidi/librtmidi.a 
-endif RTAUDIO_LOCAL
+  if !cursynth_LDADD
+    cursynth_LDADD = ../rtmidi/librtmidi.a 
+  else 
+    cursynth_LDADD += ../rtmidi/librtmidi.a 
+  endif
+endif RTMIDI_LOCAL
